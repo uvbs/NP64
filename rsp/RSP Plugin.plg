@@ -1,0 +1,51 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: RSP Plugin - Win32 Release External--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "D:\DOCUME~1\Jabo\LOCALS~1\Temp\RSP37A.tmp" with contents
+[
+/nologo /G5 /MD /W3 /GX /O2 /Ob2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "RSPPLUGIN_EXPORTS" /D "EXTERNAL_RELEASE" /FAs /Fa"Release_External/" /Fp"Release_External/RSP Plugin.pch" /YX /Fo"Release_External/" /Fd"Release_External/" /FD /c 
+"E:\Dev\Pj64\Plugins\RSP Compiler\memory.c"
+]
+Creating command line "cl.exe @D:\DOCUME~1\Jabo\LOCALS~1\Temp\RSP37A.tmp" 
+Creating temporary file "D:\DOCUME~1\Jabo\LOCALS~1\Temp\RSP37B.tmp" with contents
+[
+kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /incremental:no /pdb:"Release_External/RSP.pdb" /machine:I386 /out:"Release_External\RSP.dll" /implib:"Release_External/RSP.lib" 
+".\Release_External\Cpu.obj"
+".\Release_External\dma.obj"
+".\Release_External\Interpreter CPU.obj"
+".\Release_External\Interpreter Ops.obj"
+".\Release_External\memory.obj"
+".\Release_External\Recompiler Analysis.obj"
+".\Release_External\Recompiler CPU.obj"
+".\Release_External\Recompiler Ops.obj"
+".\Release_External\Recompiler Sections.obj"
+".\Release_External\Mmx.obj"
+".\Release_External\Sse.obj"
+".\Release_External\X86.obj"
+".\Release_External\breakpoint.obj"
+".\Release_External\log.obj"
+".\Release_External\RSP Command.obj"
+".\Release_External\RSP Register.obj"
+".\Release_External\main.obj"
+".\Release_External\Profiling.obj"
+".\Release_External\RSP.res"
+]
+Creating command line "link.exe @D:\DOCUME~1\Jabo\LOCALS~1\Temp\RSP37B.tmp"
+<h3>Output Window</h3>
+Compiling...
+memory.c
+Linking...
+   Creating library Release_External/RSP.lib and object Release_External/RSP.exp
+
+
+
+<h3>Results</h3>
+RSP.dll - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>
