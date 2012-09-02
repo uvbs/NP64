@@ -96,7 +96,6 @@ void AddRecentFile(HWND hWnd, char * addition) {
 
 void ByteSwapRom (BYTE * Rom, DWORD RomLen) {
 	DWORD count;
-
 	SendMessage( hStatusWnd, SB_SETTEXT, 0, (LPARAM)GS(MSG_BYTESWAP) );
 	switch (*((DWORD *)&Rom[0])) {
 	case 0x12408037:
@@ -155,19 +154,16 @@ void EnableOpenMenuItems (void) {
 }
 
 void GetRomDirectory ( char * Directory ) {
-	char path_buffer[_MAX_PATH], drive[_MAX_DRIVE] ,dir[_MAX_DIR];
-	char fname[_MAX_FNAME],ext[_MAX_EXT];
 	char Dir[255], Group[200];
 	long lResult;
 	HKEY hKeyResults = 0;
-	
-	GetModuleFileName(NULL,path_buffer,sizeof(path_buffer));
-	_splitpath( path_buffer, drive, dir, fname, ext );
+
+	strcpy(Directory, main_directory);
+	strcat(Directory, "Rom\\");
 
 	sprintf(Group,"Software\\N64 Emulation\\%s",AppName);
 	lResult = RegOpenKeyEx( HKEY_CURRENT_USER,Group,0,KEY_ALL_ACCESS,
 		&hKeyResults);
-	sprintf(Directory,"%s%sRom\\",drive,dir);
 
 	if (lResult == ERROR_SUCCESS) {
 		DWORD Type, Bytes = sizeof(Dir);

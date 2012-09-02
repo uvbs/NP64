@@ -23,6 +23,7 @@
  * should be forwarded to them so if they want them.
  *
  */
+#include <windows.h>
 #include "main.h"
 #include "cpu.h"
 #include "plugin.h"

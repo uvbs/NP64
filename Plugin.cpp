@@ -154,17 +154,12 @@ void GetCurrentDlls (void) {
 }
 
 void GetPluginDir( char * Directory ) {
-	char path_buffer[_MAX_PATH], drive[_MAX_DRIVE] ,dir[_MAX_DIR];
-	char fname[_MAX_FNAME],ext[_MAX_EXT];
 	char Dir[255], Group[200];
 	long lResult;
 	HKEY hKeyResults = 0;
 
-	GetModuleFileName(NULL,path_buffer,sizeof(path_buffer));
-	_splitpath( path_buffer, drive, dir, fname, ext );
-	strcpy(Directory,drive);
-	strcat(Directory,dir);
-	strcat(Directory,"Plugin\\");
+	strcpy(Directory, main_directory);
+	strcat(Directory, "Plugin\\");
 
 	sprintf(Group,"Software\\N64 Emulation\\%s",AppName);
 	lResult = RegOpenKeyEx( HKEY_CURRENT_USER,Group,0,KEY_ALL_ACCESS,
@@ -184,16 +179,12 @@ void GetPluginDir( char * Directory ) {
 }
 
 void GetSnapShotDir( char * Directory ) {
-	char path_buffer[_MAX_PATH], drive[_MAX_DRIVE] ,dir[_MAX_DIR];
-	char fname[_MAX_FNAME],ext[_MAX_EXT];
 	char Dir[255], Group[200];
 	long lResult;
 	HKEY hKeyResults = 0;
 
-	GetModuleFileName(NULL,path_buffer,sizeof(path_buffer));
-	_splitpath( path_buffer, drive, dir, fname, ext );
-
-	sprintf(Directory,"%s%sScreenshots\\",drive,dir);
+	strcpy(Directory, main_directory);
+	strcat(Directory, "Screenshots\\");
 
 	sprintf(Group,"Software\\N64 Emulation\\%s",AppName);
 	lResult = RegOpenKeyEx( HKEY_CURRENT_USER,Group,0,KEY_ALL_ACCESS,

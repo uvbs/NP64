@@ -525,7 +525,8 @@ void CompileExit (DWORD TargetPC, REG_INFO ExitRegSet, int reason, int CompileNo
 				CPU_Message("      NoTlbEntry:");
 				*((BYTE *)(Jump2))=(BYTE)(RecompPos - Jump2 - 1);
 			}
-		} else if (SelfModCheck == ModCode_CheckMemoryCache) {
+		} else if (SelfModCheck == ModCode_CheckMemoryCache) 
+		{
 		} else if (SelfModCheck == ModCode_CheckMemory2) { // *** Add in Build 53
 		} else {
 			BYTE * Jump, * Jump2;
@@ -2888,7 +2889,7 @@ void StartRecompilerCPU (void ) {
 	if (SelfModCheck == ModCode_ChangeMemory) {
 		if (OrigMem == NULL) { 
 			OrigMem = (ORIGINAL_MEMMARKER*)VirtualAlloc(NULL,MaxOrigMem * sizeof(ORIGINAL_MEMMARKER),MEM_COMMIT|MEM_RESERVE,PAGE_READWRITE);
-			if (TargetInfo == NULL) {
+			if (OrigMem == NULL) {
 				DisplayError(GS(MSG_MEM_ALLOC_ERROR));
 				ExitThread(0);
 			}

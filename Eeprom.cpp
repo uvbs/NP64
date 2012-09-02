@@ -23,6 +23,8 @@
  * should be forwarded to them so if they want them.
  *
  */
+
+#include <windows.h>
 #include <stdio.h>
 #include <time.h>
 #include "main.h"
@@ -77,13 +79,14 @@ void EepromCommand ( BYTE * Command) {
 #endif
 		ReadFromEeprom(&Command[4],Command[3]);
 		break;
-	case 5:
+	case 5: //Write to Eeprom
 #ifndef EXTERNAL_RELEASE
 		if (Command[0] != 10) { DisplayError("What am I meant to do with this Eeprom Command"); }
 		if (Command[1] != 1) { DisplayError("What am I meant to do with this Eeprom Command"); }
 #endif
 		WriteToEeprom(&Command[4],Command[3]);
 		break;
+
 	case 6: //RTC Support, Credit Mupen64 Source
 		//RTC Status Query
 		Command[3]  = 0x00;
@@ -98,10 +101,10 @@ void EepromCommand ( BYTE * Command) {
 				Command[5] = 0x02;
 				Command[12] = 0x00;
 				break;
-			case 1:
+			case 1: //Read Block
 				//Read block, Command[2]
 				break;
-			case 2:
+			case 2: //Set RTC time
 				time(&curtime_time);
 				memcpy(&curtime, localtime(&curtime_time), sizeof(curtime)); // fd's fix
 				Command[4] = byte2bcd(curtime.tm_sec);

@@ -23,6 +23,7 @@
  * should be forwarded to them so if they want them.
  *
  */
+#include <Windows.h>
 #include <stdio.h>
 #include "main.h"
 #include "debugger.h"

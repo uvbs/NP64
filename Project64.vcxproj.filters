@@ -8,9 +8,6 @@
     <Filter Include="zipstuff">
       <UniqueIdentifier>{188bf492-5a10-460c-a8f6-2be14d00fb94}</UniqueIdentifier>
     </Filter>
-    <Filter Include="RSP">
-      <UniqueIdentifier>{58b8601a-34ed-4af4-b7ff-c02621d03292}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="x86fpu.cpp" />
