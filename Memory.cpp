@@ -70,7 +70,7 @@ int Allocate_ROM ( void ) {
 int Allocate_Memory ( void ) {	
 	RdramSize = 0x400000;
 	
-	N64MEM = (unsigned char *) VirtualAlloc( NULL, 0x20000000, MEM_RESERVE | MEM_TOP_DOWN, PAGE_READWRITE );
+	N64MEM = (unsigned char *) VirtualAlloc( NULL, 0x20000000, MEM_RESERVE, PAGE_NOACCESS );
 	if(N64MEM==NULL) {  
 		DisplayError(GS(MSG_MEM_ALLOC_ERROR));
 		return FALSE;
