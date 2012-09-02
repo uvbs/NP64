@@ -1250,7 +1250,7 @@ int r4300i_CPU_MemoryFilter( DWORD dwExptCode, LPEXCEPTION_POINTERS lpEP) {
 			}
 			lpEP->ContextRecord->Eip = (DWORD)ReadPos;
 			return EXCEPTION_CONTINUE_EXECUTION;		
-		case 0xB7:
+		/*case 0xB7:
 			if (!r4300i_LH_NonMemory(MemAddress,(DWORD*)Reg,FALSE)) {
 				if (ShowUnhandledMemory) {
 					DisplayError("Failed to load half word\n\nMIPS Address: %X\nX86 Address",
@@ -1259,7 +1259,7 @@ int r4300i_CPU_MemoryFilter( DWORD dwExptCode, LPEXCEPTION_POINTERS lpEP) {
 				}
 			}
 			lpEP->ContextRecord->Eip = (DWORD)ReadPos;
-			return EXCEPTION_CONTINUE_EXECUTION;		
+			return EXCEPTION_CONTINUE_EXECUTION;*/	
 		case 0xBE:
 			if (!r4300i_LB_NonMemory(MemAddress,(DWORD*)Reg,TRUE)) {
 				if (ShowUnhandledMemory) {
@@ -1270,7 +1270,7 @@ int r4300i_CPU_MemoryFilter( DWORD dwExptCode, LPEXCEPTION_POINTERS lpEP) {
 			}
 			lpEP->ContextRecord->Eip = (DWORD)ReadPos;
 			return EXCEPTION_CONTINUE_EXECUTION;		
-		case 0xBF:
+		/*case 0xBF:
 			if (!r4300i_LH_NonMemory(MemAddress,(DWORD*)Reg,TRUE)) {
 				if (ShowUnhandledMemory) {
 					DisplayError("Failed to load half word\n\nMIPS Address: %X\nX86 Address",
@@ -1279,7 +1279,7 @@ int r4300i_CPU_MemoryFilter( DWORD dwExptCode, LPEXCEPTION_POINTERS lpEP) {
 				}
 			}
 			lpEP->ContextRecord->Eip = (DWORD)ReadPos;
-			return EXCEPTION_CONTINUE_EXECUTION;		
+			return EXCEPTION_CONTINUE_EXECUTION;		*/
 		default:
 			DisplayError("Unkown x86 opcode %X\nlocation %X\nloc: %X\nfhfgh2", 
 				*(unsigned char *)lpEP->ContextRecord->Eip, lpEP->ContextRecord->Eip, (char *)exRec.ExceptionInformation[1] - (char *)N64MEM);
@@ -1288,7 +1288,7 @@ int r4300i_CPU_MemoryFilter( DWORD dwExptCode, LPEXCEPTION_POINTERS lpEP) {
 		break;
 	case 0x66:
 		switch(*(TypePos + 1)) {
-		case 0x8B:
+	/*	case 0x8B:
 			if (!r4300i_LH_NonMemory(MemAddress,(DWORD*)Reg,FALSE)) {
 				if (ShowUnhandledMemory) {
 					DisplayError("Failed to half word\n\nMIPS Address: %X\nX86 Address",
@@ -1297,7 +1297,7 @@ int r4300i_CPU_MemoryFilter( DWORD dwExptCode, LPEXCEPTION_POINTERS lpEP) {
 				}
 			}
 			lpEP->ContextRecord->Eip = (DWORD)ReadPos;
-			return EXCEPTION_CONTINUE_EXECUTION;		
+			return EXCEPTION_CONTINUE_EXECUTION;		*/
 		case 0x89:
 			if (!r4300i_SH_NonMemory(MemAddress,*(WORD *)Reg)) {
 				if (ShowUnhandledMemory) {
@@ -1400,20 +1400,11 @@ int r4300i_LB_NonMemory ( DWORD PAddr, DWORD * Value, BOOL SignExtend ) {
 				*Value = ROM[PAddr - 0x10000000];
 			}
 			return TRUE;
-		} else {
-			*Value = 0;
-			return FALSE;
 		}
 	}
 
-	//zero 19-jul-2012 - removed the useless switch
-	//switch (PAddr & 0xFFF00000) {
-	//default:
-		* Value = 0;
-		return FALSE;
-		//break;
-	//}
-	//return TRUE;
+	* Value = 0;
+	return FALSE;
 }
 
 BOOL r4300i_LB_VAddr ( DWORD VAddr, BYTE * Value ) {
@@ -1428,7 +1419,7 @@ BOOL r4300i_LD_VAddr ( DWORD VAddr, unsigned _int64 * Value ) {
 	*((DWORD *)(Value)) = *(DWORD *)(TLB_ReadMap[VAddr >> 12] + VAddr + 4);
 	return TRUE;
 }
-
+/* Disabled, all it does is return false
 int r4300i_LH_NonMemory ( DWORD PAddr, DWORD * Value, int SignExtend ) {
 	//zero 19-jul-2012 - removed the useless switch
 	//switch (PAddr & 0xFFF00000) {
@@ -1439,7 +1430,7 @@ int r4300i_LH_NonMemory ( DWORD PAddr, DWORD * Value, int SignExtend ) {
 	//}
 	//return TRUE;
 }
-
+*/
 BOOL r4300i_LH_VAddr ( DWORD VAddr, WORD * Value ) {
 	if (TLB_ReadMap[VAddr >> 12] == 0) { return FALSE; }
 	*Value = *(WORD *)(TLB_ReadMap[VAddr >> 12] + (VAddr ^ 2));

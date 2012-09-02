@@ -46,43 +46,52 @@ void CloseEeprom (void) {
 	}
 }
 
-void EepromCommand ( BYTE * Command) {
+void EepromCommand ( BYTE * Command) 
+{
 	time_t curtime_time;
 	struct tm curtime;
-	if (SaveUsing == Auto) { SaveUsing = Eeprom_4K; }
+	if (SaveUsing == Auto)
+		SaveUsing = Eeprom_4K;
 
 	switch (Command[2]) {
-	case 0: // check
-		if (SaveUsing != Eeprom_4K &&  SaveUsing != Eeprom_16K) {
+	case 0: // check eeprom size
+		if (SaveUsing != Eeprom_4K &&  SaveUsing != Eeprom_16K)
+		{
 			Command[1] |= 0x80;
 			break;
 		}
-		if (Command[1] != 3) { 
+		if (Command[1] != 3) 
+		{ 
 			Command[1] |= 0x40; 
-			if ((Command[1] & 3) > 0) { Command[3] = 0x00; }
-			if (SaveUsing == Eeprom_4K) {
-				if ((Command[1] & 3) > 1) { Command[4] = 0x80; }
-			} else {
-				if ((Command[1] & 3) > 1) { Command[4] = 0xC0; }
-			}
-			if ((Command[1] & 3) > 2) { Command[5] = 0x00; }
-		} else {
+			if ((Command[1] & 3) > 0)
+				Command[3] = 0x00;
+			if ((Command[1] & 3) > 1)
+				Command[4] = (SaveUsing == Eeprom_4K) ? 0x80 : 0xC0;
+			if ((Command[1] & 3) > 2)
+				Command[5] = 0x00;
+		} 
+		else
+		{
 			Command[3] = 0x00;
-			Command[4] = SaveUsing == Eeprom_4K?0x80:0xC0;
+			Command[4] = (SaveUsing == Eeprom_4K) ? 0x80 : 0xC0;
 			Command[5] = 0x00;
 		}
 		break;
 	case 4: // Read from Eeprom
 #ifndef EXTERNAL_RELEASE
-		if (Command[0] != 2) { DisplayError("What am I meant to do with this Eeprom Command"); }
-		if (Command[1] != 8) { DisplayError("What am I meant to do with this Eeprom Command"); }
+		if (Command[0] != 2)
+			DisplayError("What am I meant to do with this Eeprom Command");
+		if (Command[1] != 8)
+			DisplayError("What am I meant to do with this Eeprom Command");
 #endif
 		ReadFromEeprom(&Command[4],Command[3]);
 		break;
 	case 5: //Write to Eeprom
 #ifndef EXTERNAL_RELEASE
-		if (Command[0] != 10) { DisplayError("What am I meant to do with this Eeprom Command"); }
-		if (Command[1] != 1) { DisplayError("What am I meant to do with this Eeprom Command"); }
+		if (Command[0] != 10)
+			DisplayError("What am I meant to do with this Eeprom Command");
+		if (Command[1] != 1)
+			DisplayError("What am I meant to do with this Eeprom Command");
 #endif
 		WriteToEeprom(&Command[4],Command[3]);
 		break;
@@ -95,7 +104,8 @@ void EepromCommand ( BYTE * Command) {
 		break;
 	case 7:
 		//Read RTC Block
-		switch(Command[3]){ //Block number
+		switch(Command[3]) //Block number
+		{ 
 			case 0:
 				Command[4] = 0x00;
 				Command[5] = 0x02;
@@ -123,7 +133,8 @@ void EepromCommand ( BYTE * Command) {
 		//Write RTC Block
 		break;
 	default:
-		if (ShowPifRamErrors) { DisplayError("Unkown EepromCommand %d",Command[2]); }
+		if (ShowPifRamErrors) 
+			DisplayError("Unkown EepromCommand %d",Command[2]);
 	}
 }
 
@@ -161,20 +172,23 @@ void LoadEeprom (void) {
 void ReadFromEeprom(BYTE * Buffer, int line) {
 	int i;
 	
-	if (hEepromFile == NULL) {
+	if (hEepromFile == NULL)
 		LoadEeprom();
-	}
-	for(i=0;i<8;i++) { Buffer[i]=EEPROM[line*8+i]; }
+
+	for(i=0;i<8;i++) 
+		Buffer[i]=EEPROM[line*8+i];
 }
 
 void WriteToEeprom(BYTE * Buffer, int line) {
 	DWORD dwWritten;
 	int i;
 
-	if (hEepromFile == NULL) {
+	if (hEepromFile == NULL)
 		LoadEeprom();
-	}
-	for(i=0;i<8;i++) { EEPROM[line*8+i]=Buffer[i]; }
+
+	for(i=0;i<8;i++) 
+		EEPROM[line*8+i]=Buffer[i];
+
 	SetFilePointer(hEepromFile,line*8,NULL,FILE_BEGIN);	
 	WriteFile( hEepromFile,Buffer,8,&dwWritten,NULL );
 }
