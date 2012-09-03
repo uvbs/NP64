@@ -57,13 +57,16 @@ DWORD StackValue;
 #endif
 
 #ifdef CFB_READ
-void __cdecl SetFrameBuffer (DWORD Address, DWORD Length) {
+void __cdecl SetFrameBuffer (DWORD Address, DWORD Length) 
+{
 	DWORD OldProtect;
 
-	if (CFBStart != 0) {
+	if (CFBStart != 0) 
+	{
 		VirtualProtect(N64MEM + CFBStart,CFBEnd - CFBStart,PAGE_READWRITE,&OldProtect);
 	}
-	if (Length == 0) {
+	if (Length == 0) 
+	{
 		CFBStart = 0; 
 		CFBEnd   = 0;
 		return;
@@ -76,22 +79,28 @@ void __cdecl SetFrameBuffer (DWORD Address, DWORD Length) {
 
 char *TimeName[MaxTimers] = { "CompareTimer","SiTimer","PiTimer","ViTimer" };
 
-void InitiliazeCPUFlags (void) {
+void InitiliazeCPUFlags (void) 
+{
 	inFullScreen = FALSE;
 	CPURunning   = FALSE;
 	CurrentSaveSlot = ID_CURRENTSAVE_DEFAULT;
 	SPHack       = FALSE;
 }
 
-void ChangeCompareTimer(void) {
+void ChangeCompareTimer(void) 
+{
 	DWORD NextCompare = COMPARE_REGISTER - COUNT_REGISTER;
-	if ((NextCompare & 0x80000000) != 0) {  NextCompare = 0x7FFFFFFF; }
-	if (NextCompare == 0) { NextCompare = 0x1; }	
+	if ((NextCompare & 0x80000000) != 0)
+		NextCompare = 0x7FFFFFFF;
+	if (NextCompare == 0) 
+		NextCompare = 0x1;
 	ChangeTimer(CompareTimer,NextCompare);	
 }
 
-void ChangeTimer(int Type, int Value) {
-	if (Value == 0) { 
+void ChangeTimer(int Type, int Value)
+{
+	if (Value == 0) 
+	{ 
 		Timers.NextTimer[Type] = 0;
 		Timers.Active[Type] = FALSE; 
 		return;
@@ -101,48 +110,61 @@ void ChangeTimer(int Type, int Value) {
 	CheckTimer();
 }
 
-void CheckTimer (void) {
+void CheckTimer (void) 
+{
 	int count;
 
-	for (count = 0; count < MaxTimers; count++) {
-		if (!Timers.Active[count]) { continue; }
-		if (!(count == CompareTimer && Timers.NextTimer[count] == 0x7FFFFFFF)) {
+	for (count = 0; count < MaxTimers; count++) 
+	{
+		if (!Timers.Active[count])
+			continue;
+		if (!(count == CompareTimer && Timers.NextTimer[count] == 0x7FFFFFFF))
 			Timers.NextTimer[count] += Timers.Timer;
-		}
 	}
 	Timers.CurrentTimerType = -1;
 	Timers.Timer = 0x7FFFFFFF;
-	for (count = 0; count < MaxTimers; count++) {
-		if (!Timers.Active[count]) { continue; }
-		if (Timers.NextTimer[count] >= Timers.Timer) { continue; }
+	for (count = 0; count < MaxTimers; count++) 
+	{
+		if (!Timers.Active[count])
+			continue;
+		if (Timers.NextTimer[count] >= Timers.Timer)
+			continue;
 		Timers.Timer = Timers.NextTimer[count];
 		Timers.CurrentTimerType = count;
 	}
-	if (Timers.CurrentTimerType == -1) {
+	if (Timers.CurrentTimerType == -1) 
+	{
 		DisplayError("No active timers ???\nEmulation Stoped");
 		ExitThread(0);
 	}
-	for (count = 0; count < MaxTimers; count++) {
-		if (!Timers.Active[count]) { continue; }
-		if (!(count == CompareTimer && Timers.NextTimer[count] == 0x7FFFFFFF)) {
+	for (count = 0; count < MaxTimers; count++)
+	{
+		if (!Timers.Active[count]) 
+			continue;
+		if (!(count == CompareTimer && Timers.NextTimer[count] == 0x7FFFFFFF))
 			Timers.NextTimer[count] -= Timers.Timer;
-		}
 	}
 	
-	if (Timers.NextTimer[CompareTimer] == 0x7FFFFFFF) {
+	if (Timers.NextTimer[CompareTimer] == 0x7FFFFFFF) 
+	{
 		DWORD NextCompare = COMPARE_REGISTER - COUNT_REGISTER;
-		if ((NextCompare & 0x80000000) == 0 && NextCompare != 0x7FFFFFFF) {
+		if ((NextCompare & 0x80000000) == 0 && NextCompare != 0x7FFFFFFF)
 			ChangeCompareTimer();
-		}
 	}
 }
 
-void CloseCpu (void) {
+void CloseCpu (void) 
+{
 	DWORD ExitCode, count, OldProtect;
 	
-	if (!CPURunning) { return; }
+	if (!CPURunning) 
+		return;
 	ManualPaused = FALSE;
-	if (CPU_Paused) { PauseCpu (); Sleep(1000); }
+	if (CPU_Paused)
+	{
+		PauseCpu (); 
+		Sleep(1000);
+	}
 	
 	{
 		BOOL Temp = AlwaysOnTop;
@@ -151,19 +173,22 @@ void CloseCpu (void) {
 		AlwaysOnTop = Temp;
 	}
 
-	for (count = 0; count < 20; count ++ ) {
+	for (count = 0; count < 20; count ++ )
+	{
 		CPU_Action.CloseCPU = TRUE;
 		CPU_Action.Stepping = FALSE;
 		CPU_Action.DoSomething = TRUE;
 		PulseEvent( CPU_Action.hStepping );
 		Sleep(100);
 		GetExitCodeThread(hCPU,&ExitCode);
-		if (ExitCode != STILL_ACTIVE) {
+		if (ExitCode != STILL_ACTIVE) 
+		{
 			hCPU = NULL;
 			count = 100;
 		}
 	}
-	if (hCPU != NULL) {  TerminateThread(hCPU,0); hCPU = NULL; }
+	if (hCPU != NULL) 
+		TerminateThread(hCPU,0); hCPU = NULL;
 	CPURunning = FALSE;
 	VirtualProtect(N64MEM,RdramSize,PAGE_READWRITE,&OldProtect);
 	VirtualProtect(N64MEM + 0x04000000,0x2000,PAGE_READWRITE,&OldProtect);
@@ -173,11 +198,18 @@ void CloseCpu (void) {
 	CloseMempak();
 	CloseSram();
 	FreeSyncMemory();
-	if (GfxRomClosed != NULL)  { GfxRomClosed(); }
-	if (AiRomClosed != NULL)   { AiRomClosed(); }
-	if (ContRomClosed != NULL) { ContRomClosed(); }
-	if (RSPRomClosed) { RSPRomClosed(); }
-	if (Profiling) { GenerateTimerResults(); }
+
+	if (GfxRomClosed != NULL)
+		GfxRomClosed();
+	if (AiRomClosed != NULL)
+		AiRomClosed();
+	if (ContRomClosed != NULL)
+		ContRomClosed();
+	if (RSPRomClosed)
+		RSPRomClosed();
+	if (Profiling)
+		GenerateTimerResults();
+
 	CloseHandle(CPU_Action.hStepping);
 	SendMessage( hStatusWnd, SB_SETTEXT, 0, (LPARAM)GS(MSG_EMULATION_ENDED) );
 }
@@ -192,14 +224,15 @@ int DelaySlotEffectsCompare (DWORD PC, DWORD Reg1, DWORD Reg2) {
 	}
 
 	if (SelfModCheck == ModCode_ChangeMemory) {
-		if ( (Command.Hex >> 16) == 0x7C7C) {
+		if ( (Command.Hex >> 16) == 0x7C7C)
 			Command.Hex = OrigMem[(Command.Hex & 0xFFFF)].OriginalValue;
-		}
 	}
 
-	switch (Command.op) {
+	switch (Command.op)
+	{
 	case R4300i_SPECIAL:
-		switch (Command.funct) {
+		switch (Command.funct) 
+		{
 		case R4300i_SPECIAL_SLL:
 		case R4300i_SPECIAL_SRL:
 		case R4300i_SPECIAL_SRA:
@@ -233,9 +266,10 @@ int DelaySlotEffectsCompare (DWORD PC, DWORD Reg1, DWORD Reg2) {
 		case R4300i_SPECIAL_DSLL32:
 		case R4300i_SPECIAL_DSRL32:
 		case R4300i_SPECIAL_DSRA32:
-			if (Command.rd == 0) { return FALSE; }
-			if (Command.rd == Reg1) { return TRUE; }
-			if (Command.rd == Reg2) { return TRUE; }
+			if (Command.rd == 0) 
+				return FALSE;
+			if (Command.rd == Reg1 || Command.rd == Reg2)
+				return TRUE;
 			break;
 		case R4300i_SPECIAL_MULT:
 		case R4300i_SPECIAL_MULTU:
@@ -254,27 +288,33 @@ int DelaySlotEffectsCompare (DWORD PC, DWORD Reg1, DWORD Reg2) {
 		}
 		break;
 	case R4300i_CP0:
-		switch (Command.rs) {
+		switch (Command.rs)
+		{
 		case R4300i_COP0_MT: break;
 		case R4300i_COP0_MF:
-			if (Command.rt == 0) { return FALSE; }
-			if (Command.rt == Reg1) { return TRUE; }
-			if (Command.rt == Reg2) { return TRUE; }
+			if (Command.rt == 0)
+				return FALSE;
+			if (Command.rt == Reg1 || Command.rt == Reg2) 
+				return TRUE;
 			break;
 		default:
-			if ( (Command.rs & 0x10 ) != 0 ) {
-				switch( Opcode.funct ) {
-				case R4300i_COP0_CO_TLBR: break;
-				case R4300i_COP0_CO_TLBWI: break;
-				case R4300i_COP0_CO_TLBWR: break;
-				case R4300i_COP0_CO_TLBP: break;
-				default: 
+			if ( (Command.rs & 0x10 ) != 0 )
+			{
+				switch( Opcode.funct )
+				{
+					case R4300i_COP0_CO_TLBR: break;
+					case R4300i_COP0_CO_TLBWI: break;
+					case R4300i_COP0_CO_TLBWR: break;
+					case R4300i_COP0_CO_TLBP: break;
+					default: 
 #ifndef EXTERNAL_RELEASE
-					DisplayError("Does %s effect Delay slot at %X?\n6",R4300iOpcodeName(Command.Hex,PC+4), PC);
+						DisplayError("Does %s effect Delay slot at %X?\n6",R4300iOpcodeName(Command.Hex,PC+4), PC);
 #endif
-					return TRUE;
+						return TRUE;
 				}
-			} else {
+			}
+			else
+			{
 #ifndef EXTERNAL_RELEASE
 				DisplayError("Does %s effect Delay slot at %X?\n7",R4300iOpcodeName(Command.Hex,PC+4), PC);
 #endif
@@ -283,11 +323,13 @@ int DelaySlotEffectsCompare (DWORD PC, DWORD Reg1, DWORD Reg2) {
 		}
 		break;
 	case R4300i_CP1:
-		switch (Command.fmt) {
+		switch (Command.fmt) 
+		{
 		case R4300i_COP1_MF:
-			if (Command.rt == 0) { return FALSE; }
-			if (Command.rt == Reg1) { return TRUE; }
-			if (Command.rt == Reg2) { return TRUE; }
+			if (Command.rt == 0)
+				return FALSE;
+			if (Command.rt == Reg1 || Command.rt == Reg2) 
+				return TRUE;
 			break;
 		case R4300i_COP1_CF: break;
 		case R4300i_COP1_MT: break;
@@ -325,9 +367,10 @@ int DelaySlotEffectsCompare (DWORD PC, DWORD Reg1, DWORD Reg2) {
 	case R4300i_LD:
 	case R4300i_LWC1:
 	case R4300i_LDC1:
-		if (Command.rt == 0) { return FALSE; }
-		if (Command.rt == Reg1) { return TRUE; }
-		if (Command.rt == Reg2) { return TRUE; }
+		if (Command.rt == 0)
+			return FALSE;
+		if (Command.rt == Reg1 || Command.rt == Reg2)
+			return TRUE;
 		break;
 	case R4300i_CACHE: break;
 	case R4300i_SB: break;
@@ -347,70 +390,81 @@ int DelaySlotEffectsCompare (DWORD PC, DWORD Reg1, DWORD Reg2) {
 	return FALSE;
 }
 
-int DelaySlotEffectsJump (DWORD JumpPC) {
+int DelaySlotEffectsJump (DWORD JumpPC) 
+{
 	OPCODE Command;
 
-	if (!r4300i_LW_VAddr(JumpPC, &Command.Hex)) { return TRUE; }
-	if (SelfModCheck == ModCode_ChangeMemory) {
-		if ( (Command.Hex >> 16) == 0x7C7C) {
+	if (!r4300i_LW_VAddr(JumpPC, &Command.Hex))
+		return TRUE;
+
+	if (SelfModCheck == ModCode_ChangeMemory) 
+	{
+		if ( (Command.Hex >> 16) == 0x7C7C)
 			Command.Hex = OrigMem[(Command.Hex & 0xFFFF)].OriginalValue;
-		}
 	}
 
-	switch (Command.op) {
+	switch (Command.op) 
+	{
 	case R4300i_SPECIAL:
-		switch (Command.funct) {
-		case R4300i_SPECIAL_JR:	return DelaySlotEffectsCompare(JumpPC,Command.rs,0);
-		case R4300i_SPECIAL_JALR: return DelaySlotEffectsCompare(JumpPC,Command.rs,31);
+		switch (Command.funct) 
+		{
+			case R4300i_SPECIAL_JR:	
+				return DelaySlotEffectsCompare(JumpPC,Command.rs,0);
+			case R4300i_SPECIAL_JALR: 
+				return DelaySlotEffectsCompare(JumpPC,Command.rs,31);
 		}
 		break;
 	case R4300i_REGIMM:
-		switch (Command.rt) {
-		case R4300i_REGIMM_BLTZ:
-		case R4300i_REGIMM_BGEZ:
-		case R4300i_REGIMM_BLTZL:
-		case R4300i_REGIMM_BGEZL:
-		case R4300i_REGIMM_BLTZAL:
-		case R4300i_REGIMM_BGEZAL:
-			return DelaySlotEffectsCompare(JumpPC,Command.rs,0);
+		switch (Command.rt) 
+		{
+			case R4300i_REGIMM_BLTZ:
+			case R4300i_REGIMM_BGEZ:
+			case R4300i_REGIMM_BLTZL:
+			case R4300i_REGIMM_BGEZL:
+			case R4300i_REGIMM_BLTZAL:
+			case R4300i_REGIMM_BGEZAL:
+				return DelaySlotEffectsCompare(JumpPC,Command.rs,0);
 		}
 		break;
 	case R4300i_JAL: 
-	case R4300i_SPECIAL_JALR: return DelaySlotEffectsCompare(JumpPC,31,0); break;
-	case R4300i_J: return FALSE;
+	case R4300i_SPECIAL_JALR: 
+		return DelaySlotEffectsCompare(JumpPC,31,0); 
+		break;
+	case R4300i_J: 
+		return FALSE;
 	case R4300i_BEQ: 
 	case R4300i_BNE: 
 	case R4300i_BLEZ: 
 	case R4300i_BGTZ: 
 		return DelaySlotEffectsCompare(JumpPC,Command.rs,Command.rt);
 	case R4300i_CP1:
-		switch (Command.fmt) {
-		case R4300i_COP1_BC:
-			switch (Command.ft) {
-			case R4300i_COP1_BC_BCF:
-			case R4300i_COP1_BC_BCT:
-			case R4300i_COP1_BC_BCFL:
-			case R4300i_COP1_BC_BCTL:
+		switch (Command.fmt)
+		{
+			case R4300i_COP1_BC:
+				switch (Command.ft) 
 				{
-					int EffectDelaySlot;
-					OPCODE NewCommand;
+					case R4300i_COP1_BC_BCF:
+					case R4300i_COP1_BC_BCT:
+					case R4300i_COP1_BC_BCFL:
+					case R4300i_COP1_BC_BCTL:
+						int EffectDelaySlot;
+						OPCODE NewCommand;
 
-					if (!r4300i_LW_VAddr(JumpPC + 4, &NewCommand.Hex)) { return TRUE; }
+						if (!r4300i_LW_VAddr(JumpPC + 4, &NewCommand.Hex)) 
+							return TRUE;
 					
-					EffectDelaySlot = FALSE;
-					if (NewCommand.op == R4300i_CP1) {
-						if (NewCommand.fmt == R4300i_COP1_S && (NewCommand.funct & 0x30) == 0x30 ) {
-							EffectDelaySlot = TRUE;
-						} 
-						if (NewCommand.fmt == R4300i_COP1_D && (NewCommand.funct & 0x30) == 0x30 ) {
-							EffectDelaySlot = TRUE;
-						} 
-					}
-					return EffectDelaySlot;
-				} 
+						EffectDelaySlot = FALSE;
+						if (NewCommand.op == R4300i_CP1) 
+						{
+							if (NewCommand.fmt == R4300i_COP1_S && (NewCommand.funct & 0x30) == 0x30 )
+								EffectDelaySlot = TRUE;
+							if (NewCommand.fmt == R4300i_COP1_D && (NewCommand.funct & 0x30) == 0x30 )
+								EffectDelaySlot = TRUE;
+						}
+						return EffectDelaySlot;
+						break;
+				}
 				break;
-			}
-			break;
 		}
 		break;
 	case R4300i_BEQL: 
@@ -422,36 +476,44 @@ int DelaySlotEffectsJump (DWORD JumpPC) {
 	return TRUE;
 }
 
-void ProcessMessages (void) {
+void ProcessMessages (void) 
+{
 	HANDLE hEvent;
 	MSG msg;
 
 	hEvent =  CreateEvent(NULL,FALSE,FALSE,NULL);
 	MsgWaitForMultipleObjects(1,&hEvent,FALSE,1000,QS_ALLINPUT);
 	CloseHandle(hEvent);
-	while (PeekMessage(&msg,NULL,0,0,PM_REMOVE) != 0) {
+	while (PeekMessage(&msg,NULL,0,0,PM_REMOVE) != 0) 
+	{
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
-		if (msg.message == WM_QUIT) {
+		if (msg.message == WM_QUIT)
+		{
 			PostMessage(msg.hwnd,msg.message,msg.wParam,msg.lParam);
 			return;
 		}
 	}
 }
 
-void DoSomething ( void ) {
-	if (CPU_Action.CloseCPU) { 
+void DoSomething ( void )
+{
+	if (CPU_Action.CloseCPU)
+	{ 
 		CoUninitialize();
 		ExitThread(0); 
 	}
-	if (CPU_Action.CheckInterrupts) {
+	if (CPU_Action.CheckInterrupts)
+	{
 		CPU_Action.CheckInterrupts = FALSE;
 		CheckInterrupts();
 	}
-	if (CPU_Action.DoInterrupt) {
+	if (CPU_Action.DoInterrupt)
+	{
 		CPU_Action.DoInterrupt = FALSE;
 		DoIntrException(FALSE);
-		if (CPU_Type == CPU_SyncCores) {
+		if (CPU_Type == CPU_SyncCores)
+		{
 			SyncRegisters.MI[2] = Registers.MI[2];
 			SwitchSyncRegisters();
 			DoIntrException(FALSE);
@@ -459,16 +521,19 @@ void DoSomething ( void ) {
 		}
 	}
 
-	if (CPU_Action.ChangeWindow) {
+	if (CPU_Action.ChangeWindow)
+	{
 		CPU_Action.ChangeWindow = FALSE;
 		CPU_Paused = TRUE;
 		SendMessage(hMainWindow,WM_COMMAND,ID_OPTIONS_FULLSCREEN,0);
 		CPU_Paused = FALSE;
 	}
 
-	if (CPU_Action.Pause) {
+	if (CPU_Action.Pause)
+	{
 		WaitForSingleObject(hPauseMutex, INFINITE);
-		if (CPU_Action.Pause) {
+		if (CPU_Action.Pause)
+		{
 			HMENU hMenu = GetMenu(hMainWindow);
 			HMENU hSubMenu = GetSubMenu(hMenu,1);
 			MenuSetText(hSubMenu, 1, GS(MENU_RESUME),"F2");
@@ -480,36 +545,47 @@ void DoSomething ( void ) {
 			ReleaseMutex(hPauseMutex);
 			SendMessage( hStatusWnd, SB_SETTEXT, 0, (LPARAM)GS(MSG_CPU_PAUSED));
 			DisplayFPS ();
-			if (DrawScreen != NULL) { DrawScreen(); }
+			if (DrawScreen != NULL) 
+				DrawScreen();
 			WaitForSingleObject(hPauseMutex, INFINITE);
-			if (CPU_Paused) { 
+			if (CPU_Paused)
+			{ 
 				ReleaseMutex(hPauseMutex);
 				SuspendThread(hCPU); 
-			} else {
+			}
+			else
+			{
 				ReleaseMutex(hPauseMutex);
 			}
-		} else {
+		}
+		else
+		{
 			ReleaseMutex(hPauseMutex);
 		}
 	}
 	CPU_Action.DoSomething = FALSE;
 	
-	if (CPU_Action.SaveState) {
+	if (CPU_Action.SaveState) 
+	{
 		//test if allowed
 		CPU_Action.SaveState = FALSE;
-		if (!Machine_SaveState()) {
+		if (!Machine_SaveState())
+		{
 			CPU_Action.SaveState = TRUE;
 			CPU_Action.DoSomething = TRUE;
 		}
 	}
-	if (CPU_Action.RestoreState) {
+	if (CPU_Action.RestoreState)
+	{
 		CPU_Action.RestoreState = FALSE;
 		Machine_LoadState();
 	}
-	if (CPU_Action.DoInterrupt == TRUE) { CPU_Action.DoSomething = TRUE; }
+	if (CPU_Action.DoInterrupt)
+		CPU_Action.DoSomething = TRUE;
 }
 
-void GetAutoSaveDir( char * Directory ) {
+void GetAutoSaveDir( char * Directory ) 
+{
 	
 	char Dir[255], Group[200];
 	long lResult;
@@ -519,24 +595,27 @@ void GetAutoSaveDir( char * Directory ) {
 	strcat(Directory, "Save\\");
 
 	sprintf(Group,"Software\\N64 Emulation\\%s",AppName);
-	lResult = RegOpenKeyEx( HKEY_CURRENT_USER,Group,0,KEY_ALL_ACCESS,
-		&hKeyResults);
-	if (lResult == ERROR_SUCCESS) {
+	lResult = RegOpenKeyEx( HKEY_CURRENT_USER,Group,0,KEY_ALL_ACCESS, &hKeyResults);
+	if (lResult == ERROR_SUCCESS) 
+	{
 		DWORD Type, Value, Bytes;
 
 		Bytes = 4;
 		lResult = RegQueryValueEx(hKeyResults,"Use Default Auto Save Dir",0,&Type,(LPBYTE)(&Value),&Bytes);
-		if (lResult == ERROR_SUCCESS && Value == FALSE) {					
+		if (lResult == ERROR_SUCCESS && Value == FALSE) 
+		{					
 			Bytes = sizeof(Dir);
 			lResult = RegQueryValueEx(hKeyResults,"Auto Save Directory",0,&Type,(LPBYTE)Dir,&Bytes);
-			if (lResult == ERROR_SUCCESS) { strcpy(Directory,Dir); }
+			if (lResult == ERROR_SUCCESS) 
+				strcpy(Directory,Dir);
 		}
 	}
 	RegCloseKey(hKeyResults);	
 
 }
 
-void GetInstantSaveDir( char * Directory ) {
+void GetInstantSaveDir( char * Directory ) 
+{
 	char Dir[255], Group[200];
 	long lResult;
 	HKEY hKeyResults = 0;
@@ -545,24 +624,27 @@ void GetInstantSaveDir( char * Directory ) {
 	strcat(Directory, "Save\\");
 
 	sprintf(Group,"Software\\N64 Emulation\\%s",AppName);
-	lResult = RegOpenKeyEx( HKEY_CURRENT_USER,Group,0,KEY_ALL_ACCESS,
-		&hKeyResults);
-	if (lResult == ERROR_SUCCESS) {
+	lResult = RegOpenKeyEx( HKEY_CURRENT_USER,Group,0,KEY_ALL_ACCESS, &hKeyResults);
+	if (lResult == ERROR_SUCCESS)
+	{
 		DWORD Type, Value, Bytes;
 
 		Bytes = 4;
 		lResult = RegQueryValueEx(hKeyResults,"Use Default Instant Save Dir",0,&Type,(LPBYTE)(&Value),&Bytes);
-		if (lResult == ERROR_SUCCESS && Value == FALSE) {					
+		if (lResult == ERROR_SUCCESS && Value == FALSE) 
+		{					
 			Bytes = sizeof(Dir);
 			lResult = RegQueryValueEx(hKeyResults,"Instant Save Directory",0,&Type,(LPBYTE)Dir,&Bytes);
-			if (lResult == ERROR_SUCCESS) { strcpy(Directory,Dir); }
+			if (lResult == ERROR_SUCCESS)
+				strcpy(Directory,Dir);
 		}
 	}
 	RegCloseKey(hKeyResults);	
 
 }
 
-void InPermLoop (void) {
+void InPermLoop (void) 
+{
 	// *** Changed ***/
 	if (CPU_Action.DoInterrupt) { return; }
 	
@@ -571,25 +653,32 @@ void InPermLoop (void) {
 	//if (CPU_Type == CPU_SyncCores) { SyncRegisters.CP0[9] +=5; }
 
 	/* Interrupts enabled */
-	if (( STATUS_REGISTER & STATUS_IE  ) == 0 ) { goto InterruptsDisabled; }
-	if (( STATUS_REGISTER & STATUS_EXL ) != 0 ) { goto InterruptsDisabled; }
-	if (( STATUS_REGISTER & STATUS_ERL ) != 0 ) { goto InterruptsDisabled; }
-	if (( STATUS_REGISTER & 0xFF00) == 0) { goto InterruptsDisabled; }
+	if (( STATUS_REGISTER & STATUS_IE  ) == 0 ) 
+		goto InterruptsDisabled;
+	if (( STATUS_REGISTER & STATUS_EXL ) != 0 ) 
+		goto InterruptsDisabled;
+	if (( STATUS_REGISTER & STATUS_ERL ) != 0 )
+		goto InterruptsDisabled;
+	if (( STATUS_REGISTER & 0xFF00) == 0)
+		goto InterruptsDisabled;
 	
 	/* check sound playing */
 	//if (AiReadLength() != 0) { return; }
 
 	/* check RSP running */
 	/* check RDP running */
-	if (Timers.Timer > 0) {
+	if (Timers.Timer > 0)
+	{
 		COUNT_REGISTER += Timers.Timer + 1;
-		if (CPU_Type == CPU_SyncCores) { SyncRegisters.CP0[9] += Timers.Timer + 1; }
+		if (CPU_Type == CPU_SyncCores)
+			SyncRegisters.CP0[9] += Timers.Timer + 1;
 		Timers.Timer = -1;
 	}
 	return;
 
 InterruptsDisabled:
-	if (UpdateScreen != NULL) { UpdateScreen(); }
+	if (UpdateScreen != NULL) 
+		UpdateScreen();
 	CurrentFrame = 0;
 	CurrentPercent = 0;
 	DisplayFPS();
@@ -597,7 +686,8 @@ InterruptsDisabled:
 	ExitThread(0);
 }
 
-BOOL Machine_LoadState(void) {
+BOOL Machine_LoadState(void) 
+{
 	char Directory[255], FileName[255], ZipFile[255], LoadHeader[64], String[100];
 	char drive[_MAX_DRIVE] ,dir[_MAX_DIR], ext[_MAX_EXT];
 	DWORD dwRead, Value, count, SaveRDRAMSize;
@@ -605,101 +695,65 @@ BOOL Machine_LoadState(void) {
 	HANDLE hSaveFile;
 	unzFile file;
 
-	if (strlen(LoadFileName) == 0) {
+	if (strlen(LoadFileName) == 0) 
+	{
 		GetInstantSaveDir(Directory);
 		sprintf(FileName,"%s%s",Directory,CurrentSave);
 		sprintf(ZipFile,"%s.zip",FileName);
-	} else {
+	}
+	else
+	{
 		strcpy(FileName,LoadFileName);
 		strcpy(ZipFile,LoadFileName);
 	}
 
 	file = unzOpen(ZipFile);
-	if (file != NULL) {
+	if (file != NULL)
+	{
 	    unz_file_info info;
 		char zname[132];
 		int port = 0;
 
 		port = unzGoToFirstFile(file);
-		while (port == UNZ_OK && LoadedZipFile == FALSE) {
+		while (port == UNZ_OK && LoadedZipFile == FALSE)
+		{
 			unzGetCurrentFileInfo(file, &info, zname, 128, NULL,0, NULL,0);
-		    if (unzLocateFile(file, zname, 1) != UNZ_OK ) {
+		    if (unzLocateFile(file, zname, 1) != UNZ_OK )
+			{
 				unzClose(file);
 				port = -1;
 				continue;
 			}
-			if( unzOpenCurrentFile(file) != UNZ_OK ) {
+			if( unzOpenCurrentFile(file) != UNZ_OK ) 
+			{
 				unzClose(file);
 				port = -1;
 				continue;
 			}
 			unzReadCurrentFile(file,&Value,4);
-			if (Value != 0x23D8A6C8) { 
+			if (Value != 0x23D8A6C8)
+			{ 
 				unzCloseCurrentFile(file);
 				continue; 
 			}
 			unzReadCurrentFile(file,&SaveRDRAMSize,sizeof(SaveRDRAMSize));	
-			unzReadCurrentFile(file,LoadHeader,0x40);			
-			//Check header
-			if (memcmp(LoadHeader,ROM,0x40) != 0) {
-				int result;
+			unzReadCurrentFile(file,LoadHeader,0x40);	
 
-				if (inFullScreen) { return FALSE; }
-				result = MessageBox(hMainWindow,GS(MSG_SAVE_STATE_HEADER),GS(MSG_MSGBOX_TITLE),
-					MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2);
-				if (result == IDNO) { return FALSE; }
-			}
-
-			if (CPU_Type == CPU_SyncCores) {
-				DWORD OldProtect;
-
-				VirtualProtect(N64MEM,RdramSize,PAGE_READWRITE,&OldProtect);
-				VirtualProtect(N64MEM + 0x04000000,0x2000,PAGE_READWRITE,&OldProtect);
-				VirtualProtect(SyncMemory,RdramSize,PAGE_READWRITE,&OldProtect);
-				VirtualProtect(SyncMemory + 0x04000000,0x2000,PAGE_READWRITE,&OldProtect);	
-			}
-			if (CPU_Type != CPU_Interpreter) { 
-				ResetRecompCode(); 
+			//Make sure we have a proper header for the save file
+			if (memcmp(LoadHeader,ROM,0x40) != 0) 
+			{
+				if (inFullScreen)
+					return FALSE;
+				int result = MessageBox(hMainWindow,GS(MSG_SAVE_STATE_HEADER),GS(MSG_MSGBOX_TITLE),MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2);
+				if (result == IDNO) 
+					return FALSE;
 			}
 
 			Timers.CurrentTimerType = -1;
 			Timers.Timer = 0;
-			for (count = 0; count < MaxTimers; count ++) { Timers.Active[count] = FALSE; }
+			for (count = 0; count < MaxTimers; count ++)
+				Timers.Active[count] = FALSE;
 
-			//fix rdram size
-			if (SaveRDRAMSize != RdramSize) {
-				if (RdramSize == 0x400000) { 
-					if (VirtualAlloc(N64MEM + 0x400000, 0x400000, MEM_COMMIT, PAGE_READWRITE)==NULL) {
-#ifndef EXTERNAL_RELEASE
-						DisplayError("Failed to Extend memory to 8mb");
-#else
-						DisplayError(GS(MSG_MEM_ALLOC_ERROR));
-#endif
-						ExitThread(0);
-					}
-					if (VirtualAlloc((BYTE *)JumpTable + 0x400000, 0x400000, MEM_COMMIT, PAGE_READWRITE)==NULL) {
-#ifndef EXTERNAL_RELEASE
-						DisplayError("Failed to Extend Jump Table to 8mb");
-#else
-						DisplayError(GS(MSG_MEM_ALLOC_ERROR));
-#endif
-						ExitThread(0);
-					}
-					if (VirtualAlloc((BYTE *)DelaySlotTable + (0x400000 >> 0xA), (0x400000 >> 0xA), MEM_COMMIT, PAGE_READWRITE)==NULL) {
-#ifndef EXTERNAL_RELEASE
-						DisplayError("Failed to Extend Delay Slot Table to 8mb");
-#else
-						DisplayError(GS(MSG_MEM_ALLOC_ERROR));
-#endif
-						ExitThread(0);
-					}
-				} else {
-					VirtualFree(N64MEM + 0x400000, 0x400000,MEM_DECOMMIT);
-					VirtualFree((BYTE *)JumpTable + 0x400000, 0x400000,MEM_DECOMMIT);
-					VirtualFree((BYTE *)DelaySlotTable + (0x400000 >> 0xA), (0x400000 >> 0xA),MEM_DECOMMIT);
-				}
-			}
-			RdramSize = SaveRDRAMSize;
 			unzReadCurrentFile(file,&Value,sizeof(Value));
 			ChangeTimer(ViTimer,Value);
 			unzReadCurrentFile(file,&PROGRAM_COUNTER,sizeof(PROGRAM_COUNTER));
@@ -730,11 +784,12 @@ BOOL Machine_LoadState(void) {
 			sprintf(FileName,"%s%s",ZipFile,ext);
 		}
 	}
-	if (!LoadedZipFile) {
-		
+	if (!LoadedZipFile)
+	{
 		hSaveFile = CreateFile(FileName,GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ,NULL,OPEN_EXISTING,
 			FILE_ATTRIBUTE_NORMAL | FILE_FLAG_RANDOM_ACCESS, NULL);
-		if (hSaveFile == INVALID_HANDLE_VALUE) {
+		if (hSaveFile == INVALID_HANDLE_VALUE) 
+		{
 			_splitpath( FileName, drive, dir, ZipFile, ext );
 			sprintf(String,"%s %s%s",GS(MSG_UNABLED_LOAD_STATE),ZipFile,ext);
 			SendMessage( hStatusWnd, SB_SETTEXT, 0, (LPARAM)String );
@@ -742,70 +797,25 @@ BOOL Machine_LoadState(void) {
 		}	
 		SetFilePointer(hSaveFile,0,NULL,FILE_BEGIN);	
 		ReadFile( hSaveFile,&Value,sizeof(Value),&dwRead,NULL);
-		if (Value != 0x23D8A6C8) { return FALSE; }
+		if (Value != 0x23D8A6C8)
+			return FALSE;
 		ReadFile( hSaveFile,&SaveRDRAMSize,sizeof(SaveRDRAMSize),&dwRead,NULL);	
 		ReadFile( hSaveFile,LoadHeader,0x40,&dwRead,NULL);	
 
-		//Check header
-		if (memcmp(LoadHeader,ROM,0x40) != 0) {
-			int result;
-
-			if (inFullScreen) { return FALSE; }
-			result = MessageBox(hMainWindow,GS(MSG_SAVE_STATE_HEADER),GS(MSG_MSGBOX_TITLE),
-				MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2);
-			if (result == IDNO) { return FALSE; }
-		}
-
-		if (CPU_Type == CPU_SyncCores) {
-			DWORD OldProtect;
-
-			VirtualProtect(N64MEM,RdramSize,PAGE_READWRITE,&OldProtect);
-			VirtualProtect(N64MEM + 0x04000000,0x2000,PAGE_READWRITE,&OldProtect);
-			VirtualProtect(SyncMemory,RdramSize,PAGE_READWRITE,&OldProtect);
-			VirtualProtect(SyncMemory + 0x04000000,0x2000,PAGE_READWRITE,&OldProtect);	
-		}
-		if (CPU_Type != CPU_Interpreter) { 
-			ResetRecompCode(); 
+		//Make sure we have a proper header for the save file
+		if (memcmp(LoadHeader,ROM,0x40) != 0) 
+		{
+			if (inFullScreen)
+				return FALSE;
+			int result = MessageBox(hMainWindow,GS(MSG_SAVE_STATE_HEADER),GS(MSG_MSGBOX_TITLE),MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2);
+			if (result == IDNO) 
+				return FALSE;
 		}
 
 		Timers.CurrentTimerType = -1;
 		Timers.Timer = 0;
-		for (count = 0; count < MaxTimers; count ++) { Timers.Active[count] = FALSE; }
-
-		//fix rdram size
-		if (SaveRDRAMSize != RdramSize) {
-			if (RdramSize == 0x400000) { 
-				if (VirtualAlloc(N64MEM + 0x400000, 0x400000, MEM_COMMIT, PAGE_READWRITE)==NULL) {
-#ifndef EXTERNAL_RELEASE
-					DisplayError("Failed to Extend memory to 8mb");
-#else
-					DisplayError(GS(MSG_MEM_ALLOC_ERROR));
-#endif
-					ExitThread(0);
-				}
-				if (VirtualAlloc((BYTE *)JumpTable + 0x400000, 0x400000, MEM_COMMIT, PAGE_READWRITE)==NULL) {
-#ifndef EXTERNAL_RELEASE
-					DisplayError("Failed to Extend Jump Table to 8mb");
-#else
-					DisplayError(GS(MSG_MEM_ALLOC_ERROR));
-#endif
-					ExitThread(0);
-				}
-				if (VirtualAlloc((BYTE *)DelaySlotTable + (0x400000 >> 0xA), (0x400000 >> 0xA), MEM_COMMIT, PAGE_READWRITE)==NULL) {
-#ifndef EXTERNAL_RELEASE
-					DisplayError("Failed to Extend Delay Slot Table to 8mb");
-#else
-					DisplayError(GS(MSG_MEM_ALLOC_ERROR));
-#endif
-					ExitThread(0);
-				}
-			} else {
-				VirtualFree(N64MEM + 0x400000, 0x400000,MEM_DECOMMIT);
-				VirtualFree((BYTE *)JumpTable + 0x400000, 0x400000,MEM_DECOMMIT);
-				VirtualFree((BYTE *)DelaySlotTable + (0x400000 >> 0xA), (0x400000 >> 0xA),MEM_DECOMMIT);
-			}
-		}
-		RdramSize = SaveRDRAMSize;
+		for (count = 0; count < MaxTimers; count ++) 
+			Timers.Active[count] = FALSE;
 
 		ReadFile( hSaveFile,&Value,sizeof(Value),&dwRead,NULL);
 		ChangeTimer(ViTimer,Value);
@@ -834,14 +844,73 @@ BOOL Machine_LoadState(void) {
 		_splitpath( FileName, drive, dir, ZipFile, ext );
 		sprintf(FileName,"%s%s",ZipFile,ext);
 	}
+
+	if (CPU_Type == CPU_SyncCores) 
+	{
+		DWORD OldProtect;
+
+		VirtualProtect(N64MEM,RdramSize,PAGE_READWRITE,&OldProtect);
+		VirtualProtect(N64MEM + 0x04000000,0x2000,PAGE_READWRITE,&OldProtect);
+		VirtualProtect(SyncMemory,RdramSize,PAGE_READWRITE,&OldProtect);
+		VirtualProtect(SyncMemory + 0x04000000,0x2000,PAGE_READWRITE,&OldProtect);	
+	}
+
+	//If cpu type is not the interpreter, reset the recompiler code
+	if (CPU_Type != CPU_Interpreter) 
+		ResetRecompCode();
+
+	//Fix the rdram size
+	if (SaveRDRAMSize != RdramSize)
+	{
+		//Check if rdram size is 4mb
+		if (RdramSize == 0x400000) 
+		{ 
+			//Increase the N64MEM virtual allocation to 8mb
+			if (VirtualAlloc(N64MEM + 0x400000, 0x400000, MEM_COMMIT, PAGE_READWRITE)==NULL) 
+			{
+				DisplayError(GS(MSG_MEM_ALLOC_ERROR));
+				ExitThread(0);
+			}
+			//Increase the Jumptable virtual allocation to 8mb
+			if (VirtualAlloc((BYTE *)JumpTable + 0x400000, 0x400000, MEM_COMMIT, PAGE_READWRITE)==NULL) 
+			{
+				DisplayError(GS(MSG_MEM_ALLOC_ERROR));
+				ExitThread(0);
+			}
+			//Increase the DelaySlotTable virtual allocation to 8mb
+			if (VirtualAlloc((BYTE *)DelaySlotTable + (0x400000 >> 0xA), (0x400000 >> 0xA), MEM_COMMIT, PAGE_READWRITE)==NULL)
+			{
+				DisplayError(GS(MSG_MEM_ALLOC_ERROR));
+				ExitThread(0);
+			}
+		} 
+		else 
+		{
+			//If its not at a size of 4mb, we free the memory we have allocated for it to be at 8mb
+			VirtualFree(N64MEM + 0x400000, 0x400000,MEM_DECOMMIT);
+			VirtualFree((BYTE *)JumpTable + 0x400000, 0x400000,MEM_DECOMMIT);
+			VirtualFree((BYTE *)DelaySlotTable + (0x400000 >> 0xA), (0x400000 >> 0xA),MEM_DECOMMIT);
+		}
+	}
+
+	//Set the RdramSize to the RDRAM size of the save file
+	RdramSize = SaveRDRAMSize;
+
 	memcpy(RomHeader,ROM,sizeof(RomHeader));
+
 	ChangeCompareTimer();
-	if (GfxRomClosed != NULL)  { GfxRomClosed(); }
-	if (AiRomClosed != NULL)   { AiRomClosed(); }
-	if (ContRomClosed != NULL) { ContRomClosed(); }
-	if (RSPRomClosed) { RSPRomClosed(); }
-	if (GfxRomOpen != NULL) { GfxRomOpen(); }
-	if (ContRomOpen != NULL) { ContRomOpen(); }	
+	if (GfxRomClosed != NULL)
+		GfxRomClosed();
+	if (AiRomClosed != NULL)   
+		AiRomClosed();
+	if (ContRomClosed != NULL) 
+		ContRomClosed();
+	if (RSPRomClosed) 
+		RSPRomClosed();
+	if (GfxRomOpen != NULL) 
+		GfxRomOpen();
+	if (ContRomOpen != NULL) 
+		ContRomOpen();
 	DlistCount = 0;
 	AlistCount = 0;
 	AI_STATUS_REG = 0;
@@ -860,7 +929,8 @@ BOOL Machine_LoadState(void) {
 	strcpy(SaveAsFileName,"");
 	strcpy(LoadFileName,"");
 
-	if (CPU_Type == CPU_SyncCores) {		
+	if (CPU_Type == CPU_SyncCores) 
+	{		
 		Registers.PROGRAM_COUNTER = PROGRAM_COUNTER;
 		Registers.HI.DW = HI.DW;
 		Registers.LO.DW = LO.DW;
@@ -895,27 +965,34 @@ BOOL Machine_LoadState(void) {
 	return TRUE;
 }
 
-BOOL Machine_SaveState(void) {
+BOOL Machine_SaveState(void) 
+{
 	char Directory[255], FileName[255], ZipFile[255], String[100];
 	char drive[_MAX_DRIVE] ,dir[_MAX_DIR], ext[_MAX_EXT];
 	DWORD dwWritten, Value;
 	HANDLE hSaveFile;
 
 	//LogMessage("SaveState");
-	if (Timers.CurrentTimerType != CompareTimer &&  Timers.CurrentTimerType != ViTimer) {
+	if (Timers.CurrentTimerType != CompareTimer &&  Timers.CurrentTimerType != ViTimer) 
 		return FALSE;
-	}
-	if (strlen(SaveAsFileName) == 0) {
+
+	if (strlen(SaveAsFileName) == 0)
+	{
 		GetInstantSaveDir(Directory);
 		sprintf(FileName,"%s%s",Directory,CurrentSave);
 		sprintf(ZipFile,"%s.zip",FileName);
-	} else {
+	} 
+	else 
+	{
 		sprintf(FileName,"%s.pj",SaveAsFileName);
 		sprintf(ZipFile,"%s.zip",SaveAsFileName);
 	}
 
-	if (SelfModCheck == ModCode_ChangeMemory) { ResetRecompCode(); }
-	if (AutoZip) {
+	if (SelfModCheck == ModCode_ChangeMemory)
+		ResetRecompCode();
+
+	if (AutoZip) 
+	{
 		zip_fileinfo	ZipInfo;
 		zipFile			file;
 
@@ -940,7 +1017,8 @@ BOOL Machine_SaveState(void) {
 		zipWriteInFileInZip( file,RegDPC,sizeof(DWORD)*10);
 
 		Value = MI_INTR_REG;
-		if (AiReadLength() != 0) { MI_INTR_REG |= MI_INTR_AI; }
+		if (AiReadLength() != 0) 
+			MI_INTR_REG |= MI_INTR_AI;
 		zipWriteInFileInZip( file,RegMI,sizeof(DWORD)*4);
 		MI_INTR_REG = Value;
 		zipWriteInFileInZip( file,RegVI,sizeof(DWORD)*14);
@@ -959,16 +1037,21 @@ BOOL Machine_SaveState(void) {
 		DeleteFile(FileName);
 		_splitpath( ZipFile, drive, dir, FileName, ext );
 		sprintf(FileName,"%s%s",FileName,ext);
-	} else {
+	}
+	else
+	{
 		hSaveFile = CreateFile(FileName,GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ,NULL,OPEN_ALWAYS,
 			FILE_ATTRIBUTE_NORMAL | FILE_FLAG_RANDOM_ACCESS, NULL);
-		if (hSaveFile == INVALID_HANDLE_VALUE) {
-			switch (GetLastError()) {
+		if (hSaveFile == INVALID_HANDLE_VALUE) 
+		{
+			switch (GetLastError()) 
+			{
 			case ERROR_PATH_NOT_FOUND:
 				CreateDirectory(Directory,NULL);
 				hSaveFile = CreateFile(FileName,GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ,
 					NULL,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL | FILE_FLAG_RANDOM_ACCESS, NULL);
-				if (hSaveFile == INVALID_HANDLE_VALUE) {
+				if (hSaveFile == INVALID_HANDLE_VALUE) 
+				{
 					DisplayError(GS(MSG_FAIL_OPEN_SAVE));
 					return TRUE;
 				}
@@ -979,12 +1062,10 @@ BOOL Machine_SaveState(void) {
 			}
 		}
 
-		while ((int)Registers.CP0[1] < (int)Registers.CP0[6]) {
+		while ((int)Registers.CP0[1] < (int)Registers.CP0[6])
 			Registers.CP0[1] += 32 - Registers.CP0[6];
-		}	
+
 		//if fake cause set then do not save ????
-
-
 		SetFilePointer(hSaveFile,0,NULL,FILE_BEGIN);	
 		Value = 0x23D8A6C8;
 		WriteFile( hSaveFile,&Value,sizeof(Value),&dwWritten,NULL);
@@ -1004,7 +1085,8 @@ BOOL Machine_SaveState(void) {
 		WriteFile( hSaveFile,RegDPC,sizeof(DWORD)*10,&dwWritten,NULL);
 
 		Value = MI_INTR_REG;
-		if (AiReadLength() != 0) { MI_INTR_REG |= MI_INTR_AI; }
+		if (AiReadLength() != 0)
+			MI_INTR_REG |= MI_INTR_AI;
 		WriteFile( hSaveFile,RegMI,sizeof(DWORD)*4,&dwWritten,NULL);
 		MI_INTR_REG = Value;
 		WriteFile( hSaveFile,RegVI,sizeof(DWORD)*14,&dwWritten,NULL);
@@ -1030,27 +1112,36 @@ BOOL Machine_SaveState(void) {
 	return TRUE;
 }
 
-void PauseCpu (void) {
+void PauseCpu (void) 
+{
 	DWORD Result;
-	if (!CPURunning) { return; }
-		
-	do {
+
+	//We cant pause the CPU if it isnt running
+	if (!CPURunning) 
+		return;
+
+	do 
+	{
 		Result = MsgWaitForMultipleObjects(1,&hPauseMutex,FALSE,INFINITE,QS_ALLINPUT);
-		if (Result != WAIT_OBJECT_0) {
+		if (Result != WAIT_OBJECT_0) 
+		{
 			MSG msg;
 
-			while (PeekMessage(&msg,NULL,0,0,PM_REMOVE) != 0) {
+			while (PeekMessage(&msg,NULL,0,0,PM_REMOVE) != 0)
+			{
 				TranslateMessage(&msg);
 				DispatchMessage(&msg);
 			}
 		}
 	} while (Result != WAIT_OBJECT_0);
 
-	if (CPU_Paused || CPU_Action.Pause) {
+	if (CPU_Paused || CPU_Action.Pause) 
+	{
 		HMENU hMenu = GetMenu(hMainWindow);
 		HMENU hSubMenu = GetSubMenu(hMenu,1);
 
-		if (CPU_Action.Pause) {
+		if (CPU_Action.Pause)
+		{
 			CPU_Action.Pause = FALSE;
 			CPU_Paused = FALSE;
 			ManualPaused = FALSE;
@@ -1063,48 +1154,57 @@ void PauseCpu (void) {
 		MenuSetText(hSubMenu, 1, GS(MENU_PAUSE),"F2");
 		ManualPaused = FALSE;
 		CPU_Paused = FALSE;
-	} else {
+	}
+	else 
+	{
 		CPU_Action.Pause = TRUE;
 		CPU_Action.DoSomething = TRUE;
 	}
 	ReleaseMutex(hPauseMutex);
 }
 
-void RefreshScreen (void ){ 
+void RefreshScreen (void )
+{ 
 	static DWORD OLD_VI_V_SYNC_REG = 0, VI_INTR_TIME = 500000;
 	LARGE_INTEGER Time;
 	char Label[100];
 
-	if (Profiling || ShowCPUPer) { memcpy(Label,ProfilingLabel,sizeof(Label)); }
-	if (Profiling) { StartTimer("RefreshScreen"); }
+	if (Profiling || ShowCPUPer)
+		memcpy(Label,ProfilingLabel,sizeof(Label));
+	if (Profiling) 
+		StartTimer("RefreshScreen");
 
-	if (OLD_VI_V_SYNC_REG != VI_V_SYNC_REG) {
-		if (VI_V_SYNC_REG == 0) {
+	if (OLD_VI_V_SYNC_REG != VI_V_SYNC_REG)
+	{
+		if (VI_V_SYNC_REG == 0)
+		{
 			VI_INTR_TIME = 500000;
-		} else {
+		} 
+		else 
+		{
 			VI_INTR_TIME = (VI_V_SYNC_REG + 1) * 1500;
-			if ((VI_V_SYNC_REG % 1) != 0) {
+			if ((VI_V_SYNC_REG % 1) != 0)
 				VI_INTR_TIME -= 38;
-			}
 		}
 	}
 	ChangeTimer(ViTimer,Timers.Timer + Timers.NextTimer[ViTimer] + VI_INTR_TIME);
 	
-	if ((VI_STATUS_REG & 0x10) != 0) {
-		if (ViFieldNumber == 0) {
-			ViFieldNumber = 1;
-		} else {
-			ViFieldNumber = 0;
-		}
-	} else {
+	if ((VI_STATUS_REG & 0x10) != 0)
+		ViFieldNumber = (ViFieldNumber == 0) ? 1 : 0;
+	else
 		ViFieldNumber = 0;
-	}
 	
-	if (ShowCPUPer || Profiling) { StartTimer("CPU Idel"); }
-	if (LimitFPS) {	Timer_Process(NULL); }
-	if (ShowCPUPer || Profiling) { StopTimer(); }
-	if (Profiling) { StartTimer("RefreshScreen: Update FPS"); }
-	if ((CurrentFrame & 7) == 0) {
+	if (ShowCPUPer || Profiling) 
+		StartTimer("CPU Idel");
+	if (LimitFPS)
+		Timer_Process(NULL);
+	if (ShowCPUPer || Profiling) 
+		StopTimer();
+	if (Profiling) 
+		StartTimer("RefreshScreen: Update FPS");
+
+	if ((CurrentFrame & 7) == 0) 
+	{
 		//Disables Screen saver
 		//mouse_event(MOUSEEVENTF_MOVE,1,1,0,GetMessageExtraInfo());
 		//mouse_event(MOUSEEVENTF_MOVE,-1,-1,0,GetMessageExtraInfo());
@@ -1114,94 +1214,117 @@ void RefreshScreen (void ){
 		LastFrame.QuadPart = Time.QuadPart;	
 		DisplayFPS();
 	}
-	if (Profiling) { StopTimer(); }
-	if (ShowCPUPer) { DisplayCPUPer(); }
+	if (Profiling)
+		StopTimer();
+	if (ShowCPUPer)
+		DisplayCPUPer();
+
 	CurrentFrame += 1;
 
-	if (Profiling) { StartTimer("RefreshScreen: Update Screen"); }
+	if (Profiling)
+		StartTimer("RefreshScreen: Update Screen");
+
 	__try {
-		if (UpdateScreen != NULL) { UpdateScreen(); }
-	} __except( r4300i_CPU_MemoryFilter( GetExceptionCode(), GetExceptionInformation()) ) {
+		if (UpdateScreen != NULL)
+			UpdateScreen();
+	} __except( r4300i_CPU_MemoryFilter( GetExceptionCode(), GetExceptionInformation()) ) 
+	{
 		DisplayError("Unknown memory action in trying to update the screen\n\nEmulation stop");
 		ExitThread(0);
 	}
-	if (Profiling) { StartTimer("RefreshScreen: Cheats"); }
-	if ((STATUS_REGISTER & STATUS_IE) != 0 ) { ApplyCheats(); }
-	if (Profiling || ShowCPUPer) { StartTimer(Label); }
+	if (Profiling) 
+		StartTimer("RefreshScreen: Cheats");
+	if ((STATUS_REGISTER & STATUS_IE) != 0 ) 
+		ApplyCheats();
+	if (Profiling || ShowCPUPer) 
+		StartTimer(Label);
 }
 
-void RunRsp (void) {
-	if ( ( SP_STATUS_REG & SP_STATUS_HALT ) == 0) {
-		if ( ( SP_STATUS_REG & SP_STATUS_BROKE ) == 0 ) {
-			DWORD Task = *( DWORD *)(DMEM + 0xFC0);
+void RunRsp (void) 
+{
+	if ( ( SP_STATUS_REG & SP_STATUS_HALT ) == 0 && ( SP_STATUS_REG & SP_STATUS_BROKE ) == 0) 
+	{
+		DWORD Task = *( DWORD *)(DMEM + 0xFC0);
 
-			if (Task == 1 && (DPC_STATUS_REG & DPC_STATUS_FREEZE) != 0) 
-			{
-				return;
-			}
+		if (Task == 1 && (DPC_STATUS_REG & DPC_STATUS_FREEZE) != 0) 
+			return;
 			
-			switch (Task) {
-			case 1:  
-				DlistCount += 1; 
-				/*if ((DlistCount % 2) == 0) { 
-					SP_STATUS_REG |= (0x0203 );
-					MI_INTR_REG |= MI_INTR_SP | MI_INTR_DP;
-					CheckInterrupts();
-					return; 
-				}*/
-				break;
-			case 2:  
-				AlistCount += 1; 
-				break;
-			}
+		switch (Task) {
+		case 1:  
+			DlistCount += 1; 
+			/*if ((DlistCount % 2) == 0) { 
+				SP_STATUS_REG |= (0x0203 );
+				MI_INTR_REG |= MI_INTR_SP | MI_INTR_DP;
+				CheckInterrupts();
+				return; 
+			}*/
+			break;
+		case 2:  
+			AlistCount += 1; 
+			break;
+		}
 
-			if (ShowDListAListCount) {
-				char StatusString[256];
+		if (ShowDListAListCount) 
+		{
+			char StatusString[256];
 
-				sprintf(StatusString,"Dlist: %d   Alist: %d",DlistCount,AlistCount);
-				SendMessage( hStatusWnd, SB_SETTEXT, 0, (LPARAM)StatusString );
-			}
+			sprintf(StatusString,"Dlist: %d   Alist: %d",DlistCount,AlistCount);
+			SendMessage( hStatusWnd, SB_SETTEXT, 0, (LPARAM)StatusString );
+		}
+
+		//TODO - this was an error in the original code (the DisplayCPUPer not being a function call), so we need to debug it and see if it is supposed to be happening
+		if (Profiling || ShowCPUPer) {
+			char Label[100];
+
+			strncpy(Label,ProfilingLabel,sizeof(Label));
 
 			//TODO - this was an error in the original code (the DisplayCPUPer not being a function call), so we need to debug it and see if it is supposed to be happening
-			if (Profiling || ShowCPUPer) {
-				char Label[100];
-
-				strncpy(Label,ProfilingLabel,sizeof(Label));
-
-				//TODO - this was an error in the original code (the DisplayCPUPer not being a function call), so we need to debug it and see if it is supposed to be happening
-				if (IndvidualBlock && !ShowCPUPer) {
-					StartTimer("RSP");
-				} else {
-					switch (*( DWORD *)(DMEM + 0xFC0)) {
-					case 1:  StartTimer("RSP: Dlist"); break;
-					case 2:  StartTimer("RSP: Alist"); break;
-					default: StartTimer("RSP: Unknown"); break;
-					}
+			if (IndvidualBlock && !ShowCPUPer)
+			{
+				StartTimer("RSP");
+			} 
+			else 
+			{
+				switch (*( DWORD *)(DMEM + 0xFC0)) 
+				{
+				case 1:
+					StartTimer("RSP: Dlist");
+					break;
+				case 2:
+					StartTimer("RSP: Alist");
+					break;
+				default: 
+					StartTimer("RSP: Unknown");
+					break;
 				}
-				DoRspCycles(100);
-				StartTimer(Label); 
-			} else {
-				DoRspCycles(100);
 			}
+			DoRspCycles(100);
+			StartTimer(Label); 
+		}
+		else
+		{
+			DoRspCycles(100);
+		}
 #ifdef CFB_READ
-			if (VI_ORIGIN_REG > 0x280) {
-				SetFrameBuffer(VI_ORIGIN_REG, (DWORD)(VI_WIDTH_REG * (VI_WIDTH_REG *.75)));
-			}
+		if (VI_ORIGIN_REG > 0x280) 
+			SetFrameBuffer(VI_ORIGIN_REG, (DWORD)(VI_WIDTH_REG * (VI_WIDTH_REG *.75)));
 #endif
-		} 
 	}
 }
 
-void SetCoreToRunning  ( void ) {
+void SetCoreToRunning  ( void ) 
+{
 	CPU_Action.Stepping = FALSE;
 	PulseEvent( CPU_Action.hStepping );
 }
 
-void SetCoreToStepping ( void ) {
+void SetCoreToStepping ( void )
+{
 	CPU_Action.Stepping = TRUE;
 }
 
-void StartEmulation ( void ) {
+void StartEmulation ( void )
+{
 	DWORD ThreadID, count;
 	CloseCpu();
 
@@ -1219,9 +1342,8 @@ void StartEmulation ( void ) {
 
 #if (!defined(EXTERNAL_RELEASE))
 	Enable_R4300i_Commands_Window();
-	if (InR4300iCommandsWindow) {
+	if (InR4300iCommandsWindow)
 		SetCoreToStepping();
-	}
     DlistCount = 0;
 	AlistCount = 0;
 #endif
@@ -1229,7 +1351,8 @@ void StartEmulation ( void ) {
 	Timers.Timer = 0;
 	CurrentFrame = 0;
 	CurrentPercent = 0;
-	for (count = 0; count < MaxTimers; count ++) { Timers.Active[count] = FALSE; }
+	for (count = 0; count < MaxTimers; count ++) 
+		Timers.Active[count] = FALSE;
 	ChangeTimer(ViTimer,5000); 
 	ChangeCompareTimer();
 	ViFieldNumber = 0;
@@ -1239,35 +1362,48 @@ void StartEmulation ( void ) {
 	Timer_Start();
 	LoadRomOptions();
 	LoadCheats();
-	if (Profiling) { ResetTimerList(); }
+	if (Profiling)
+		ResetTimerList();
 	strcpy(ProfilingLabel,"");
 	strcpy(LoadFileName,"");
 	strcpy(SaveAsFileName,"");
 	CPURunning = TRUE;
 	SetupMenu(hMainWindow);
-	switch (CPU_Type) {
-	case CPU_Interpreter: hCPU = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)StartInterpreterCPU,NULL,0, &ThreadID); break;
-	case CPU_Recompiler: hCPU = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)StartRecompilerCPU,NULL,0, &ThreadID);	break;
-	case CPU_SyncCores: hCPU = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)StartSyncCPU,NULL,0, &ThreadID);	 break;
+	switch (CPU_Type)
+	{
+	case CPU_Interpreter: 
+		hCPU = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)StartInterpreterCPU,NULL,0, &ThreadID);
+		break;
+	case CPU_Recompiler: 
+		hCPU = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)StartRecompilerCPU,NULL,0, &ThreadID);
+		break;
+	case CPU_SyncCores:
+		hCPU = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)StartSyncCPU,NULL,0, &ThreadID);
+		break;
 	default:
 		DisplayError("Unhandled CPU %d",CPU_Type);
+		break;
 	}
 	SendMessage( hStatusWnd, SB_SETTEXT, 0, (LPARAM)GS(MSG_EMULATION_STARTED) );
 	AlwaysOnTopWindow(hMainWindow);
 }
 
-void StepOpcode        ( void ) {
+void StepOpcode( void )
+{
 	PulseEvent( CPU_Action.hStepping );
 }
 
-void TimerDone (void) {
+void TimerDone (void)
+{
 	char Label[100];
-	if (Profiling) { 
+	if (Profiling) 
+	{ 
 		strncpy(Label, ProfilingLabel, sizeof(Label));
 		StartTimer("TimerDone"); 
 	}
 
-	switch (Timers.CurrentTimerType) {
+	switch (Timers.CurrentTimerType) 
+	{
 	case CompareTimer:
 		FAKE_CAUSE_REGISTER |= CAUSE_IP7;
 		CheckInterrupts();
@@ -1296,7 +1432,6 @@ void TimerDone (void) {
 		break;
 	}
 	CheckTimer();
-	if (Profiling) { 
-		StartTimer(Label); 
-	}
+	if (Profiling)
+		StartTimer(Label);
 }
