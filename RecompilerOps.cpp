@@ -72,10 +72,8 @@ void Compile_R4300i_Branch (BLOCK_SECTION * Section, void (*CompareFunc)(BLOCK_S
 					}
 				}
 				break;
-#ifndef EXTERNAL_RELEASE
 			default:
-				DisplayError("Unknown branch type");
-#endif
+				DebugError("Unknown branch type");
 			}
 		} else {
 			EffectDelaySlot = TRUE;
@@ -212,9 +210,7 @@ void Compile_R4300i_Branch (BLOCK_SECTION * Section, void (*CompareFunc)(BLOCK_S
 		GenerateSectionLinkage(Section);
 		NextInstruction = END_BLOCK;
 	} else {
-#ifndef EXTERNAL_RELEASE
-		DisplayError("WTF\n\nBranch\nNextInstruction = %X", NextInstruction);
-#endif
+		DebugError("WTF\n\nBranch\nNextInstruction = %X", NextInstruction);
 	}
 }
 
@@ -255,11 +251,8 @@ void Compile_R4300i_BranchLikely (BLOCK_SECTION * Section, void (*CompareFunc)(B
 		memcpy(&Section->Cont.RegSet,&Section->RegWorking,sizeof(REG_INFO));
 	
 		if (Section->Cont.FallThrough)  {
-			if (Section->Jump.LinkLocation != NULL) {
-#ifndef EXTERNAL_RELEASE
-				DisplayError("WTF .. problem with Compile_R4300i_BranchLikely");
-#endif
-			}
+			if (Section->Jump.LinkLocation != NULL)
+				DebugError("WTF .. problem with Compile_R4300i_BranchLikely");
 			GenerateSectionLinkage(Section);
 			NextInstruction = END_BLOCK;
 		} else {
@@ -300,9 +293,7 @@ void Compile_R4300i_BranchLikely (BLOCK_SECTION * Section, void (*CompareFunc)(B
 		GenerateSectionLinkage(Section);
 		NextInstruction = END_BLOCK;
 	} else {
-#ifndef EXTERNAL_RELEASE
-		DisplayError("WTF\n\nBranchLikely\nNextInstruction = %X", NextInstruction);
-#endif
+		DebugError("WTF\n\nBranchLikely\nNextInstruction = %X", NextInstruction);
 	}
 }
 
@@ -962,9 +953,7 @@ void BLTZ_Compare (BLOCK_SECTION * Section) {
 void BGEZ_Compare (BLOCK_SECTION * Section) {
 	if (IsConst(Opcode.rs)) {
 		if (Is64Bit(Opcode.rs)) {
-#ifndef EXTERNAL_RELEASE
-			DisplayError("BGEZ 1");
-#endif
+			DebugError("BGEZ 1");
 			Compile_R4300i_UnknownOpcode(Section);
 		} else if IsSigned(Opcode.rs) {
 			if (MipsRegLo_S(Opcode.rs) >= 0) {
@@ -1087,9 +1076,7 @@ void Compile_R4300i_J (BLOCK_SECTION * Section) {
 		GenerateSectionLinkage(Section);
 		NextInstruction = END_BLOCK;
 	} else {
-#ifndef EXTERNAL_RELEASE
-		DisplayError("WTF\n\nJal\nNextInstruction = %X", NextInstruction);
-#endif
+		DebugError("WTF\n\nJal\nNextInstruction = %X", NextInstruction);
 	}
 }
 
@@ -1122,9 +1109,7 @@ void Compile_R4300i_JAL (BLOCK_SECTION * Section) {
 		CompileExit((DWORD)-1,Section->RegWorking,Normal,TRUE,NULL);
 		NextInstruction = END_BLOCK;
 	} else {
-#ifndef EXTERNAL_RELEASE
-		DisplayError("WTF\n\nBranch\nNextInstruction = %X", NextInstruction);
-#endif
+		DebugError("WTF\n\nBranch\nNextInstruction = %X", NextInstruction);
 	}
 	return;
 
@@ -1155,9 +1140,7 @@ void Compile_R4300i_JAL (BLOCK_SECTION * Section) {
 		GenerateSectionLinkage(Section);
 		NextInstruction = END_BLOCK;
 	} else {
-#ifndef EXTERNAL_RELEASE
-		DisplayError("WTF\n\nJal\nNextInstruction = %X", NextInstruction);
-#endif
+		DebugError("WTF\n\nJal\nNextInstruction = %X", NextInstruction);
 	}
 }
 
@@ -2385,9 +2368,7 @@ void _fastcall ClearRecomplierCache (DWORD Address) {
 			*(DelaySlotTable + Block) = NULL;
 		}		
 	} else {
-#ifndef EXTERNAL_RELEASE
-		DisplayError("ClearRecomplierCache: %X",Address);
-#endif
+		DebugError("ClearRecomplierCache: %X",Address);
 	}
 }
 
@@ -2431,10 +2412,8 @@ void Compile_R4300i_CACHE (BLOCK_SECTION * Section){
 	case 21:
 	case 25:
 		break;
-#ifndef EXTERNAL_RELEASE
 	default:
-		DisplayError("cache: %d",Opcode.rt);
-#endif
+		DebugError("cache: %d",Opcode.rt);
 	}
 }
 
@@ -2976,9 +2955,7 @@ void Compile_R4300i_SPECIAL_JR (BLOCK_SECTION * Section) {
 		}
 		NextInstruction = END_BLOCK;
 	} else {
-#ifndef EXTERNAL_RELEASE
-		DisplayError("WTF\n\nBranch\nNextInstruction = %X", NextInstruction);
-#endif
+		DebugError("WTF\n\nBranch\nNextInstruction = %X", NextInstruction);
 	}
 }
 
@@ -3037,9 +3014,7 @@ void Compile_R4300i_SPECIAL_JALR (BLOCK_SECTION * Section) {
 		}
 		NextInstruction = END_BLOCK;
 	} else {
-#ifndef EXTERNAL_RELEASE
-		DisplayError("WTF\n\nBranch\nNextInstruction = %X", NextInstruction);
-#endif
+		DebugError("WTF\n\nBranch\nNextInstruction = %X", NextInstruction);
 	}
 }
 
@@ -3870,9 +3845,7 @@ void Compile_R4300i_SPECIAL_XOR (BLOCK_SECTION * Section) {
 		if (IsConst(Opcode.rt) && IsConst(Opcode.rs)) {
 			if (IsMapped(Opcode.rd)) { UnMap_GPR(Section,Opcode.rd, FALSE); }
 			if (Is64Bit(Opcode.rt) || Is64Bit(Opcode.rs)) {
-#ifndef EXTERNAL_RELEASE
-				DisplayError("XOR 1");
-#endif
+				DebugError("XOR 1");
 				Compile_R4300i_UnknownOpcode(Section);
 			} else {
 				MipsRegState(Opcode.rd) = STATE_CONST_32;
@@ -4250,9 +4223,7 @@ void Compile_R4300i_SPECIAL_SLTU (BLOCK_SECTION * Section) {
 	if (IsKnown(Opcode.rt) && IsKnown(Opcode.rs)) {
 		if (IsConst(Opcode.rt) && IsConst(Opcode.rs)) {
 			if (Is64Bit(Opcode.rt) || Is64Bit(Opcode.rs)) {
-#ifndef EXTERNAL_RELEASE
-				DisplayError("1");
-#endif
+				DebugError("1");
 				Compile_R4300i_UnknownOpcode(Section);
 			} else {
 				if (IsMapped(Opcode.rd)) { UnMap_GPR(Section,Opcode.rd, FALSE); }
@@ -4853,9 +4824,8 @@ void Compile_R4300i_COP0_MT (BLOCK_SECTION * Section) {
 	case 13: //cause
 		if (IsConst(Opcode.rt)) {
 			AndConstToVariable(0xFFFFCFF,&CP0[Opcode.rd], Cop0_Name[Opcode.rd]);
-#ifndef EXTERNAL_RELEASE
-			if ((MipsRegLo(Opcode.rt) & 0x300) != 0 ){ DisplayError("Set IP0 or IP1"); }
-#endif
+			if ((MipsRegLo(Opcode.rt) & 0x300) != 0 )
+				DebugError("Set IP0 or IP1");
 		} else {
 			Compile_R4300i_UnknownOpcode(Section);
 		}

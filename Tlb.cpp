@@ -104,9 +104,7 @@ void SetupTLB_Entry (int Entry) {
 			continue; 
 		}
 		if (FastTlb[FastIndx].VEND <= FastTlb[FastIndx].VSTART) {
-#ifndef EXTERNAL_RELEASE
-			DisplayError("Vstart = Vend for tlb mapping");
-#endif
+			DebugError("Vstart = Vend for tlb mapping");
 			continue;
 		}
 		if (FastTlb[FastIndx].VSTART >= 0x80000000 && FastTlb[FastIndx].VEND <= 0xBFFFFFFF) {

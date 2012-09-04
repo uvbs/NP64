@@ -46,9 +46,7 @@ void PI_DMA_READ (void) {
 //	PI_STATUS_REG |= PI_STATUS_DMA_BUSY;
 
 	if ( PI_DRAM_ADDR_REG + PI_RD_LEN_REG + 1 > RdramSize) {
-#ifndef EXTERNAL_RELEASE
-		DisplayError("PI_DMA_READ not in Memory");
-#endif
+		DebugError("PI_DMA_READ not in Memory");
 		PI_STATUS_REG &= ~PI_STATUS_DMA_BUSY;
 		MI_INTR_REG |= MI_INTR_PI;
 		CheckInterrupts();
@@ -81,17 +79,13 @@ void PI_DMA_READ (void) {
 		}
 	}
 	if (SaveUsing == FlashRam) {
-#ifndef EXTERNAL_RELEASE
-		DisplayError("**** FLashRam DMA Read address %X *****",PI_CART_ADDR_REG);
-#endif
+		DebugError("**** FLashRam DMA Read address %X *****",PI_CART_ADDR_REG);
 		PI_STATUS_REG &= ~PI_STATUS_DMA_BUSY;
 		MI_INTR_REG |= MI_INTR_PI;
 		CheckInterrupts();
 		return;
 	}
-#ifndef EXTERNAL_RELEASE
-	DisplayError("PI_DMA_READ where are you dmaing to ?");
-#endif	
+	DebugError("PI_DMA_READ where are you dmaing to ?");
 	PI_STATUS_REG &= ~PI_STATUS_DMA_BUSY;
 	MI_INTR_REG |= MI_INTR_PI;
 	CheckInterrupts();
@@ -103,18 +97,19 @@ void PI_DMA_WRITE (void) {
 
 	PI_STATUS_REG |= PI_STATUS_DMA_BUSY;
 	if ( PI_DRAM_ADDR_REG + PI_WR_LEN_REG + 1 > RdramSize) {
-#ifndef EXTERNAL_RELEASE
-		DisplayError("PI_DMA_WRITE not in Memory");
-#endif	
+		DebugError("PI_DMA_WRITE not in Memory");
 		PI_STATUS_REG &= ~PI_STATUS_DMA_BUSY;
 		MI_INTR_REG |= MI_INTR_PI;
 		CheckInterrupts();
 		return;
 	}
 
-	if ( PI_CART_ADDR_REG >= 0x08000000 && PI_CART_ADDR_REG <= 0x08010000) {
-		if (SaveUsing == Auto) { SaveUsing = Sram; }
-		if (SaveUsing == Sram) {
+	if ( PI_CART_ADDR_REG >= 0x08000000 && PI_CART_ADDR_REG <= 0x08010000) 
+	{
+		if (SaveUsing == Auto)
+			SaveUsing = Sram;
+		if (SaveUsing == Sram) 
+		{
 			DmaFromSram(
 				N64MEM+PI_DRAM_ADDR_REG,
 				PI_CART_ADDR_REG - 0x08000000,
@@ -125,7 +120,8 @@ void PI_DMA_WRITE (void) {
 			CheckInterrupts();
 			return;
 		}
-		if (SaveUsing == FlashRam) {
+		if (SaveUsing == FlashRam) 
+		{
 			DmaFromFlashram(
 				N64MEM+PI_DRAM_ADDR_REG,
 				PI_CART_ADDR_REG - 0x08000000,
@@ -174,10 +170,10 @@ void PI_DMA_WRITE (void) {
 		CheckTimer();
 		return;
 	}
-	
-#ifndef EXTERNAL_RELEASE
-	if (ShowUnhandledMemory) { DisplayError("PI_DMA_WRITE not in ROM"); }
-#endif
+
+	if (ShowUnhandledMemory) 
+		DebugError("PI_DMA_WRITE not in ROM");
+
 	PI_STATUS_REG &= ~PI_STATUS_DMA_BUSY;
 	MI_INTR_REG |= MI_INTR_PI;
 	CheckInterrupts();
@@ -188,9 +184,7 @@ void SI_DMA_READ (void) {
 	BYTE * PifRamPos = &PIF_Ram[0];
 	
 	if ((int)SI_DRAM_ADDR_REG > (int)RdramSize) {
-#ifndef EXTERNAL_RELEASE
-		DisplayError("SI DMA\nSI_DRAM_ADDR_REG not in RDRam space");
-#endif
+		DebugError("SI DMA\nSI_DRAM_ADDR_REG not in RDRam space");
 		return;
 	}
 	
@@ -276,9 +270,7 @@ void SI_DMA_WRITE (void) {
 	BYTE * PifRamPos = &PIF_Ram[0];
 	
 	if ((int)SI_DRAM_ADDR_REG > (int)RdramSize) {
-#ifndef EXTERNAL_RELEASE
-		DisplayError("SI DMA\nSI_DRAM_ADDR_REG not in RDRam space");
-#endif
+		DebugError("SI DMA\nSI_DRAM_ADDR_REG not in RDRam space");
 		return;
 	}
 	
@@ -366,18 +358,14 @@ void SP_DMA_READ (void) {
 	SP_DRAM_ADDR_REG &= 0x1FFFFFFF;
 
 	if (SP_DRAM_ADDR_REG > RdramSize) {
-#ifndef EXTERNAL_RELEASE
-		DisplayError("SP DMA\nSP_DRAM_ADDR_REG not in RDRam space");
-#endif
+		DebugError("SP DMA\nSP_DRAM_ADDR_REG not in RDRam space");
 		SP_DMA_BUSY_REG = 0;
 		SP_STATUS_REG  &= ~SP_STATUS_DMA_BUSY;
 		return;
 	}
 	
 	if (SP_RD_LEN_REG + 1  + (SP_MEM_ADDR_REG & 0xFFF) > 0x1000) {
-#ifndef EXTERNAL_RELEASE
-		DisplayError("SP DMA\ncould not fit copy in memory segement");
-#endif
+		DebugError("SP DMA\ncould not fit copy in memory segement");
 		return;		
 	}
 	
@@ -394,16 +382,12 @@ void SP_DMA_READ (void) {
 
 void SP_DMA_WRITE (void) { 
 	if (SP_DRAM_ADDR_REG > RdramSize) {
-#ifndef EXTERNAL_RELEASE
-		DisplayError("SP DMA WRITE\nSP_DRAM_ADDR_REG not in RDRam space");
-#endif
+		DebugError("SP DMA WRITE\nSP_DRAM_ADDR_REG not in RDRam space");
 		return;
 	}
 	
 	if (SP_WR_LEN_REG + 1 + (SP_MEM_ADDR_REG & 0xFFF) > 0x1000) {
-#ifndef EXTERNAL_RELEASE
-		DisplayError("SP DMA WRITE\ncould not fit copy in memory segement");
-#endif
+		DebugError("SP DMA WRITE\ncould not fit copy in memory segement");
 		return;		
 	}
 

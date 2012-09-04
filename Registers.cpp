@@ -109,9 +109,7 @@ void ChangeFPURegFormat (BLOCK_SECTION * Section, int Reg, int OldFormat, int Ne
 		}
 	}
 
-#ifndef EXTERNAL_RELEASE
-	DisplayError("ChangeFormat: Register not on stack!!");
-#endif
+	DebugError("ChangeFormat: Register not on stack!!");
 }
 
 void ChangeMiIntrMask (void) {
@@ -149,9 +147,7 @@ void ChangeSpStatus (void) {
 		MI_INTR_REG &= ~MI_INTR_SP; 
 		CheckInterrupts();
 	}
-#ifndef EXTERNAL_RELEASE
-	if ( ( RegModValue & SP_SET_INTR ) != 0) { DisplayError("SP_SET_INTR"); }
-#endif
+	if ( ( RegModValue & SP_SET_INTR ) != 0) { DebugError("SP_SET_INTR"); }
 	if ( ( RegModValue & SP_CLR_SSTEP ) != 0) { SP_STATUS_REG &= ~SP_STATUS_SSTEP; }
 	if ( ( RegModValue & SP_SET_SSTEP ) != 0) { SP_STATUS_REG |= SP_STATUS_SSTEP;  }
 	if ( ( RegModValue & SP_CLR_INTR_BREAK ) != 0) { SP_STATUS_REG &= ~SP_STATUS_INTR_BREAK; }
@@ -627,10 +623,8 @@ void Load_FPR_ToTop (BLOCK_SECTION * Section, int Reg, int RegToLoad, int Format
 			MoveVariableToX86reg(&FPRDoubleLocation[RegToLoad],Name,TempReg);
 			fpuLoadQwordFromX86Reg((int*)&StackTopPos,TempReg);
 			break;
-#ifndef EXTERNAL_RELEASE
 		default:
-			DisplayError("Load_FPR_ToTop\nUnkown format to load %d",Format);
-#endif
+			DebugError("Load_FPR_ToTop\nUnkown format to load %d",Format);
 		}
 		x86Protected(TempReg) = FALSE;
 		FpuRoundingModel(StackTopPos) = RoundDefault;
@@ -645,9 +639,7 @@ void Map_GPR_32bit (BLOCK_SECTION * Section, int Reg, BOOL SignValue, int MipsRe
 	int x86Reg,count;
 
 	if (Reg == 0) {
-#ifndef EXTERNAL_RELEASE
-		DisplayError("Map_GPR_32bit\n\nWhy are you trying to map reg 0");
-#endif
+		DebugError("Map_GPR_32bit\n\nWhy are you trying to map reg 0");
 		return;
 	}
 
@@ -655,7 +647,7 @@ void Map_GPR_32bit (BLOCK_SECTION * Section, int Reg, BOOL SignValue, int MipsRe
 		x86Reg = FreeX86Reg(Section);		
 		if (x86Reg < 0) { 
 #ifndef EXTERNAL_RELEASE
-			DisplayError("Map_GPR_32bit\n\nOut of registers"); 
+			DebugError("Map_GPR_32bit\n\nOut of registers"); 
 			_asm int 3
 #endif
 			return; 
@@ -705,9 +697,7 @@ void Map_GPR_64bit (BLOCK_SECTION * Section, int Reg, int MipsRegToLoad) {
 	int x86Hi, x86lo, count;
 
 	if (Reg == 0) {
-#ifndef EXTERNAL_RELEASE
-		DisplayError("Map_GPR_32bit\n\nWhy are you trying to map reg 0");
-#endif
+		DebugError("Map_GPR_32bit\n\nWhy are you trying to map reg 0");
 		return;
 	}
 
@@ -810,7 +800,7 @@ int Map_MemoryStack (BLOCK_SECTION * Section, BOOL AutoMap) {
 	x86Reg = FreeX86Reg(Section);	
 	if (x86Reg < 0) {
 #ifndef EXTERNAL_RELEASE
-		DisplayError("Map_MemoryStack\n\nOut of registers");
+		DebugError("Map_MemoryStack\n\nOut of registers");
 		_asm int 3
 #endif
 	}
@@ -834,7 +824,7 @@ int Map_TempReg (BLOCK_SECTION * Section, int x86Reg, int MipsReg, BOOL LoadHiWo
 			x86Reg = FreeX86Reg(Section);
 			if (x86Reg < 0) {
 #ifndef EXTERNAL_RELEASE
-				DisplayError("Map_TempReg\n\nOut of registers");
+				DebugError("Map_TempReg\n\nOut of registers");
 				_asm int 3
 #endif
 					
@@ -853,7 +843,7 @@ int Map_TempReg (BLOCK_SECTION * Section, int x86Reg, int MipsReg, BOOL LoadHiWo
 			x86Reg = Free8BitX86Reg(Section);
 			if (x86Reg < 0) { 
 #ifndef EXTERNAL_RELEASE
-				DisplayError("Map_GPR_8bit\n\nOut of registers");
+				DebugError("Map_GPR_8bit\n\nOut of registers");
 				_asm int 3
 #endif
 				return -1;
@@ -864,9 +854,7 @@ int Map_TempReg (BLOCK_SECTION * Section, int x86Reg, int MipsReg, BOOL LoadHiWo
 
 		if (x86Mapped(x86Reg) == GPR_Mapped) {
 			if (x86Protected(x86Reg) == TRUE) {
-#ifndef EXTERNAL_RELEASE
-				DisplayError("Map_TempReg\nRegister is protected !!!");
-#endif
+				DebugError("Map_TempReg\nRegister is protected !!!");
 				return -1;
 			}
 			x86Protected(x86Reg) = TRUE;
@@ -1118,10 +1106,8 @@ void UnMap_FPR (BLOCK_SECTION * Section, int Reg, int WriteBackValue ) {
 				case RoundNearest: /*OrConstToX86Reg(0x0000, x86reg);*/ break;
 				case RoundDown: OrConstToX86Reg(0x0400, x86reg); break;
 				case RoundUp: OrConstToX86Reg(0x0800, x86reg); break;
-#ifndef EXTERNAL_RELEASE
 				default:
-					DisplayError("Unknown Rounding model");
-#endif
+					DebugError("Unknown Rounding model");
 				}
 				MoveX86regToVariable(x86reg, &fpuControl, "fpuControl");
 				fpuLoadControl(&fpuControl, "fpuControl");
@@ -1151,10 +1137,8 @@ void UnMap_FPR (BLOCK_SECTION * Section, int Reg, int WriteBackValue ) {
 				MoveVariableToX86reg(&FPRDoubleLocation[FpuMappedTo(StackTopPos)],Name,TempReg);
 				fpuStoreQwordFromX86Reg((int*)&StackTopPos,TempReg, TRUE); 
 				break;
-#ifndef EXTERNAL_RELEASE
 			default:
-				DisplayError("UnMap_FPR\nUnknown format to load %d",FpuState(StackTopPos));
-#endif
+				DebugError("UnMap_FPR\nUnknown format to load %d",FpuState(StackTopPos));
 			}
 			x86Protected(TempReg) = FALSE;
 			FpuRoundingModel(RegPos) = RoundDefault;
@@ -1172,9 +1156,7 @@ void UnMap_FPR (BLOCK_SECTION * Section, int Reg, int WriteBackValue ) {
 
 void UnMap_GPR (BLOCK_SECTION * Section, DWORD Reg, int WriteBackValue) {
 	if (Reg == 0) {
-#ifndef EXTERNAL_RELEASE
-		DisplayError("UnMap_GPR\n\nWhy are you trying to unmap reg 0");
-#endif
+		DebugError("UnMap_GPR\n\nWhy are you trying to unmap reg 0");
 		return;
 	}
 
@@ -1399,10 +1381,8 @@ void WriteBackRegisters (BLOCK_SECTION * Section) {
 			}
 			MipsRegState(count) = STATE_UNKNOWN;
 			break;
-#ifndef EXTERNAL_RELEASE
 		default:
-			DisplayError("Unknown State: %d\nin WriteBackRegisters",MipsRegState(count));
-#endif
+			DebugError("Unknown State: %d\nin WriteBackRegisters",MipsRegState(count));
 		}
 	}
 	UnMap_AllFPRs(Section);

@@ -281,9 +281,7 @@ int DelaySlotEffectsCompare (DWORD PC, DWORD Reg1, DWORD Reg2) {
 		case R4300i_SPECIAL_DDIVU:
 			break;
 		default:
-#ifndef EXTERNAL_RELEASE
-			DisplayError("Does %s effect Delay slot at %X?",R4300iOpcodeName(Command.Hex,PC+4), PC);
-#endif
+			DebugError("Does %s effect Delay slot at %X?",R4300iOpcodeName(Command.Hex,PC+4), PC);
 			return TRUE;
 		}
 		break;
@@ -307,17 +305,13 @@ int DelaySlotEffectsCompare (DWORD PC, DWORD Reg1, DWORD Reg2) {
 					case R4300i_COP0_CO_TLBWR: break;
 					case R4300i_COP0_CO_TLBP: break;
 					default: 
-#ifndef EXTERNAL_RELEASE
-						DisplayError("Does %s effect Delay slot at %X?\n6",R4300iOpcodeName(Command.Hex,PC+4), PC);
-#endif
+						DebugError("Does %s effect Delay slot at %X?\n6",R4300iOpcodeName(Command.Hex,PC+4), PC);
 						return TRUE;
 				}
 			}
 			else
 			{
-#ifndef EXTERNAL_RELEASE
-				DisplayError("Does %s effect Delay slot at %X?\n7",R4300iOpcodeName(Command.Hex,PC+4), PC);
-#endif
+				DebugError("Does %s effect Delay slot at %X?\n7",R4300iOpcodeName(Command.Hex,PC+4), PC);
 				return TRUE;
 			}
 		}
@@ -338,10 +332,8 @@ int DelaySlotEffectsCompare (DWORD PC, DWORD Reg1, DWORD Reg2) {
 		case R4300i_COP1_D: break;
 		case R4300i_COP1_W: break;
 		case R4300i_COP1_L: break;
-#ifndef EXTERNAL_RELEASE
 		default:
-			DisplayError("Does %s effect Delay slot at %X?",R4300iOpcodeName(Command.Hex,PC+4), PC);
-#endif
+			DebugError("Does %s effect Delay slot at %X?",R4300iOpcodeName(Command.Hex,PC+4), PC);
 			return TRUE;
 		}
 		break;
@@ -382,9 +374,7 @@ int DelaySlotEffectsCompare (DWORD PC, DWORD Reg1, DWORD Reg2) {
 	case R4300i_SDC1: break;
 	case R4300i_SD: break;
 	default:
-#ifndef EXTERNAL_RELEASE
-		DisplayError("Does %s effect Delay slot at %X?",R4300iOpcodeName(Command.Hex,PC+4), PC);
-#endif
+		DebugError("Does %s effect Delay slot at %X?",R4300iOpcodeName(Command.Hex,PC+4), PC);
 		return TRUE;
 	}
 	return FALSE;

@@ -260,6 +260,21 @@ void __cdecl DisplayError (char * Message, ...) {
 	SetActiveWindow(hMainWindow);
 }
 
+void DebugError (char * Message, ...) {
+#ifndef EXTERNAL_RELEASE
+	char Msg[1000];
+	va_list ap;
+
+	if (inFullScreen) { return; }
+
+	va_start( ap, Message );
+	vsprintf( Msg, Message, ap );
+	va_end( ap );
+	MessageBox(NULL,Msg,GS(MSG_MSGBOX_TITLE),MB_OK|MB_ICONERROR|MB_SETFOREGROUND);
+	SetActiveWindow(hMainWindow);
+#endif
+}
+
 void DisplayFPS (void) {
 	if (CurrentFrame > (NoOfFrames << 3)) {
 		LARGE_INTEGER Total;

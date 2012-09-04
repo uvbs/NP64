@@ -157,6 +157,7 @@ extern HINSTANCE hInst;
 DWORD AsciiToHex          ( char * HexValue );
 void AlwaysOnTopWindow    ( HWND hWnd );
 void  __cdecl DisplayError       ( char * Message, ... );
+void DebugError       ( char * Message, ... );
 void ChangeWinSize        ( HWND hWnd, long width, long height, HWND hStatusBar );
 void  DisplayFPS          ( void );
 char* GetExtIniFileName   ( void );

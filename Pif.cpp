@@ -126,7 +126,7 @@ void LogControllerPakData (char * Description)
 
 void PifRamRead (void) {
 	int Channel = 0, CurPos = 0;
-	do 
+	while( CurPos < 0x40 ) 
 	{
 		switch(PIF_Ram[CurPos]) 
 		{
@@ -135,9 +135,15 @@ void PifRamRead (void) {
 			if (Channel > 6)
 				CurPos = 0x40;
 			break;
-		case 0xFE: CurPos = 0x40; break;
-		case 0xFF: break;
-		case 0xB4: case 0x56: case 0xB8: break; /* ??? */
+		case 0xFE:
+			CurPos = 0x40; 
+			break;
+		case 0xFF: 
+			break;
+		case 0xB4: 
+		case 0x56: 
+		case 0xB8: 
+			break; /* ??? */
 		default:
 			if ((PIF_Ram[CurPos] & 0xC0) == 0)
 			{
@@ -164,15 +170,16 @@ void PifRamRead (void) {
 			}
 			break;
 		}
-		CurPos += 1;
-	} while( CurPos < 0x40 );
+		CurPos++;
+	};
 
 	if (ReadController)
 		ReadController(-1,NULL);
 }
 
-void PifRamWrite (void) {
-	int Channel, CurPos;
+void PifRamWrite (void)
+{
+	int Channel = 0, CurPos = 0;
 	char Challenge[30], Response[30];
 	Channel = 0;
 
@@ -219,12 +226,12 @@ void PifRamWrite (void) {
 		return;
 	}
 
-	for (CurPos = 0; CurPos < 0x40; CurPos++)
+	while (CurPos < 0x40)
 	{
 		switch(PIF_Ram[CurPos])
 		{
 		case 0x00: 
-			Channel += 1; 
+			Channel ++; 
 			if (Channel > 6)
 				CurPos = 0x40;
 			break;
@@ -237,30 +244,19 @@ void PifRamWrite (void) {
 		case 0xB8: 
 			break; /* ??? */
 		default:
-			if ((PIF_Ram[CurPos] & 0xC0) == 0) 
+			if (!(PIF_Ram[CurPos] & 0xC0)) 
 			{
 				if (Channel < 4) 
 				{
 					if (Controllers[Channel].Present && Controllers[Channel].RawData)
-					{
-						if (ControllerCommand) 
 							ControllerCommand(Channel,&PIF_Ram[CurPos]);
-					} 
 					else 
-					{
 						ProcessControllerCommand(Channel,&PIF_Ram[CurPos]);
-					}
 				}
 				else if (Channel == 4)
-				{
 					EepromCommand(&PIF_Ram[CurPos]);
-				}
 				else 
-				{
-#ifndef EXTERNAL_RELEASE
-					DisplayError("Command on channel 5?");
-#endif
-				}
+					DebugError("Command on channel 5?");
 				CurPos += PIF_Ram[CurPos] + (PIF_Ram[CurPos + 1] & 0x3F) + 1;
 				Channel += 1;
 			} 
@@ -272,6 +268,7 @@ void PifRamWrite (void) {
 			}
 			break;
 		}
+		CurPos++;
 	}
 	PIF_Ram[0x3F] = 0;
 	if (ControllerCommand) 
@@ -287,12 +284,9 @@ void ProcessControllerCommand ( int Control, BYTE * Command)
 	case 0xFF: // reset & check ?
 		if ((Command[1] & 0x80) != 0)
 			break;
-#ifndef EXTERNAL_RELEASE
-		if (Command[0] != 1)
-			DisplayError("What am I meant to do with this Controller Command");
-		if (Command[1] != 3)
-			DisplayError("What am I meant to do with this Controller Command");
-#endif
+		if (Command[0] != 1 || Command[1] != 3)
+			DebugError("What am I meant to do with this Controller Command");
+
 		if (Controllers[Control].Present) 
 		{
 			Command[3] = 0x05;
@@ -319,22 +313,16 @@ void ProcessControllerCommand ( int Control, BYTE * Command)
 		break;
 
 	case 0x01: // read controller
-#ifndef EXTERNAL_RELEASE
-		if (Command[0] != 1) { DisplayError("What am I meant to do with this Controller Command"); }
-		if (Command[1] != 4) { DisplayError("What am I meant to do with this Controller Command"); }
-#endif
+		if (Command[0] != 1 || Command[1] != 4)
+			DebugError("What am I meant to do with this Controller Command");
 		if (!Controllers[Control].Present)
 			Command[1] |= 0x80;
 		break;
 	case 0x02: //read from controller pack
-#ifndef EXTERNAL_RELEASE
 		if (LogOptions.LogControllerPak) 
 			LogControllerPakData("Read: Before Gettting Results");
-		if (Command[0] != 3)
-			DisplayError("What am I meant to do with this Controller Command");
-		if (Command[1] != 33)
-			DisplayError("What am I meant to do with this Controller Command");
-#endif
+		if (Command[0] != 3 || Command[1] != 33)
+			DebugError("What am I meant to do with this Controller Command");
 		if (Controllers[Control].Present)
 		{
 			DWORD address = ((Command[3] << 8) | Command[4]);
@@ -367,16 +355,13 @@ void ProcessControllerCommand ( int Control, BYTE * Command)
 #endif
 		break;
 	case 0x03: //write controller pak
-#ifndef EXTERNAL_RELEASE
 		if (LogOptions.LogControllerPak) 
 			LogControllerPakData("Write: Before Processing");
-		if (Command[0] != 35) 
-			DisplayError("What am I meant to do with this Controller Command");
-		if (Command[1] != 1) 
-			DisplayError("What am I meant to do with this Controller Command");
-#endif
+		if (Command[0] != 35 || Command[1] != 1) 
+			DebugError("What am I meant to do with this Controller Command");
 		
-		if (Controllers[Control].Present) {
+		if (Controllers[Control].Present)
+		{
 			DWORD address = ((Command[3] << 8) | Command[4]);
 			switch (Controllers[Control].Plugin) 
 			{
@@ -416,12 +401,8 @@ void ReadControllerCommand (int Control, BYTE * Command)
 		case 0x01: // read controller
 			if (Controllers[Control].Present) 
 			{
-#ifndef EXTERNAL_RELEASE
-				if (Command[0] != 1) 
-					DisplayError("What am I meant to do with this Controller Command");
-				if (Command[1] != 4)
-					DisplayError("What am I meant to do with this Controller Command");
-#endif
+				if (Command[0] != 1 || Command[1] != 4) 
+					DebugError("What am I meant to do with this Controller Command");
 				if (GetKeys) 
 				{
 					BUTTONS Keys;
