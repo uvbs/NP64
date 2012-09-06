@@ -52,7 +52,7 @@
 #endif
 
 /********* General Defaults **********/
-#if (!defined(EXTERNAL_RELEASE))
+#ifndef EXTERNAL_RELEASE
 #define AppVer   "Project64 - Build 57"
 #define AppName  "Project64 (Build 57)"
 #else

@@ -520,7 +520,7 @@ void LoadSettings (void) {
 		if (Type != REG_DWORD || lResult != ERROR_SUCCESS) { AutoFullScreen = FALSE; }
 
 		if (!BasicMode) {
-#if (!defined(EXTERNAL_RELEASE))
+#ifndef EXTERNAL_RELEASE
 			DWORD Value;
 
 			lResult = RegQueryValueEx(hKeyResults,"Debugger",0,&Type,(LPBYTE)(&Value),&Bytes);
@@ -572,7 +572,7 @@ void LoadSettings (void) {
 			if (Type != REG_DWORD || lResult != ERROR_SUCCESS) { AlwaysOnTop = Default_AlwaysOnTop;	}
 		}
 
-#if (!defined(EXTERNAL_RELEASE))
+#ifndef EXTERNAL_RELEASE
 		if (HaveDebugger) {
 			lResult = RegQueryValueEx(hKeyResults,"Auto Load Map File",0,&Type,(BYTE *)(&AutoLoadMapFile),&Bytes);
 			if (Type != REG_DWORD || lResult != ERROR_SUCCESS) { AutoLoadMapFile = Default_AutoMap; }
@@ -651,7 +651,7 @@ int InitalizeApplication ( HINSTANCE hInstance ) {
 	LoadSettings();
 	SetupRegisters(&Registers);
 	QueryPerformanceFrequency(&Frequency);
-#if (!defined(EXTERNAL_RELEASE))
+#ifndef EXTERNAL_RELEASE
 	LoadLogOptions(&LogOptions, FALSE);
 	StartLog();
 #endif
@@ -691,7 +691,7 @@ void CheckedMenuItem(UINT uMenuID, BOOL * Flag, char * FlagName) {
 
 
 LRESULT CALLBACK Main_Proc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
-#if (!defined(EXTERNAL_RELEASE))
+#ifndef EXTERNAL_RELEASE
 	char String[256];
 	DWORD Disposition;
 	HKEY hKeyResults;
@@ -1063,7 +1063,7 @@ LRESULT CALLBACK Main_Proc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 		case ID_OPTIONS_SHOWCPUUSAGE:
 			CheckedMenuItem(ID_OPTIONS_SHOWCPUUSAGE,&ShowCPUPer,"Show CPU %");
 			break;
-#if (!defined(EXTERNAL_RELEASE))
+#ifndef EXTERNAL_RELEASE
 		case ID_OPTIONS_PROFILING_ON:
 		case ID_OPTIONS_PROFILING_OFF:
 			if (HaveDebugger) {
@@ -1655,7 +1655,7 @@ void SetupMenu ( HWND hWnd ) {
 	if (AlwaysOnTop) {
 		CheckMenuItem( hMenu, ID_OPTIONS_ALWAYSONTOP, MF_BYCOMMAND | MFS_CHECKED );
 	}
-#if (!defined(EXTERNAL_RELEASE))
+#ifndef EXTERNAL_RELEASE
 	if (HaveDebugger) {
 		if (AutoLoadMapFile) {
 			CheckMenuItem( hMenu, ID_OPTIONS_MAPPINGS_AUTOLOADMAPFILE, MF_BYCOMMAND | MFS_CHECKED );
@@ -1843,7 +1843,7 @@ void ShutdownApplication ( void ) {
 	SaveRecentFiles();
 	Release_Memory();
 	ResetTimerList();
-#if (!defined(EXTERNAL_RELEASE))
+#ifndef EXTERNAL_RELEASE
 	StopLog();
 #endif
 	CloseHandle(hPauseMutex);

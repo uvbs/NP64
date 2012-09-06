@@ -33,7 +33,7 @@
 
 char CommandName[100];
 
-#if (!defined(EXTERNAL_RELEASE))
+#ifndef EXTERNAL_RELEASE
 #define R4300i_MaxCommandLines		30
 
 typedef struct {
@@ -1287,7 +1287,7 @@ char * R4300iOpcodeName ( DWORD OpCode, DWORD PC ) {
 	return CommandName;
 }
 
-#if (!defined(EXTERNAL_RELEASE))
+#ifndef EXTERNAL_RELEASE
 void RefreshR4300iCommands ( void ) {
 	DWORD location, LinesUsed;
 	char AsciiAddress[20];

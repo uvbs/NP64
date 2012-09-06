@@ -27,7 +27,7 @@
 #include <windows.h>
 #include <stdio.h>
 
-#if (!defined(EXTERNAL_RELEASE))
+#ifndef EXTERNAL_RELEASE
 #include "main.h"
 #include "R4300iCommands.h"
 #include "BreakPoints.h"

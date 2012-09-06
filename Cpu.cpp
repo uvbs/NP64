@@ -62,9 +62,8 @@ void __cdecl SetFrameBuffer (DWORD Address, DWORD Length)
 	DWORD OldProtect;
 
 	if (CFBStart != 0) 
-	{
 		VirtualProtect(N64MEM + CFBStart,CFBEnd - CFBStart,PAGE_READWRITE,&OldProtect);
-	}
+
 	if (Length == 0) 
 	{
 		CFBStart = 0; 
@@ -217,13 +216,15 @@ void CloseCpu (void)
 int DelaySlotEffectsCompare (DWORD PC, DWORD Reg1, DWORD Reg2) {
 	OPCODE Command;
 
-	if (!r4300i_LW_VAddr(PC + 4, &Command.Hex)) {
+	if (!r4300i_LW_VAddr(PC + 4, &Command.Hex))
+	{
 		//DisplayError("Failed to load word 2");
 		//ExitThread(0);
 		return TRUE;
 	}
 
-	if (SelfModCheck == ModCode_ChangeMemory) {
+	if (SelfModCheck == ModCode_ChangeMemory)
+	{
 		if ( (Command.Hex >> 16) == 0x7C7C)
 			Command.Hex = OrigMem[(Command.Hex & 0xFFFF)].OriginalValue;
 	}
@@ -1330,7 +1331,7 @@ void StartEmulation ( void )
 
 	RecompPos = RecompCode;
 
-#if (!defined(EXTERNAL_RELEASE))
+#ifndef EXTERNAL_RELEASE
 	Enable_R4300i_Commands_Window();
 	if (InR4300iCommandsWindow)
 		SetCoreToStepping();

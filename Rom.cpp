@@ -782,7 +782,7 @@ void OpenChosenFile ( void ) {
 	}
 	Sleep(1000);
 	CloseCpu();
-#if (!defined(EXTERNAL_RELEASE))
+#ifndef EXTERNAL_RELEASE
 	ResetMappings();
 #endif
 	SetNewFileDirectory();
@@ -879,7 +879,7 @@ void OpenChosenFile ( void ) {
 			ShowRomList(hMainWindow);
 			return;
 		}
-#if (!defined(EXTERNAL_RELEASE))
+#ifndef EXTERNAL_RELEASE
 		if (AutoLoadMapFile) {
 			OpenZipMapFile(MapFile);
 		}
@@ -965,7 +965,7 @@ void OpenChosenFile ( void ) {
 #endif
 	SendMessage( hStatusWnd, SB_SETTEXT, 0, (LPARAM)"" );
 	memcpy(RomHeader,ROM,sizeof(RomHeader));
-#if (!defined(EXTERNAL_RELEASE))
+#ifndef EXTERNAL_RELEASE
 	if (AutoLoadMapFile) {
 		char *p;
 

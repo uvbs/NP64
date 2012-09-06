@@ -27,7 +27,7 @@
 #ifndef __r4300i_commands_h 
 #define __r4300i_commands_h 
 
-#if (!defined(EXTERNAL_RELEASE))
+#ifndef EXTERNAL_RELEASE
 void Disable_R4300i_Commands_Window ( void );
 void Enable_R4300i_Commands_Window ( void );
 void __cdecl Enter_R4300i_Commands_Window ( void );

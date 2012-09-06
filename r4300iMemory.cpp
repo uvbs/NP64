@@ -24,7 +24,7 @@
  *
  */
 
-#if (!defined(EXTERNAL_RELEASE))
+#ifndef EXTERNAL_RELEASE
 #include <windows.h>
 #include <commctrl.h>
 #include <stdio.h>
@@ -199,20 +199,20 @@ LRESULT CALLBACK Memory_Window_Proc (HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM
 		EndPaint( hDlg, &ps );
 		return TRUE;
 	case WM_COMMAND:
-		switch (LOWORD(wParam)) {
-		case IDC_ADDR_EDIT:
-			if (HIWORD(wParam) == EN_CHANGE ) {
+		switch (LOWORD(wParam)) 
+		{
+			case IDC_ADDR_EDIT:
+				if (HIWORD(wParam) == EN_CHANGE )
+					Refresh_Memory();
+				break;
+			case IDC_VADDR:
+			case IDC_PADDR:
 				Refresh_Memory();
-			}
-			break;
-		case IDC_VADDR:
-		case IDC_PADDR:
-			Refresh_Memory();
-			break;
-		case IDC_CLOSE_BUTTON:
-		case IDCANCEL:
-			EndDialog( hDlg, IDCANCEL );
-			break;
+				break;
+			case IDC_CLOSE_BUTTON:
+			case IDCANCEL:
+				EndDialog( hDlg, IDCANCEL );
+				break;
 		}
 	case WM_VSCROLL:
 		if ((HWND)lParam == hScrlBar) {

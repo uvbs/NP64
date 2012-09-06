@@ -24,7 +24,7 @@
  *
  */
 
-#if (!defined(EXTERNAL_RELEASE))
+#ifndef EXTERNAL_RELEASE
 #include <windows.h>
 #include <commctrl.h>
 #include <stdio.h>

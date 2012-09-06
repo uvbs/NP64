@@ -224,7 +224,7 @@ void SI_DMA_READ (void) {
 		}
 	}
 	
-#if (!defined(EXTERNAL_RELEASE))
+#ifndef EXTERNAL_RELEASE
 	if (LogOptions.LogPRDMAMemStores) {
 		int count;
 		char HexData[100], AsciiData[100], Addon[20];
@@ -309,7 +309,7 @@ void SI_DMA_WRITE (void) {
 		}
 	}
 	
-#if (!defined(EXTERNAL_RELEASE))
+#ifndef EXTERNAL_RELEASE
 	if (LogOptions.LogPRDMAMemLoads) {
 		int count;
 		char HexData[100], AsciiData[100], Addon[20];

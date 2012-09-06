@@ -558,7 +558,7 @@ void SetupPlugins (HWND hWnd) {
 		if (RSPVersion == 0x0101) { InitiateRSP_1_1(RspInfo11, &RspTaskValue); }
 	}
 	
-#if (!defined(EXTERNAL_RELEASE))
+#ifndef EXTERNAL_RELEASE
 	if (HaveDebugger) {
 		DEBUG_INFO DebugInfo;
 

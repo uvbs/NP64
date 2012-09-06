@@ -2707,10 +2707,9 @@ BOOL InheritParentInfo (BLOCK_SECTION * Section) {
 				}
 				break;
 			case STATE_CONST_32:
-				if (MipsRegLo(count2) != RegSet->MIPS_RegVal[count2].UW[0]) {
-#if (!defined(EXTERNAL_RELEASE))
-					DisplayError("Umm.. how ???");
-#endif
+				if (MipsRegLo(count2) != RegSet->MIPS_RegVal[count2].UW[0])
+				{
+					DebugError("Umm.. how ???");
 					NeedSync = TRUE;
 				}
 				break;
@@ -3195,34 +3194,28 @@ void SyncRegState (BLOCK_SECTION * Section, REG_INFO * SyncTo) {
 		UnMap_X86reg(Section,x86Reg);		
 	}
 	
-	for (count = 1; count < 32; count ++) {
-		if (MipsRegState(count) == SyncTo->MIPS_RegState[count]) {
+	for (count = 1; count < 32; count ++) 
+	{
+		if (MipsRegState(count) == SyncTo->MIPS_RegState[count]) 
+		{
 			switch (MipsRegState(count)) {
 			case STATE_UNKNOWN: continue;
 			case STATE_MAPPED_64:
-				if (MipsReg(count) == SyncTo->MIPS_RegVal[count].UDW) {
+				if (MipsReg(count) == SyncTo->MIPS_RegVal[count].UDW)
 					continue;
-				}
 				break;
 			case STATE_MAPPED_32_ZERO:
 			case STATE_MAPPED_32_SIGN:
-				if (MipsRegLo(count) == SyncTo->MIPS_RegVal[count].UW[0]) {
+				if (MipsRegLo(count) == SyncTo->MIPS_RegVal[count].UW[0])
 					continue;
-				}
 				break;
 			case STATE_CONST_64:
-				if (MipsReg(count) != SyncTo->MIPS_RegVal[count].UDW) {
-#if (!defined(EXTERNAL_RELEASE))
-					DisplayError("Umm.. how ???");
-#endif
-				}
+				if (MipsReg(count) != SyncTo->MIPS_RegVal[count].UDW)
+					DebugError("Umm.. how ???");
 				continue;
 			case STATE_CONST_32:
-				if (MipsRegLo(count) != SyncTo->MIPS_RegVal[count].UW[0]) {
-#if (!defined(EXTERNAL_RELEASE))
-					DisplayError("Umm.. how ???");
-#endif
-				}
+				if (MipsRegLo(count) != SyncTo->MIPS_RegVal[count].UW[0])
+					DebugError("Umm.. how ???");
 				continue;
 			default:
 				DebugError("Unhandled Reg state %d\nin SyncRegState",MipsRegState(count));
@@ -3349,10 +3342,10 @@ void SyncRegState (BLOCK_SECTION * Section, REG_INFO * SyncTo) {
 			x86MapOrder(x86Reg) = 1;
 			break;
 		default:
-#if (!defined(EXTERNAL_RELEASE))
+#ifndef EXTERNAL_RELEASE
 			CPU_Message("%d\n%d\nreg: %s (%d)",SyncTo->MIPS_RegState[count],MipsRegState(count),GPR_Name[count],count);
-			DisplayError("%d\n%d\nreg: %s (%d)",SyncTo->MIPS_RegState[count],MipsRegState(count),GPR_Name[count],count);
-			DisplayError("Do something with states in SyncRegState");
+			DebugError("%d\n%d\nreg: %s (%d)",SyncTo->MIPS_RegState[count],MipsRegState(count),GPR_Name[count],count);
+			DebugError("Do something with states in SyncRegState");
 #endif
 			changed = FALSE;
 		}

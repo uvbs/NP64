@@ -692,7 +692,7 @@ void ExecuteInterpreterOpCode (void) {
 
 	((void (_fastcall *)()) R4300i_Opcode[ Opcode.op ])();
 	if (GPR[0].DW != 0) {
-#if (!defined(EXTERNAL_RELEASE))
+#ifndef EXTERNAL_RELEASE
 		DisplayError("GPR[0].DW has been written to");
 #endif
 		GPR[0].DW = 0;
@@ -743,7 +743,7 @@ void StartInterpreterCPU (void ) {
 	//Add_R4300iBPoint(0x802000C8,FALSE);
 	__try {
 		for (;;) {
-#if (!defined(EXTERNAL_RELEASE))
+#ifndef EXTERNAL_RELEASE
 			if (NoOfBpoints != 0) {
 				if (CheckForR4300iBPoint(PROGRAM_COUNTER)) {
 					UpdateCurrentR4300iRegisterPanel();

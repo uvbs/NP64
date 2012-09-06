@@ -44,20 +44,25 @@ static HANDLE hFlashRamFile = NULL;
 BYTE * FlashRamPointer;
 QWORD FlashStatus = 0;
 
-void DmaFromFlashram(BYTE * dest, int StartOffset, int len) {
+void DmaFromFlashram(BYTE * dest, int StartOffset, int len) 
+{
 	BYTE FlipBuffer[0x10000];
 	DWORD dwRead, count;
 
 	switch (FlashFlag) {
 	case FLASHRAM_MODE_READ:
-		if (hFlashRamFile == NULL) {
-			if (!LoadFlashram()) { return; }
+		if (hFlashRamFile == NULL) 
+		{
+			if (!LoadFlashram()) 
+				return;
 		}
-		if (len > 0x10000) { 
+		if (len > 0x10000) 
+		{ 
 			DebugError("DmaFromFlashram FlipBuffer to small (len: %d)",len);
 			len = 0x10000;
 		}
-		if ((len & 3) != 0) {
+		if ((len & 3) != 0) 
+		{
 			DebugError("Unaligned flash ram read ???");
 			return;
 		}
@@ -65,9 +70,10 @@ void DmaFromFlashram(BYTE * dest, int StartOffset, int len) {
 		StartOffset = StartOffset << 1;
 		SetFilePointer(hFlashRamFile,StartOffset,NULL,FILE_BEGIN);	
 		ReadFile(hFlashRamFile,FlipBuffer,len,&dwRead,NULL);
-		for (count = dwRead; (int)count < len; count ++) {
+
+		for (count = dwRead; (int)count < len; count ++)
 			FlipBuffer[count] = 0xFF;
-		}
+
 		_asm {
 			mov edi, dest
 			lea ecx, [FlipBuffer]
@@ -96,22 +102,17 @@ void DmaFromFlashram(BYTE * dest, int StartOffset, int len) {
 }
 
 void DmaToFlashram(BYTE * Source, int StartOffset, int len) {
-	switch (FlashFlag) {
-	case FLASHRAM_MODE_WRITE:
+	if(FlashFlag == FLASHRAM_MODE_WRITE)
 		FlashRamPointer = Source;
-		break;
-	default:
+	else
 		DebugError("DmaToFlashram Start: %X, Offset: %X len: %X",Source - N64MEM,StartOffset,len);
-	}
 }
 
 DWORD ReadFromFlashStatus (DWORD PAddr) {
-	switch (PAddr) {
-	case 0x08000000: return (DWORD)(FlashStatus >> 32);
-	default:
+	if(PAddr == 0x08000000)
+		return (DWORD)(FlashStatus >> 32);
+	else
 		DebugError("Reading from flash ram status (%X)",PAddr);
-		break;
-	}
 	return (DWORD)(FlashStatus >> 32);
 }
 
@@ -123,20 +124,23 @@ BOOL LoadFlashram (void) {
 	
 	hFlashRamFile = CreateFile(File,GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ,NULL,OPEN_ALWAYS,
 		FILE_ATTRIBUTE_NORMAL | FILE_FLAG_RANDOM_ACCESS, NULL);
-	if (hFlashRamFile == INVALID_HANDLE_VALUE) {
-		switch (GetLastError()) {
-		case ERROR_PATH_NOT_FOUND:
-			CreateDirectory(Directory,NULL);
-			hFlashRamFile = CreateFile(File,GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ,
-				NULL,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL | FILE_FLAG_RANDOM_ACCESS, NULL);
-			if (hFlashRamFile == INVALID_HANDLE_VALUE) {
+	if (hFlashRamFile == INVALID_HANDLE_VALUE)
+	{
+		switch (GetLastError()) 
+		{
+			case ERROR_PATH_NOT_FOUND:
+				CreateDirectory(Directory,NULL);
+				hFlashRamFile = CreateFile(File,GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ,
+					NULL,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL | FILE_FLAG_RANDOM_ACCESS, NULL);
+				if (hFlashRamFile == INVALID_HANDLE_VALUE) 
+				{
+					DisplayError(GS(MSG_FAIL_OPEN_FLASH));
+					return FALSE;
+				}
+				break;
+			default:
 				DisplayError(GS(MSG_FAIL_OPEN_FLASH));
 				return FALSE;
-			}
-			break;
-		default:
-			DisplayError(GS(MSG_FAIL_OPEN_FLASH));
-			return FALSE;
 		}
 	}
 	return TRUE;

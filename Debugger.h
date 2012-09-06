@@ -23,7 +23,7 @@
  * should be forwarded to them so if they want them.
  *
  */
-#if (!defined(EXTERNAL_RELEASE))
+#ifndef EXTERNAL_RELEASE
 #include "Main.h"
 
 #include "BreakPoints.h"

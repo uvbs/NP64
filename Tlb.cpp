@@ -208,8 +208,8 @@ void _fastcall WriteTLBEntry (int index) {
 		DWORD count;
 
 		for ( FastIndx = index << 1; FastIndx <= (index << 1) + 1; FastIndx++) {
-			if (!FastTlb[FastIndx].ValidEntry) { continue; }
-			if (!FastTlb[FastIndx].VALID) { continue; }
+			if (!FastTlb[FastIndx].ValidEntry || !FastTlb[FastIndx].VALID)
+				continue;
 			for (count = FastTlb[FastIndx].VSTART; count < FastTlb[FastIndx].VEND; count += 0x1000) {
 				TLB_ReadMap[count >> 12] = 0;
 				TLB_WriteMap[count >> 12] = 0;
@@ -239,7 +239,7 @@ void _fastcall WriteTLBEntry (int index) {
 #endif
 
 	SetupTLB_Entry(index);
-#if (!defined(EXTERNAL_RELEASE))
+#ifndef EXTERNAL_RELEASE
 	RefreshTLBWindow();
 #endif
 }

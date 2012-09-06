@@ -86,7 +86,7 @@ int GetCicChipID (BYTE * RomData)
 
 void LogControllerPakData (char * Description)
 {
-#if (!defined(EXTERNAL_RELEASE))
+#ifndef EXTERNAL_RELEASE
 	int count, count2;
 	char HexData[100], AsciiData[100], Addon[20];
 	LogMessage("\t%s:",Description);			
