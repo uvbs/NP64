@@ -78,6 +78,7 @@ void __cdecl SetFrameBuffer (DWORD Address, DWORD Length)
 
 char *TimeName[MaxTimers] = { "CompareTimer","SiTimer","PiTimer","ViTimer" };
 
+//Initialize some flags we use for the CPU
 void InitiliazeCPUFlags (void) 
 {
 	inFullScreen = FALSE;
@@ -156,46 +157,66 @@ void CloseCpu (void)
 {
 	DWORD ExitCode, count, OldProtect;
 	
+	//If emulation cpu is not running, then we obviously arent able to pause it
 	if (!CPURunning) 
 		return;
 	ManualPaused = FALSE;
+
+	//if emulation cpu is paused, then lets unpause it
 	if (CPU_Paused)
 	{
 		PauseCpu (); 
 		Sleep(1000);
 	}
 	
-	{
-		BOOL Temp = AlwaysOnTop;
-		AlwaysOnTop = FALSE;
-		AlwaysOnTopWindow(hMainWindow);
-		AlwaysOnTop = Temp;
-	}
-
+	BOOL Temp = AlwaysOnTop;
+	AlwaysOnTop = FALSE;
+	AlwaysOnTopWindow(hMainWindow);
+	AlwaysOnTop = Temp;
+	
+	//Run through a loop to give the CPU some time to stop running
 	for (count = 0; count < 20; count ++ )
 	{
+		//Tell the emulation CPU thread to close/stop running
 		CPU_Action.CloseCPU = TRUE;
 		CPU_Action.Stepping = FALSE;
 		CPU_Action.DoSomething = TRUE;
 		PulseEvent( CPU_Action.hStepping );
 		Sleep(100);
 		GetExitCodeThread(hCPU,&ExitCode);
+
+		//If the emulation thread is no longer active, then we can set the hCPU var to null
 		if (ExitCode != STILL_ACTIVE) 
 		{
 			hCPU = NULL;
 			count = 100;
 		}
 	}
+
+	//If the emulation cpu still is active, then lets terminate its thread
 	if (hCPU != NULL) 
-		TerminateThread(hCPU,0); hCPU = NULL;
+	{
+		TerminateThread(hCPU,0);
+		hCPU = NULL;
+	}
+
+	//Set it so the emulator knows the emulation CPU is no longer running
 	CPURunning = FALSE;
+
+	//Protect the n64mem so it can no longer be accessed
 	VirtualProtect(N64MEM,RdramSize,PAGE_READWRITE,&OldProtect);
 	VirtualProtect(N64MEM + 0x04000000,0x2000,PAGE_READWRITE,&OldProtect);
+	//Stop the timer
 	Timer_Stop();
+	//Change the current save state back to the normal position
 	SetCurrentSaveState(hMainWindow,ID_CURRENTSAVE_DEFAULT);
+	//Close our Eeprom memory handles
 	CloseEeprom();
+	//Close our mempak memory handles
 	CloseMempak();
+	//Close the Sram memory handles
 	CloseSram();
+	//Free the sync memory
 	FreeSyncMemory();
 
 	if (GfxRomClosed != NULL)
@@ -234,149 +255,149 @@ int DelaySlotEffectsCompare (DWORD PC, DWORD Reg1, DWORD Reg2) {
 	case R4300i_SPECIAL:
 		switch (Command.funct) 
 		{
-		case R4300i_SPECIAL_SLL:
-		case R4300i_SPECIAL_SRL:
-		case R4300i_SPECIAL_SRA:
-		case R4300i_SPECIAL_SLLV:
-		case R4300i_SPECIAL_SRLV:
-		case R4300i_SPECIAL_SRAV:
-		case R4300i_SPECIAL_MFHI:
-		case R4300i_SPECIAL_MTHI:
-		case R4300i_SPECIAL_MFLO:
-		case R4300i_SPECIAL_MTLO:
-		case R4300i_SPECIAL_DSLLV:
-		case R4300i_SPECIAL_DSRLV:
-		case R4300i_SPECIAL_DSRAV:
-		case R4300i_SPECIAL_ADD:
-		case R4300i_SPECIAL_ADDU:
-		case R4300i_SPECIAL_SUB:
-		case R4300i_SPECIAL_SUBU:
-		case R4300i_SPECIAL_AND:
-		case R4300i_SPECIAL_OR:
-		case R4300i_SPECIAL_XOR:
-		case R4300i_SPECIAL_NOR:
-		case R4300i_SPECIAL_SLT:
-		case R4300i_SPECIAL_SLTU:
-		case R4300i_SPECIAL_DADD:
-		case R4300i_SPECIAL_DADDU:
-		case R4300i_SPECIAL_DSUB:
-		case R4300i_SPECIAL_DSUBU:
-		case R4300i_SPECIAL_DSLL:
-		case R4300i_SPECIAL_DSRL:
-		case R4300i_SPECIAL_DSRA:
-		case R4300i_SPECIAL_DSLL32:
-		case R4300i_SPECIAL_DSRL32:
-		case R4300i_SPECIAL_DSRA32:
-			if (Command.rd == 0) 
-				return FALSE;
-			if (Command.rd == Reg1 || Command.rd == Reg2)
+			case R4300i_SPECIAL_SLL:
+			case R4300i_SPECIAL_SRL:
+			case R4300i_SPECIAL_SRA:
+			case R4300i_SPECIAL_SLLV:
+			case R4300i_SPECIAL_SRLV:
+			case R4300i_SPECIAL_SRAV:
+			case R4300i_SPECIAL_MFHI:
+			case R4300i_SPECIAL_MTHI:
+			case R4300i_SPECIAL_MFLO:
+			case R4300i_SPECIAL_MTLO:
+			case R4300i_SPECIAL_DSLLV:
+			case R4300i_SPECIAL_DSRLV:
+			case R4300i_SPECIAL_DSRAV:
+			case R4300i_SPECIAL_ADD:
+			case R4300i_SPECIAL_ADDU:
+			case R4300i_SPECIAL_SUB:
+			case R4300i_SPECIAL_SUBU:
+			case R4300i_SPECIAL_AND:
+			case R4300i_SPECIAL_OR:
+			case R4300i_SPECIAL_XOR:
+			case R4300i_SPECIAL_NOR:
+			case R4300i_SPECIAL_SLT:
+			case R4300i_SPECIAL_SLTU:
+			case R4300i_SPECIAL_DADD:
+			case R4300i_SPECIAL_DADDU:
+			case R4300i_SPECIAL_DSUB:
+			case R4300i_SPECIAL_DSUBU:
+			case R4300i_SPECIAL_DSLL:
+			case R4300i_SPECIAL_DSRL:
+			case R4300i_SPECIAL_DSRA:
+			case R4300i_SPECIAL_DSLL32:
+			case R4300i_SPECIAL_DSRL32:
+			case R4300i_SPECIAL_DSRA32:
+				if (Command.rd == 0) 
+					return FALSE;
+				if (Command.rd == Reg1 || Command.rd == Reg2)
+					return TRUE;
+				break;
+			case R4300i_SPECIAL_MULT:
+			case R4300i_SPECIAL_MULTU:
+			case R4300i_SPECIAL_DIV:
+			case R4300i_SPECIAL_DIVU:
+			case R4300i_SPECIAL_DMULT:
+			case R4300i_SPECIAL_DMULTU:
+			case R4300i_SPECIAL_DDIV:
+			case R4300i_SPECIAL_DDIVU:
+				break;
+			default:
+				DebugError("Does %s effect Delay slot at %X?",R4300iOpcodeName(Command.Hex,PC+4), PC);
 				return TRUE;
-			break;
-		case R4300i_SPECIAL_MULT:
-		case R4300i_SPECIAL_MULTU:
-		case R4300i_SPECIAL_DIV:
-		case R4300i_SPECIAL_DIVU:
-		case R4300i_SPECIAL_DMULT:
-		case R4300i_SPECIAL_DMULTU:
-		case R4300i_SPECIAL_DDIV:
-		case R4300i_SPECIAL_DDIVU:
-			break;
-		default:
-			DebugError("Does %s effect Delay slot at %X?",R4300iOpcodeName(Command.Hex,PC+4), PC);
-			return TRUE;
 		}
 		break;
 	case R4300i_CP0:
 		switch (Command.rs)
 		{
-		case R4300i_COP0_MT: break;
-		case R4300i_COP0_MF:
-			if (Command.rt == 0)
-				return FALSE;
-			if (Command.rt == Reg1 || Command.rt == Reg2) 
-				return TRUE;
-			break;
-		default:
-			if ( (Command.rs & 0x10 ) != 0 )
-			{
-				switch( Opcode.funct )
+			case R4300i_COP0_MT: break;
+			case R4300i_COP0_MF:
+				if (Command.rt == 0)
+					return FALSE;
+				if (Command.rt == Reg1 || Command.rt == Reg2) 
+					return TRUE;
+				break;
+			default:
+				if ( (Command.rs & 0x10 ) != 0 )
 				{
-					case R4300i_COP0_CO_TLBR: break;
-					case R4300i_COP0_CO_TLBWI: break;
-					case R4300i_COP0_CO_TLBWR: break;
-					case R4300i_COP0_CO_TLBP: break;
-					default: 
-						DebugError("Does %s effect Delay slot at %X?\n6",R4300iOpcodeName(Command.Hex,PC+4), PC);
-						return TRUE;
+					switch( Opcode.funct )
+					{
+						case R4300i_COP0_CO_TLBR: break;
+						case R4300i_COP0_CO_TLBWI: break;
+						case R4300i_COP0_CO_TLBWR: break;
+						case R4300i_COP0_CO_TLBP: break;
+						default: 
+							DebugError("Does %s effect Delay slot at %X?\n6",R4300iOpcodeName(Command.Hex,PC+4), PC);
+							return TRUE;
+					}
 				}
-			}
-			else
-			{
-				DebugError("Does %s effect Delay slot at %X?\n7",R4300iOpcodeName(Command.Hex,PC+4), PC);
-				return TRUE;
-			}
+				else
+				{
+					DebugError("Does %s effect Delay slot at %X?\n7",R4300iOpcodeName(Command.Hex,PC+4), PC);
+					return TRUE;
+				}
 		}
 		break;
 	case R4300i_CP1:
 		switch (Command.fmt) 
 		{
-		case R4300i_COP1_MF:
-			if (Command.rt == 0)
-				return FALSE;
-			if (Command.rt == Reg1 || Command.rt == Reg2) 
+			case R4300i_COP1_MF:
+				if (Command.rt == 0)
+					return FALSE;
+				if (Command.rt == Reg1 || Command.rt == Reg2) 
+					return TRUE;
+				break;
+			case R4300i_COP1_CF: break;
+			case R4300i_COP1_MT: break;
+			case R4300i_COP1_CT: break;
+			case R4300i_COP1_S: break;
+			case R4300i_COP1_D: break;
+			case R4300i_COP1_W: break;
+			case R4300i_COP1_L: break;
+			default:
+				DebugError("Does %s effect Delay slot at %X?",R4300iOpcodeName(Command.Hex,PC+4), PC);
 				return TRUE;
+			}
 			break;
-		case R4300i_COP1_CF: break;
-		case R4300i_COP1_MT: break;
-		case R4300i_COP1_CT: break;
-		case R4300i_COP1_S: break;
-		case R4300i_COP1_D: break;
-		case R4300i_COP1_W: break;
-		case R4300i_COP1_L: break;
-		default:
-			DebugError("Does %s effect Delay slot at %X?",R4300iOpcodeName(Command.Hex,PC+4), PC);
-			return TRUE;
-		}
-		break;
-	case R4300i_ANDI:
-	case R4300i_ORI:
-	case R4300i_XORI:
-	case R4300i_LUI:
-	case R4300i_ADDI:
-	case R4300i_ADDIU:
-	case R4300i_SLTI:
-	case R4300i_SLTIU:
-	case R4300i_DADDI:
-	case R4300i_DADDIU:
-	case R4300i_LB:
-	case R4300i_LH:
-	case R4300i_LW:
-	case R4300i_LWL:
-	case R4300i_LWR:
-	case R4300i_LDL:
-	case R4300i_LDR:
-	case R4300i_LBU:
-	case R4300i_LHU:
-	case R4300i_LD:
-	case R4300i_LWC1:
-	case R4300i_LDC1:
-		if (Command.rt == 0)
-			return FALSE;
-		if (Command.rt == Reg1 || Command.rt == Reg2)
-			return TRUE;
-		break;
-	case R4300i_CACHE: break;
-	case R4300i_SB: break;
-	case R4300i_SH: break;
-	case R4300i_SW: break;
-	case R4300i_SWR: break;
-	case R4300i_SWL: break;
-	case R4300i_SWC1: break;
-	case R4300i_SDC1: break;
-	case R4300i_SD: break;
-	default:
-		DebugError("Does %s effect Delay slot at %X?",R4300iOpcodeName(Command.Hex,PC+4), PC);
-		return TRUE;
+			case R4300i_ANDI:
+			case R4300i_ORI:
+			case R4300i_XORI:
+			case R4300i_LUI:
+			case R4300i_ADDI:
+			case R4300i_ADDIU:
+			case R4300i_SLTI:
+			case R4300i_SLTIU:
+			case R4300i_DADDI:
+			case R4300i_DADDIU:
+			case R4300i_LB:
+			case R4300i_LH:
+			case R4300i_LW:
+			case R4300i_LWL:
+			case R4300i_LWR:
+			case R4300i_LDL:
+			case R4300i_LDR:
+			case R4300i_LBU:
+			case R4300i_LHU:
+			case R4300i_LD:
+			case R4300i_LWC1:
+			case R4300i_LDC1:
+				if (Command.rt == 0)
+					return FALSE;
+				if (Command.rt == Reg1 || Command.rt == Reg2)
+					return TRUE;
+				break;
+			case R4300i_CACHE: break;
+			case R4300i_SB: break;
+			case R4300i_SH: break;
+			case R4300i_SW: break;
+			case R4300i_SWR: break;
+			case R4300i_SWL: break;
+			case R4300i_SWC1: break;
+			case R4300i_SDC1: break;
+			case R4300i_SD: break;
+			default:
+				DebugError("Does %s effect Delay slot at %X?",R4300iOpcodeName(Command.Hex,PC+4), PC);
+				return TRUE;
 	}
 	return FALSE;
 }
@@ -523,7 +544,7 @@ void DoSomething ( void )
 	if (CPU_Action.Pause)
 	{
 		WaitForSingleObject(hPauseMutex, INFINITE);
-		if (CPU_Action.Pause)
+		if (CPU_Action.Pause) 
 		{
 			HMENU hMenu = GetMenu(hMainWindow);
 			HMENU hSubMenu = GetSubMenu(hMenu,1);
@@ -536,9 +557,13 @@ void DoSomething ( void )
 			ReleaseMutex(hPauseMutex);
 			SendMessage( hStatusWnd, SB_SETTEXT, 0, (LPARAM)GS(MSG_CPU_PAUSED));
 			DisplayFPS ();
+
+			//Refresh the screen
 			if (DrawScreen != NULL) 
 				DrawScreen();
+
 			WaitForSingleObject(hPauseMutex, INFINITE);
+
 			if (CPU_Paused)
 			{ 
 				ReleaseMutex(hPauseMutex);
@@ -637,7 +662,8 @@ void GetInstantSaveDir( char * Directory )
 void InPermLoop (void) 
 {
 	// *** Changed ***/
-	if (CPU_Action.DoInterrupt) { return; }
+	if (CPU_Action.DoInterrupt)
+		return;
 	
 	//Timers.Timer -= 5;
 	//COUNT_REGISTER +=5;
@@ -670,6 +696,7 @@ void InPermLoop (void)
 InterruptsDisabled:
 	if (UpdateScreen != NULL) 
 		UpdateScreen();
+
 	CurrentFrame = 0;
 	CurrentPercent = 0;
 	DisplayFPS();
@@ -856,20 +883,10 @@ BOOL Machine_LoadState(void)
 		//Check if rdram size is 4mb
 		if (RdramSize == 0x400000) 
 		{ 
-			//Increase the N64MEM virtual allocation to 8mb
-			if (VirtualAlloc(N64MEM + 0x400000, 0x400000, MEM_COMMIT, PAGE_READWRITE)==NULL) 
-			{
-				DisplayError(GS(MSG_MEM_ALLOC_ERROR));
-				ExitThread(0);
-			}
-			//Increase the Jumptable virtual allocation to 8mb
-			if (VirtualAlloc((BYTE *)JumpTable + 0x400000, 0x400000, MEM_COMMIT, PAGE_READWRITE)==NULL) 
-			{
-				DisplayError(GS(MSG_MEM_ALLOC_ERROR));
-				ExitThread(0);
-			}
-			//Increase the DelaySlotTable virtual allocation to 8mb
-			if (VirtualAlloc((BYTE *)DelaySlotTable + (0x400000 >> 0xA), (0x400000 >> 0xA), MEM_COMMIT, PAGE_READWRITE)==NULL)
+			//Increase the N64MEM, Jumptable and DelaySlotTable virtual allocation to 8mb
+			if (VirtualAlloc(N64MEM + 0x400000, 0x400000, MEM_COMMIT, PAGE_READWRITE)==NULL ||
+				VirtualAlloc((BYTE *)JumpTable + 0x400000, 0x400000, MEM_COMMIT, PAGE_READWRITE)==NULL ||
+				VirtualAlloc((BYTE *)DelaySlotTable + (0x400000 >> 0xA), (0x400000 >> 0xA), MEM_COMMIT, PAGE_READWRITE)==NULL) 
 			{
 				DisplayError(GS(MSG_MEM_ALLOC_ERROR));
 				ExitThread(0);
@@ -887,6 +904,7 @@ BOOL Machine_LoadState(void)
 	//Set the RdramSize to the RDRAM size of the save file
 	RdramSize = SaveRDRAMSize;
 
+	//Copy the header from the ROM we are using to RomHeader
 	memcpy(RomHeader,ROM,sizeof(RomHeader));
 
 	ChangeCompareTimer();
@@ -905,7 +923,7 @@ BOOL Machine_LoadState(void)
 	DlistCount = 0;
 	AlistCount = 0;
 	AI_STATUS_REG = 0;
-	AiDacrateChanged(SYSTEM_NTSC);
+	AiDacrateChanged(CountryTvSystem);
 	ViStatusChanged();
 	ViWidthChanged();
 	SetupTLB();
@@ -1076,8 +1094,10 @@ BOOL Machine_SaveState(void)
 		WriteFile( hSaveFile,RegDPC,sizeof(DWORD)*10,&dwWritten,NULL);
 
 		Value = MI_INTR_REG;
+
 		if (AiReadLength() != 0)
 			MI_INTR_REG |= MI_INTR_AI;
+
 		WriteFile( hSaveFile,RegMI,sizeof(DWORD)*4,&dwWritten,NULL);
 		MI_INTR_REG = Value;
 		WriteFile( hSaveFile,RegVI,sizeof(DWORD)*14,&dwWritten,NULL);
@@ -1113,11 +1133,15 @@ void PauseCpu (void)
 
 	do 
 	{
+		//Check if where waiting for anything
 		Result = MsgWaitForMultipleObjects(1,&hPauseMutex,FALSE,INFINITE,QS_ALLINPUT);
+
+		//If where still waiting on something to complete
 		if (Result != WAIT_OBJECT_0) 
 		{
 			MSG msg;
 
+			//Then keep processing the messages until we are no longer waiting
 			while (PeekMessage(&msg,NULL,0,0,PM_REMOVE) != 0)
 			{
 				TranslateMessage(&msg);
@@ -1126,11 +1150,13 @@ void PauseCpu (void)
 		}
 	} while (Result != WAIT_OBJECT_0);
 
+	//If the CPU is paused, or in a state of pausing, toggle it
 	if (CPU_Paused || CPU_Action.Pause) 
 	{
 		HMENU hMenu = GetMenu(hMainWindow);
 		HMENU hSubMenu = GetSubMenu(hMenu,1);
 
+		//if cpu is in process of pausing, then stop it
 		if (CPU_Action.Pause)
 		{
 			CPU_Action.Pause = FALSE;
@@ -1140,6 +1166,8 @@ void PauseCpu (void)
 			ReleaseMutex(hPauseMutex);
 			return;
 		}
+
+		//If cpu is already paused, resume the thread
 		ResumeThread(hCPU);
 		SendMessage( hStatusWnd, SB_SETTEXT, 0, (LPARAM)GS(MSG_CPU_RESUMED));	
 		MenuSetText(hSubMenu, 1, GS(MENU_PAUSE),"F2");
@@ -1148,6 +1176,7 @@ void PauseCpu (void)
 	}
 	else 
 	{
+		//Put the CPU into action to pause the emulation threads
 		CPU_Action.Pause = TRUE;
 		CPU_Action.DoSomething = TRUE;
 	}
@@ -1215,10 +1244,12 @@ void RefreshScreen (void )
 	if (Profiling)
 		StartTimer("RefreshScreen: Update Screen");
 
-	__try {
+	__try 
+	{
 		if (UpdateScreen != NULL)
 			UpdateScreen();
-	} __except( r4300i_CPU_MemoryFilter( GetExceptionCode(), GetExceptionInformation()) ) 
+	}
+	__except( r4300i_CPU_MemoryFilter( GetExceptionCode(), GetExceptionInformation()) ) 
 	{
 		DisplayError("Unknown memory action in trying to update the screen\n\nEmulation stop");
 		ExitThread(0);
@@ -1264,7 +1295,8 @@ void RunRsp (void)
 		}
 
 		//TODO - this was an error in the original code (the DisplayCPUPer not being a function call), so we need to debug it and see if it is supposed to be happening
-		if (Profiling || ShowCPUPer) {
+		if (Profiling || ShowCPUPer)
+		{
 			char Label[100];
 
 			strncpy(Label,ProfilingLabel,sizeof(Label));
@@ -1278,15 +1310,15 @@ void RunRsp (void)
 			{
 				switch (*( DWORD *)(DMEM + 0xFC0)) 
 				{
-				case 1:
-					StartTimer("RSP: Dlist");
-					break;
-				case 2:
-					StartTimer("RSP: Alist");
-					break;
-				default: 
-					StartTimer("RSP: Unknown");
-					break;
+					case 1:
+						StartTimer("RSP: Dlist");
+						break;
+					case 2:
+						StartTimer("RSP: Alist");
+						break;
+					default: 
+						StartTimer("RSP: Unknown");
+						break;
 				}
 			}
 			DoRspCycles(100);
@@ -1325,7 +1357,8 @@ void StartEmulation ( void )
 	WrittenToRom = FALSE;
 
 	InitilizeTLB();
-	InitalizeR4300iRegisters(LoadPifRom(*(ROM + 0x3D)),*(ROM + 0x3D),GetCicChipID(ROM));
+	CountryTvSystem = GetTvSystem(*(ROM + 0x3D));
+	InitalizeR4300iRegisters(LoadPifRom(),GetCicChipID(ROM));
 
 	BuildInterpreter();
 
@@ -1360,20 +1393,21 @@ void StartEmulation ( void )
 	strcpy(SaveAsFileName,"");
 	CPURunning = TRUE;
 	SetupMenu(hMainWindow);
+
 	switch (CPU_Type)
 	{
-	case CPU_Interpreter: 
-		hCPU = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)StartInterpreterCPU,NULL,0, &ThreadID);
-		break;
-	case CPU_Recompiler: 
-		hCPU = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)StartRecompilerCPU,NULL,0, &ThreadID);
-		break;
-	case CPU_SyncCores:
-		hCPU = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)StartSyncCPU,NULL,0, &ThreadID);
-		break;
-	default:
-		DisplayError("Unhandled CPU %d",CPU_Type);
-		break;
+		case CPU_Interpreter: 
+			hCPU = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)StartInterpreterCPU,NULL,0, &ThreadID);
+			break;
+		case CPU_Recompiler: 
+			hCPU = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)StartRecompilerCPU,NULL,0, &ThreadID);
+			break;
+		case CPU_SyncCores:
+			hCPU = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)StartSyncCPU,NULL,0, &ThreadID);
+			break;
+		default:
+			DisplayError("Unhandled CPU %d",CPU_Type);
+			break;
 	}
 	SendMessage( hStatusWnd, SB_SETTEXT, 0, (LPARAM)GS(MSG_EMULATION_STARTED) );
 	AlwaysOnTopWindow(hMainWindow);
@@ -1395,32 +1429,32 @@ void TimerDone (void)
 
 	switch (Timers.CurrentTimerType) 
 	{
-	case CompareTimer:
-		FAKE_CAUSE_REGISTER |= CAUSE_IP7;
-		CheckInterrupts();
-		ChangeCompareTimer();
-		break;
-	case SiTimer:
-		ChangeTimer(SiTimer,0);
-		MI_INTR_REG |= MI_INTR_SI;
-		SI_STATUS_REG |= SI_STATUS_INTERRUPT;
-		CheckInterrupts();
-		break;
-	case PiTimer:
-		ChangeTimer(PiTimer,0);
-		PI_STATUS_REG &= ~PI_STATUS_DMA_BUSY;
-		MI_INTR_REG |= MI_INTR_PI;
-		CheckInterrupts();
-		break;
-	case ViTimer:
-		RefreshScreen();
-		MI_INTR_REG |= MI_INTR_VI;
-		CheckInterrupts();
-		break;
-	case RspTimer:
-		ChangeTimer(RspTimer,0);
-		RunRsp();
-		break;
+		case CompareTimer:
+			FAKE_CAUSE_REGISTER |= CAUSE_IP7;
+			CheckInterrupts();
+			ChangeCompareTimer();
+			break;
+		case SiTimer:
+			ChangeTimer(SiTimer,0);
+			MI_INTR_REG |= MI_INTR_SI;
+			SI_STATUS_REG |= SI_STATUS_INTERRUPT;
+			CheckInterrupts();
+			break;
+		case PiTimer:
+			ChangeTimer(PiTimer,0);
+			PI_STATUS_REG &= ~PI_STATUS_DMA_BUSY;
+			MI_INTR_REG |= MI_INTR_PI;
+			CheckInterrupts();
+			break;
+		case ViTimer:
+			RefreshScreen();
+			MI_INTR_REG |= MI_INTR_VI;
+			CheckInterrupts();
+			break;
+		case RspTimer:
+			ChangeTimer(RspTimer,0);
+			RunRsp();
+			break;
 	}
 	CheckTimer();
 	if (Profiling)

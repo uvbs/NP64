@@ -425,14 +425,10 @@ void ReadControllerCommand (int Control, BYTE * Command)
 	}
 }
 
-int LoadPifRom(int country) {
-	char PifRomName[255];
-	HANDLE hPifFile;
-	DWORD dwRead;
-
-	strcpy(PifRomName, main_directory);
-
-	switch (country) {
+int GetTvSystem(int country) 
+{
+	switch (country) 
+	{
 		case 0x44: //Germany
 		case 0x46: //french
 		case 0x49: //Italian
@@ -441,19 +437,36 @@ int LoadPifRom(int country) {
 		case 0x55: //Australia
 		case 0x58: // X (PAL)
 		case 0x59: // X (PAL)
-			strcat(PifRomName,"Pifrom\\pifntsc.raw");
+			return SYSTEM_PAL;
 			break;
 		case 0: //None
 		case 0x37: // 7 (Beta)
 		case 0x41: // ????
 		case 0x45: //USA
 		case 0x4A: //Japan
-			strcat(PifRomName,"Pifrom\\pifntsc.raw");
+			return SYSTEM_NTSC;
 			break;
 		default:
+			return -1;
 			DisplayError(GS(MSG_UNKNOWN_COUNTRY));
+			break;
 	}
-	
+}
+
+int LoadPifRom() 
+{
+	char PifRomName[255];
+	HANDLE hPifFile;
+	DWORD dwRead;
+
+	strcpy(PifRomName, main_directory);
+
+	if(CountryTvSystem == SYSTEM_PAL)
+		strcat(PifRomName,"Pifrom\\pifpal.raw");
+	else if (CountryTvSystem == SYSTEM_NTSC)
+		strcat(PifRomName,"Pifrom\\pifntsc.raw");
+	else
+		DisplayError(GS(MSG_UNKNOWN_COUNTRY));
 
 	hPifFile = CreateFile(PifRomName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,
 		FILE_ATTRIBUTE_NORMAL | FILE_FLAG_RANDOM_ACCESS, NULL);

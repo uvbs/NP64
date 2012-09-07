@@ -28,6 +28,7 @@ extern DWORD RomFileSize, RomRamSize, RomSaveUsing, RomCPUType, RomSelfMod,
 	RomDelaySI, RomSPHack, RomAudioSignal;
 extern char CurrentFileName[MAX_PATH+1], RomName[MAX_PATH+1], RomHeader[0x1000];
 extern char LastRoms[10][MAX_PATH+1], LastDirs[10][MAX_PATH+1];
+extern int CountryTvSystem;
 
 void AddRecentFile           ( HWND hWnd, char * addition );
 void ChangeRomOptionMemSize  ( DWORD NewSize );

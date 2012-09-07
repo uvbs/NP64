@@ -26,6 +26,7 @@
 #include <windows.h>
 #include <stdio.h>
 #include "main.h"
+#include "Plugin.h"
 #include "cpu.h"
 #include "x86.h"
 #include "debugger.h"
@@ -275,7 +276,7 @@ int FreeX86Reg (BLOCK_SECTION * Section) {
 	return -1;
 }
 
-void InitalizeR4300iRegisters (int UsePif, int Country, int CIC_Chip) {
+void InitalizeR4300iRegisters (int UsePif, int CIC_Chip) {
 	memset(CP0,0,sizeof(Registers.CP0));	
 	memset(FPCR,0,sizeof(Registers.FPCR));	
 	memset(RegRDRAM,0,sizeof(Registers.RDRAM));	
@@ -366,65 +367,57 @@ void InitalizeR4300iRegisters (int UsePif, int Country, int CIC_Chip) {
 		GPR[29].DW=0xFFFFFFFFA4001FF0;
 		GPR[30].DW=0x0000000000000000;
 		
-		switch (Country) {
-		case 0x44: //Germany
-		case 0x46: //french
-		case 0x49: //Italian
-		case 0x50: //Europe
-		case 0x53: //Spanish
-		case 0x55: //Australia
-		case 0x58: // ????
-		case 0x59: // X (PAL)
-			switch (CIC_Chip) {
-			case 2:
-				GPR[5].DW=0xFFFFFFFFC0F1D859;
-				GPR[14].DW=0x000000002DE108EA;
-				GPR[24].DW=0x0000000000000000;
-				break;
-			case 3:
-				GPR[5].DW=0xFFFFFFFFD4646273;
-				GPR[14].DW=0x000000001AF99984;
-				GPR[24].DW=0x0000000000000000;
-				break;
-			case 5:
-				*(DWORD *)&IMEM[0x04] = 0xBDA807FC;
-				GPR[5].DW=0xFFFFFFFFDECAAAD1;
-				GPR[14].DW=0x000000000CF85C13;
-				GPR[24].DW=0x0000000000000002;
-				break;
-			case 6:
-				GPR[5].DW=0xFFFFFFFFB04DC903;
-				GPR[14].DW=0x000000001AF99984;
-				GPR[24].DW=0x0000000000000002;
-				break;
+		if(CountryTvSystem == SYSTEM_PAL)
+		{
+			switch (CIC_Chip) 
+			{
+				case 2:
+					GPR[5].DW=0xFFFFFFFFC0F1D859;
+					GPR[14].DW=0x000000002DE108EA;
+					GPR[24].DW=0x0000000000000000;
+					break;
+				case 3:
+					GPR[5].DW=0xFFFFFFFFD4646273;
+					GPR[14].DW=0x000000001AF99984;
+					GPR[24].DW=0x0000000000000000;
+					break;
+				case 5:
+					*(DWORD *)&IMEM[0x04] = 0xBDA807FC;
+					GPR[5].DW=0xFFFFFFFFDECAAAD1;
+					GPR[14].DW=0x000000000CF85C13;
+					GPR[24].DW=0x0000000000000002;
+					break;
+				case 6:
+					GPR[5].DW=0xFFFFFFFFB04DC903;
+					GPR[14].DW=0x000000001AF99984;
+					GPR[24].DW=0x0000000000000002;
+					break;
 			}
 
 			GPR[20].DW=0x0000000000000000;
 			GPR[23].DW=0x0000000000000006;
 			GPR[31].DW=0xFFFFFFFFA4001554;
-			break;
-		case 0x37: // 7 (Beta)
-		case 0x41: // ????
-		case 0x45: //USA
-		case 0x4A: //Japan
-		default:
-			switch (CIC_Chip) {
-			case 2:
-				GPR[5].DW=0xFFFFFFFFC95973D5;
-				GPR[14].DW=0x000000002449A366;
-				break;
-			case 3:
-				GPR[5].DW=0xFFFFFFFF95315A28;
-				GPR[14].DW=0x000000005BACA1DF;
-				break;
-			case 5:
-				*(DWORD *)&IMEM[0x04] = 0x8DA807FC;
-				GPR[5].DW=0x000000005493FB9A;
-				GPR[14].DW=0xFFFFFFFFC2C20384;
-			case 6:
-				GPR[5].DW=0xFFFFFFFFE067221F;
-				GPR[14].DW=0x000000005CD2B70F;
-				break;
+		}
+		else
+		{
+			switch (CIC_Chip) 
+			{
+				case 2:
+					GPR[5].DW=0xFFFFFFFFC95973D5;
+					GPR[14].DW=0x000000002449A366;
+					break;
+				case 3:
+					GPR[5].DW=0xFFFFFFFF95315A28;
+					GPR[14].DW=0x000000005BACA1DF;
+					break;
+				case 5:
+					*(DWORD *)&IMEM[0x04] = 0x8DA807FC;
+					GPR[5].DW=0x000000005493FB9A;
+					GPR[14].DW=0xFFFFFFFFC2C20384;
+				case 6:
+					GPR[5].DW=0xFFFFFFFFE067221F;
+					GPR[14].DW=0x000000005CD2B70F;
+					break;
 			}
 			GPR[20].DW=0x0000000000000001;
 			GPR[23].DW=0x0000000000000000;

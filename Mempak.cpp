@@ -95,20 +95,29 @@ void LoadMempak (void) {
 	WriteFile(hMempakFile,Mempak,sizeof(Mempak),&dwRead,NULL);
 }
 
-BYTE Mempacks_CalulateCrc(BYTE * DataToCrc)
-{
+BYTE Mempacks_CalulateCrc(BYTE * DataToCrc) {
+	DWORD Count;
+	DWORD XorTap;
+
+	int Length;
 	BYTE CRC = 0;
-	for (DWORD Count = 0; Count < 0x20; Count++) 
-	{
-		for (int Length = 0x80; Length >= 1; Length >>= 1) 
-		{
-			DWORD XorTap = (CRC & 0x80) ? 0x85 : 0x00;
+
+	for (Count = 0; Count < 0x21; Count++) {
+		for (Length = 0x80; Length >= 1; Length >>= 1) {
+			XorTap = (CRC & 0x80) ? 0x85 : 0;
 			CRC <<= 1;
-			if(Count != 0x20 && (DataToCrc[Count] & Length))
-				CRC |= 1;
+			if (Count == 0x20) {
+				CRC &= 0xFF;
+			} else {
+				if ((*DataToCrc & Length) != 0) {
+					CRC |= 1;
+				}
+			}
 			CRC ^= XorTap;
 		}
+		DataToCrc++;
 	}
+
 	return CRC;
 }
 

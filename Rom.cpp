@@ -43,6 +43,7 @@ DWORD RomFileSize, RomRamSize, RomSaveUsing, RomCPUType, RomSelfMod,
 	RomDelaySI, RomSPHack, RomAudioSignal;
 char CurrentFileName[MAX_PATH+1] = {""}, RomName[MAX_PATH+1] = {""}, RomHeader[0x1000];
 char LastRoms[10][MAX_PATH+1], LastDirs[10][MAX_PATH+1];
+int CountryTvSystem;
 
 BOOL IsValidRomImage ( BYTE Test[4] );
 
@@ -599,25 +600,11 @@ void LoadRomOptions ( void ) {
 	DisableRegCaching = !RomUseCache;
 	if (UseIni && RomUseLinking == 0 ) { UseLinking = TRUE; }
 	if (UseIni && RomUseLinking == 1 ) { UseLinking = FALSE; }
-	switch (*(ROM + 0x3D)) {
-	case 0x44: //Germany
-	case 0x46: //french
-	case 0x49: //Italian
-	case 0x50: //Europe
-	case 0x53: //Spanish
-	case 0x55: //Australia
-	case 0x58: // X (PAL)
-	case 0x59: // X (PAL)
+
+	if(CountryTvSystem == SYSTEM_PAL)
 		Timer_Initialize((double)50);
-		break;
-	case 0x37: // 7 (Beta)
-	case 0x41: // A (NTSC)
-	case 0x45: //USA
-	case 0x4A: //Japan
-	default:
+	else
 		Timer_Initialize((double)60);
-		break;
-	}
 }
 
 void RemoveRecentDirList (HWND hWnd) {

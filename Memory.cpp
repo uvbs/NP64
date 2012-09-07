@@ -2092,7 +2092,7 @@ int r4300i_SW_NonMemory ( DWORD PAddr, DWORD Value ) {
 		case 0x04500010: 
 			AI_DACRATE_REG = Value;  
 			if (AiDacrateChanged != NULL)
-				AiDacrateChanged(SYSTEM_NTSC);
+				AiDacrateChanged(CountryTvSystem);
 			break;
 		case 0x04500014:  AI_BITRATE_REG = Value; break;
 		default:
