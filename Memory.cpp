@@ -44,31 +44,41 @@ DWORD TempValue;
 int Allocate_ROM ( void ) 
 {	
 #ifdef ROM_IN_MAPSPACE
-	if (ROM != NULL) { 	VirtualFree( ROM, 0x0F000000 , MEM_DECOMMIT); }
-	if(VirtualAlloc(N64MEM + 0x10000000, RomFileSize, MEM_COMMIT, PAGE_READWRITE)==NULL) {
+	//If ROM already contains data, free it
+	if (ROM != NULL)
+		VirtualFree( ROM, 0x0F000000 , MEM_DECOMMIT);
+
+	//Try allocating the memory size of the rom within N64MEM
+	if(!VirtualAlloc(N64MEM + 0x10000000, RomFileSize, MEM_COMMIT, PAGE_READWRITE)) 
+	{
 		ROM = NULL;
 		DisplayError(GS(MSG_MEM_ALLOC_ERROR));
 		return FALSE;
 	}
-//	if(VirtualAlloc((BYTE *)JumpTable + 0x10000000, RomFileSize, MEM_COMMIT, PAGE_READWRITE)==NULL) {
+//	if(!VirtualAlloc((BYTE *)JumpTable + 0x10000000, RomFileSize, MEM_COMMIT, PAGE_READWRITE)) 
+//	{
 //		DisplayError(GS(MSG_MEM_ALLOC_ERROR));
 //		return FALSE;
 //	}
-	if (VirtualAlloc((BYTE *)DelaySlotTable + (0x10000000 >> 0xA), (RomFileSize >> 0xA), MEM_COMMIT, PAGE_READWRITE)==NULL) {
+	//Try allocating the memory size of the rom within the DelaySlotTable
+	if (!VirtualAlloc((BYTE *)DelaySlotTable + (0x10000000 >> 0xA), (RomFileSize >> 0xA), MEM_COMMIT, PAGE_READWRITE)) 
+	{
 		DisplayError(GS(MSG_MEM_ALLOC_ERROR));
 		return FALSE;
 	}
 	ROM  = (unsigned char *)(N64MEM+0x10000000);
 	return TRUE;
 #else
-	if (ROM != NULL) { 	VirtualFree( ROM, 0 , MEM_RELEASE); }
+	if (ROM != NULL) 
+		VirtualFree( ROM, 0 , MEM_RELEASE);
 	ROM = (BYTE *)VirtualAlloc(NULL,RomFileSize,MEM_RESERVE|MEM_COMMIT|MEM_TOP_DOWN,PAGE_READWRITE);
 	WrittenToRom = FALSE;
 	return ROM == NULL?FALSE:TRUE;
 #endif
 }
 
-int Allocate_Memory ( void ) {	
+int Allocate_Memory ( void )
+{	
 	RdramSize = 0x400000;
 	
 	N64MEM = (unsigned char *) VirtualAlloc( NULL, 0x20000000, MEM_RESERVE, PAGE_NOACCESS );
@@ -82,10 +92,6 @@ int Allocate_Memory ( void ) {
 		DisplayError(GS(MSG_MEM_ALLOC_ERROR));
 		return FALSE;
 	}
-
-#ifndef EXTERNAL_RELEASE
-	SyncMemory = (BYTE*) VirtualAlloc( NULL, 0x20000000, MEM_RESERVE | MEM_TOP_DOWN, PAGE_READWRITE );
-#endif
 
 	/* Recomp code */
 	RecompCode=(BYTE *) VirtualAlloc( NULL, LargeCompileBufferSize + 4, MEM_RESERVE|MEM_TOP_DOWN, PAGE_EXECUTE_READWRITE);
@@ -161,7 +167,8 @@ int Allocate_Memory ( void ) {
 void Compile_LB ( int Reg, DWORD Addr, BOOL SignExtend) {
 	char VarName[100];
 
-	if (!TranslateVaddr(&Addr)) {
+	if (!TranslateVaddr(&Addr)) 
+	{
 		MoveConstToX86reg(0,Reg);
 		CPU_Message("Compile_LB\nFailed to translate address %X",Addr);
 		if (ShowUnhandledMemory) { DisplayError("Compile_LB\nFailed to translate address %X",Addr); }
@@ -179,11 +186,10 @@ void Compile_LB ( int Reg, DWORD Addr, BOOL SignExtend) {
 	case 0x00700000: 
 	case 0x10000000: 
 		sprintf(VarName,"N64MEM + %X",Addr);
-		if (SignExtend) {
+		if (SignExtend)
 			MoveSxVariableToX86regByte(Addr + N64MEM,VarName,Reg); 
-		} else {
-			MoveZxVariableToX86regByte(Addr + N64MEM,VarName,Reg); 
-		}
+		else
+			MoveZxVariableToX86regByte(Addr + N64MEM,VarName,Reg);
 		break;
 	default:
 		MoveConstToX86reg(0,Reg);
@@ -2076,27 +2082,27 @@ int r4300i_SW_NonMemory ( DWORD PAddr, DWORD Value ) {
 	case 0x04500000: 
 		switch (PAddr) 
 		{
-		case 0x04500000: AI_DRAM_ADDR_REG = Value; break;
-		case 0x04500004: 
-			AI_LEN_REG = Value;  
-			if (AiLenChanged != NULL) 
-				AiLenChanged();
-			break;
-		case 0x04500008: AI_CONTROL_REG = (Value & 1); break;
-		case 0x0450000C:
-			/* Clear Interrupt */; 
-			MI_INTR_REG &= ~MI_INTR_AI;
-			AudioIntrReg &= ~MI_INTR_AI;
-			CheckInterrupts();
-			break;
-		case 0x04500010: 
-			AI_DACRATE_REG = Value;  
-			if (AiDacrateChanged != NULL)
-				AiDacrateChanged(CountryTvSystem);
-			break;
-		case 0x04500014:  AI_BITRATE_REG = Value; break;
-		default:
-			return FALSE;
+			case 0x04500000: AI_DRAM_ADDR_REG = Value; break;
+			case 0x04500004: 
+				AI_LEN_REG = Value;  
+				if (AiLenChanged != NULL) 
+					AiLenChanged();
+				break;
+			case 0x04500008: AI_CONTROL_REG = (Value & 1); break;
+			case 0x0450000C:
+				/* Clear Interrupt */; 
+				MI_INTR_REG &= ~MI_INTR_AI;
+				AudioIntrReg &= ~MI_INTR_AI;
+				CheckInterrupts();
+				break;
+			case 0x04500010: 
+				AI_DACRATE_REG = Value;  
+				if (AiDacrateChanged != NULL)
+					AiDacrateChanged(CountryTvSystem);
+				break;
+			case 0x04500014:  AI_BITRATE_REG = Value; break;
+			default:
+				return FALSE;
 		}
 		break;
 	case 0x04600000: 
@@ -2203,8 +2209,8 @@ BOOL r4300i_SW_VAddr ( DWORD VAddr, DWORD Value )
 	return TRUE;
 }
 
-void Release_Memory ( void ) {
-	FreeSyncMemory();
+void Release_Memory ( void )
+{
 	if (OrigMem != NULL) 
 		VirtualFree(OrigMem,0,MEM_RELEASE);
 	if (ROM != NULL) 
@@ -2213,7 +2219,6 @@ void Release_Memory ( void ) {
 	VirtualFree( TLB_WriteMap, 0 , MEM_RELEASE);
 	VirtualFree( N64MEM, 0 , MEM_RELEASE);
 	VirtualFree( DelaySlotTable, 0 , MEM_RELEASE);
-	VirtualFree( SyncMemory, 0 , MEM_RELEASE);
 	VirtualFree( JumpTable, 0 , MEM_RELEASE);
 	VirtualFree( RecompCode, 0 , MEM_RELEASE);
 }

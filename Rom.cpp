@@ -672,7 +672,6 @@ void ReadRomOptions (void) {
 			_GetPrivateProfileString(Identifier,"CPU Type","",String,sizeof(String),IniFileName);
 			if (strcmp(String,"Interpreter") == 0)       { RomCPUType = CPU_Interpreter; } 
 			else if (strcmp(String,"Recompiler") == 0)   { RomCPUType = CPU_Recompiler; } 
-			else if (strcmp(String,"SyncCores") == 0)    { RomCPUType = CPU_SyncCores; } 
 			else                                         { RomCPUType = CPU_Default; } 
 
 			_GetPrivateProfileString(Identifier,"Self-modifying code Method","",String,sizeof(String),IniFileName);
@@ -1107,7 +1106,6 @@ void SaveRomOptions (void) {
 	switch (RomCPUType) {
 	case CPU_Interpreter: sprintf(String,"Interpreter"); break;
 	case CPU_Recompiler: sprintf(String,"Recompiler"); break;
-	case CPU_SyncCores: sprintf(String,"SyncCores"); break;
 	default: sprintf(String,"Default"); break;
 	}
 	_WritePrivateProfileString(Identifier,"CPU Type",String,GetIniFileName());

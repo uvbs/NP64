@@ -1267,10 +1267,6 @@ void UnProtectGPR(BLOCK_SECTION * Section, DWORD Reg) {
 }
 
 void UpdateCurrentHalfLine (void) {
-	if (CPU_Type == CPU_SyncCores) {
-		HalfLine = 0;
-		return;
-	}
     if (Timers.Timer < 0) { 
 		HalfLine = 0;
 		return;

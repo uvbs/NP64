@@ -188,11 +188,6 @@ BYTE * Compiler4300iBlock(void) {
 			DisplaySectionInformation(&BlockInfo.BlockInfo,count + 1,BlockInfo.BlockInfo.Test + 1);
 		}*/
 	}
-	if (CPU_Type == CPU_SyncCores) {
-		//if ((DWORD)BlockInfo.CompiledLocation == 0x60A7B73B) { BreakPoint(); }
-		MoveConstToVariable((DWORD)BlockInfo.CompiledLocation,&CurrentBlock,"CurrentBlock");
-	}
-	
 	if (UseLinking) {
 		while (GenerateX86Code(&BlockInfo.BlockInfo,GetNewTestValue()));
 	} else {
@@ -272,10 +267,6 @@ BYTE * CompileDelaySlot(void) {
 	InitilzeSection (Section, NULL, PROGRAM_COUNTER, 0);
 	InitilizeRegSet(&Section->RegStart);
 	memcpy(&Section->RegWorking,&Section->RegStart,sizeof(REG_INFO));		
-
-	if (CPU_Type == CPU_SyncCores) {
-		MoveConstToVariable((DWORD)Block,&CurrentBlock,"CurrentBlock");
-	}
 
 	BlockCycleCount += CountPerOp;
 	//CPU_Message("BlockCycleCount = %d",BlockCycleCount);
@@ -429,7 +420,6 @@ BYTE * CompileDelaySlot(void) {
 	MoveVariableToX86reg(&JumpToLocation,"JumpToLocation",x86Reg);
 	MoveX86regToVariable(x86Reg,&PROGRAM_COUNTER,"PROGRAM_COUNTER");
 	MoveConstToVariable(NORMAL,&NextInstruction,"NextInstruction");
-	if (CPU_Type == CPU_SyncCores) { Call_Direct(SyncToPC, "SyncToPC"); }
 	Ret();
 	CPU_Message("====== End of recompiled code ======");
 	return Block;
@@ -475,7 +465,6 @@ void CompileExit (DWORD TargetPC, REG_INFO ExitRegSet, int reason, int CompileNo
 
 	switch (reason) {
 	case Normal: case Normal_NoSysCheck:
-		if (CPU_Type == CPU_SyncCores) { Call_Direct(SyncToPC, "SyncToPC"); }
 		Section.RegWorking.RandomModifier = 0;
 		Section.RegWorking.CycleCount = 0;
 		if (reason == Normal) { CompileSystemCheck(0,(DWORD)-1,Section.RegWorking);	}
@@ -552,29 +541,24 @@ void CompileExit (DWORD TargetPC, REG_INFO ExitRegSet, int reason, int CompileNo
 #endif
 		break;
 	case DoCPU_Action:
-		if (CPU_Type == CPU_SyncCores) { Call_Direct(SyncToPC, "SyncToPC"); }
 		Call_Direct(DoSomething,"DoSomething");
-		if (CPU_Type == CPU_SyncCores) { Call_Direct(SyncToPC, "SyncToPC"); }
 		Ret();
 		break;
 	case DoSysCall:
 		MoveConstToX86reg(NextInstruction == JUMP || NextInstruction == DELAY_SLOT,x86_ECX);		
 		Call_Direct(DoSysCallException,"DoSysCallException");
-		if (CPU_Type == CPU_SyncCores) { Call_Direct(SyncToPC, "SyncToPC"); }
 		Ret();
 		break;
 	case COP1_Unuseable:
 		MoveConstToX86reg(NextInstruction == JUMP || NextInstruction == DELAY_SLOT,x86_ECX);		
 		MoveConstToX86reg(1,x86_EDX);
 		Call_Direct(DoCopUnusableException,"DoCopUnusableException");
-		if (CPU_Type == CPU_SyncCores) { Call_Direct(SyncToPC, "SyncToPC"); }
 		Ret();
 		break;
 	case ExitResetRecompCode:
 		if (NextInstruction == JUMP || NextInstruction == DELAY_SLOT) {
 			BreakPoint();
 		}
-		if (CPU_Type == CPU_SyncCores) { Call_Direct(SyncToPC, "SyncToPC"); }
 		Call_Direct(ResetRecompCode, "ResetRecompCode");
 		Ret();
 		break;
@@ -582,7 +566,6 @@ void CompileExit (DWORD TargetPC, REG_INFO ExitRegSet, int reason, int CompileNo
 		MoveConstToX86reg(NextInstruction == JUMP || NextInstruction == DELAY_SLOT,x86_ECX);
 		MoveVariableToX86reg(&TLBLoadAddress,"TLBLoadAddress",x86_EDX);
 		Call_Direct(DoTLBMiss,"DoTLBMiss");
-		if (CPU_Type == CPU_SyncCores) { Call_Direct(SyncToPC, "SyncToPC"); }
 		Ret();
 		break;
 	default:
@@ -607,9 +590,7 @@ void CompileSystemCheck (DWORD TimerModifier, DWORD TargetPC, REG_INFO RegSet) {
 	InitilzeSection (&Section, NULL, (DWORD)-1, 0);
 	memcpy(&Section.RegWorking, &RegSet, sizeof(REG_INFO));
 	WriteBackRegisters(&Section);
-	if (CPU_Type == CPU_SyncCores) { Call_Direct(SyncToPC, "SyncToPC"); }
 	Call_Direct(TimerDone,"TimerDone");
-	if (CPU_Type == CPU_SyncCores) { Call_Direct(SyncToPC, "SyncToPC"); }
 	Popad();
 
 	//Interrupt
@@ -1725,7 +1706,6 @@ void GenerateSectionLinkage (BLOCK_SECTION * Section) {
 		}
 		if (BlockRandomModifier != 0) { SubConstFromVariable(BlockRandomModifier,&CP0[1],Cop0_Name[1]); }
 		WriteBackRegisters(Section);
-		if (CPU_Type == CPU_SyncCores) { Call_Direct(SyncToPC, "SyncToPC"); }
 		MoveConstToVariable(DELAY_SLOT,&NextInstruction,"NextInstruction");
 		Ret();
 		return;
@@ -1969,19 +1949,6 @@ BOOL GenerateX86Code (BLOCK_SECTION * Section, DWORD Test) {
 	Section->CompiledLocation = RecompPos;
 	Section->CompilePC = Section->StartPC;
 	NextInstruction = NORMAL;	
-	/*if (CPU_Type == CPU_SyncCores) { 
-	//if (CPU_Type == CPU_SyncCores && (DWORD)RecompPos > 0x6094C283) { 
-		MoveConstToVariable(Section->StartPC,&PROGRAM_COUNTER,"PROGRAM_COUNTER");	
-		if (BlockCycleCount != 0) { 
-			AddConstToVariable(BlockCycleCount,&CP0[9],Cop0_Name[9]); 
-			SubConstFromVariable(BlockCycleCount,&Timers.Timer,"Timer");
-		}
-		if (BlockRandomModifier != 0) { SubConstFromVariable(BlockRandomModifier,&CP0[1],Cop0_Name[1]); }
-		BlockCycleCount = 0;
-		BlockRandomModifier = 0;
-		Call_Direct(SyncToPC, "SyncToPC"); 
-		MoveConstToVariable((DWORD)RecompPos,&CurrentBlock,"CurrentBlock");
-	}*/
 	do {
 		__try {
 			if (!r4300i_LW_VAddr(Section->CompilePC, &Opcode.Hex)) {
@@ -2015,7 +1982,6 @@ BOOL GenerateX86Code (BLOCK_SECTION * Section, DWORD Test) {
 			BlockRandomModifier = 0;
 			MoveConstToVariable(Section->CompilePC,&PROGRAM_COUNTER,"PROGRAM_COUNTER");
 			MoveConstToVariable((DWORD)RecompPos,&CurrentBlock,"CurrentBlock");
-			if (CPU_Type == CPU_SyncCores) { Call_Direct(SyncToPC, "SyncToPC"); }
 		}*/
 
 
@@ -2030,7 +1996,6 @@ BOOL GenerateX86Code (BLOCK_SECTION * Section, DWORD Test) {
 			BlockRandomModifier = 0;
 			MoveConstToVariable(Section->CompilePC,&PROGRAM_COUNTER,"PROGRAM_COUNTER");
 			MoveConstToVariable((DWORD)RecompPos,&CurrentBlock,"CurrentBlock");
-			if (CPU_Type == CPU_SyncCores) { Call_Direct(SyncToPC, "SyncToPC"); }
 		}*/
 		/*if (Section->CompilePC == 0x8005E460 && NextInstruction == NORMAL) { 
 			WriteBackRegisters(Section); 
@@ -2043,7 +2008,6 @@ BOOL GenerateX86Code (BLOCK_SECTION * Section, DWORD Test) {
 			BlockRandomModifier = 0;
 			MoveConstToVariable(Section->CompilePC,&PROGRAM_COUNTER,"PROGRAM_COUNTER");
 			MoveConstToVariable((DWORD)RecompPos,&CurrentBlock,"CurrentBlock");
-			if (CPU_Type == CPU_SyncCores) { Call_Direct(SyncToPC, "SyncToPC"); }
 		}*/
 		
 		/*if (Section->CompilePC == 0x150A1570 && NextInstruction == NORMAL) { 
@@ -2066,7 +2030,7 @@ BOOL GenerateX86Code (BLOCK_SECTION * Section, DWORD Test) {
 			BlockRandomModifier = 0;
 			MoveConstToVariable(Section->CompilePC,&PROGRAM_COUNTER,"PROGRAM_COUNTER");
 			MoveConstToVariable((DWORD)RecompPos,&CurrentBlock,"CurrentBlock");
-			if (CPU_Type == CPU_SyncCores) { Call_Direct(SyncToPC, "SyncToPC"); }
+
 		}
 		if (Section->CompilePC == 0x150A1514 && NextInstruction == NORMAL) { 
 			WriteBackRegisters(Section); 
@@ -2079,7 +2043,6 @@ BOOL GenerateX86Code (BLOCK_SECTION * Section, DWORD Test) {
 			BlockRandomModifier = 0;
 			MoveConstToVariable(Section->CompilePC,&PROGRAM_COUNTER,"PROGRAM_COUNTER");
 			MoveConstToVariable((DWORD)RecompPos,&CurrentBlock,"CurrentBlock");
-			if (CPU_Type == CPU_SyncCores) { Call_Direct(SyncToPC, "SyncToPC"); }
 		}
 
 		if (Section->CompilePC == 0x150A1454 && NextInstruction == NORMAL) { 
@@ -2093,7 +2056,6 @@ BOOL GenerateX86Code (BLOCK_SECTION * Section, DWORD Test) {
 			BlockRandomModifier = 0;
 			MoveConstToVariable(Section->CompilePC,&PROGRAM_COUNTER,"PROGRAM_COUNTER");
 			MoveConstToVariable((DWORD)RecompPos,&CurrentBlock,"CurrentBlock");
-			if (CPU_Type == CPU_SyncCores) { Call_Direct(SyncToPC, "SyncToPC"); }
 		}*/
 
 		BlockCycleCount += CountPerOp;

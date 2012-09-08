@@ -96,7 +96,6 @@
 #define CPU_Default					-1
 #define CPU_Interpreter				0
 #define CPU_Recompiler				1
-#define CPU_SyncCores				2
 #define Default_CPU					CPU_Recompiler
 
 /*********** GFX Defaults ************/

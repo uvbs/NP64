@@ -125,9 +125,7 @@ void CheckTimer (void)
 	Timers.Timer = 0x7FFFFFFF;
 	for (count = 0; count < MaxTimers; count++) 
 	{
-		if (!Timers.Active[count])
-			continue;
-		if (Timers.NextTimer[count] >= Timers.Timer)
+		if (Timers.NextTimer[count] >= Timers.Timer || !Timers.Active[count])
 			continue;
 		Timers.Timer = Timers.NextTimer[count];
 		Timers.CurrentTimerType = count;
@@ -216,8 +214,6 @@ void CloseCpu (void)
 	CloseMempak();
 	//Close the Sram memory handles
 	CloseSram();
-	//Free the sync memory
-	FreeSyncMemory();
 
 	if (GfxRomClosed != NULL)
 		GfxRomClosed();
@@ -234,7 +230,8 @@ void CloseCpu (void)
 	SendMessage( hStatusWnd, SB_SETTEXT, 0, (LPARAM)GS(MSG_EMULATION_ENDED) );
 }
 
-int DelaySlotEffectsCompare (DWORD PC, DWORD Reg1, DWORD Reg2) {
+int DelaySlotEffectsCompare (DWORD PC, DWORD Reg1, DWORD Reg2)
+{
 	OPCODE Command;
 
 	if (!r4300i_LW_VAddr(PC + 4, &Command.Hex))
@@ -338,66 +335,66 @@ int DelaySlotEffectsCompare (DWORD PC, DWORD Reg1, DWORD Reg2) {
 				}
 		}
 		break;
-	case R4300i_CP1:
-		switch (Command.fmt) 
-		{
-			case R4300i_COP1_MF:
-				if (Command.rt == 0)
-					return FALSE;
-				if (Command.rt == Reg1 || Command.rt == Reg2) 
+		case R4300i_CP1:
+			switch (Command.fmt) 
+			{
+				case R4300i_COP1_MF:
+					if (Command.rt == 0)
+						return FALSE;
+					if (Command.rt == Reg1 || Command.rt == Reg2) 
+						return TRUE;
+					break;
+				case R4300i_COP1_CF: break;
+				case R4300i_COP1_MT: break;
+				case R4300i_COP1_CT: break;
+				case R4300i_COP1_S: break;
+				case R4300i_COP1_D: break;
+				case R4300i_COP1_W: break;
+				case R4300i_COP1_L: break;
+				default:
+					DebugError("Does %s effect Delay slot at %X?",R4300iOpcodeName(Command.Hex,PC+4), PC);
 					return TRUE;
-				break;
-			case R4300i_COP1_CF: break;
-			case R4300i_COP1_MT: break;
-			case R4300i_COP1_CT: break;
-			case R4300i_COP1_S: break;
-			case R4300i_COP1_D: break;
-			case R4300i_COP1_W: break;
-			case R4300i_COP1_L: break;
-			default:
-				DebugError("Does %s effect Delay slot at %X?",R4300iOpcodeName(Command.Hex,PC+4), PC);
-				return TRUE;
 			}
 			break;
-			case R4300i_ANDI:
-			case R4300i_ORI:
-			case R4300i_XORI:
-			case R4300i_LUI:
-			case R4300i_ADDI:
-			case R4300i_ADDIU:
-			case R4300i_SLTI:
-			case R4300i_SLTIU:
-			case R4300i_DADDI:
-			case R4300i_DADDIU:
-			case R4300i_LB:
-			case R4300i_LH:
-			case R4300i_LW:
-			case R4300i_LWL:
-			case R4300i_LWR:
-			case R4300i_LDL:
-			case R4300i_LDR:
-			case R4300i_LBU:
-			case R4300i_LHU:
-			case R4300i_LD:
-			case R4300i_LWC1:
-			case R4300i_LDC1:
-				if (Command.rt == 0)
-					return FALSE;
-				if (Command.rt == Reg1 || Command.rt == Reg2)
-					return TRUE;
-				break;
-			case R4300i_CACHE: break;
-			case R4300i_SB: break;
-			case R4300i_SH: break;
-			case R4300i_SW: break;
-			case R4300i_SWR: break;
-			case R4300i_SWL: break;
-			case R4300i_SWC1: break;
-			case R4300i_SDC1: break;
-			case R4300i_SD: break;
-			default:
-				DebugError("Does %s effect Delay slot at %X?",R4300iOpcodeName(Command.Hex,PC+4), PC);
+		case R4300i_ANDI:
+		case R4300i_ORI:
+		case R4300i_XORI:
+		case R4300i_LUI:
+		case R4300i_ADDI:
+		case R4300i_ADDIU:
+		case R4300i_SLTI:
+		case R4300i_SLTIU:
+		case R4300i_DADDI:
+		case R4300i_DADDIU:
+		case R4300i_LB:
+		case R4300i_LH:
+		case R4300i_LW:
+		case R4300i_LWL:
+		case R4300i_LWR:
+		case R4300i_LDL:
+		case R4300i_LDR:
+		case R4300i_LBU:
+		case R4300i_LHU:
+		case R4300i_LD:
+		case R4300i_LWC1:
+		case R4300i_LDC1:
+			if (Command.rt == 0)
+				return FALSE;
+			if (Command.rt == Reg1 || Command.rt == Reg2)
 				return TRUE;
+			break;
+		case R4300i_CACHE: break;
+		case R4300i_SB: break;
+		case R4300i_SH: break;
+		case R4300i_SW: break;
+		case R4300i_SWR: break;
+		case R4300i_SWL: break;
+		case R4300i_SWC1: break;
+		case R4300i_SDC1: break;
+		case R4300i_SD: break;
+		default:
+			DebugError("Does %s effect Delay slot at %X?",R4300iOpcodeName(Command.Hex,PC+4), PC);
+			return TRUE;
 	}
 	return FALSE;
 }
@@ -468,9 +465,8 @@ int DelaySlotEffectsJump (DWORD JumpPC)
 						EffectDelaySlot = FALSE;
 						if (NewCommand.op == R4300i_CP1) 
 						{
-							if (NewCommand.fmt == R4300i_COP1_S && (NewCommand.funct & 0x30) == 0x30 )
-								EffectDelaySlot = TRUE;
-							if (NewCommand.fmt == R4300i_COP1_D && (NewCommand.funct & 0x30) == 0x30 )
+							if (NewCommand.fmt == R4300i_COP1_S && (NewCommand.funct & 0x30) == 0x30 ||
+								NewCommand.fmt == R4300i_COP1_D && (NewCommand.funct & 0x30) == 0x30)
 								EffectDelaySlot = TRUE;
 						}
 						return EffectDelaySlot;
@@ -524,13 +520,6 @@ void DoSomething ( void )
 	{
 		CPU_Action.DoInterrupt = FALSE;
 		DoIntrException(FALSE);
-		if (CPU_Type == CPU_SyncCores)
-		{
-			SyncRegisters.MI[2] = Registers.MI[2];
-			SwitchSyncRegisters();
-			DoIntrException(FALSE);
-			SwitchSyncRegisters();
-		}
 	}
 
 	if (CPU_Action.ChangeWindow)
@@ -567,7 +556,7 @@ void DoSomething ( void )
 			if (CPU_Paused)
 			{ 
 				ReleaseMutex(hPauseMutex);
-				SuspendThread(hCPU); 
+				SuspendThread(hCPU);
 			}
 			else
 			{
@@ -667,7 +656,6 @@ void InPermLoop (void)
 	
 	//Timers.Timer -= 5;
 	//COUNT_REGISTER +=5;
-	//if (CPU_Type == CPU_SyncCores) { SyncRegisters.CP0[9] +=5; }
 
 	/* Interrupts enabled */
 	if (( STATUS_REGISTER & STATUS_IE  ) == 0 ) 
@@ -687,8 +675,6 @@ void InPermLoop (void)
 	if (Timers.Timer > 0)
 	{
 		COUNT_REGISTER += Timers.Timer + 1;
-		if (CPU_Type == CPU_SyncCores)
-			SyncRegisters.CP0[9] += Timers.Timer + 1;
 		Timers.Timer = -1;
 	}
 	return;
@@ -863,16 +849,6 @@ BOOL Machine_LoadState(void)
 		sprintf(FileName,"%s%s",ZipFile,ext);
 	}
 
-	if (CPU_Type == CPU_SyncCores) 
-	{
-		DWORD OldProtect;
-
-		VirtualProtect(N64MEM,RdramSize,PAGE_READWRITE,&OldProtect);
-		VirtualProtect(N64MEM + 0x04000000,0x2000,PAGE_READWRITE,&OldProtect);
-		VirtualProtect(SyncMemory,RdramSize,PAGE_READWRITE,&OldProtect);
-		VirtualProtect(SyncMemory + 0x04000000,0x2000,PAGE_READWRITE,&OldProtect);	
-	}
-
 	//If cpu type is not the interpreter, reset the recompiler code
 	if (CPU_Type != CPU_Interpreter) 
 		ResetRecompCode();
@@ -938,29 +914,6 @@ BOOL Machine_LoadState(void)
 	strcpy(SaveAsFileName,"");
 	strcpy(LoadFileName,"");
 
-	if (CPU_Type == CPU_SyncCores) 
-	{		
-		Registers.PROGRAM_COUNTER = PROGRAM_COUNTER;
-		Registers.HI.DW = HI.DW;
-		Registers.LO.DW = LO.DW;
-		Registers.DMAUsed = DMAUsed;
-		memcpy(&SyncRegisters,&Registers,sizeof(Registers));
-		memcpy(SyncFastTlb,FastTlb,sizeof(FastTlb));
-		memcpy(SyncTlb,tlb,sizeof(tlb));
-		memcpy(SyncMemory,N64MEM,RdramSize);
-		memcpy(SyncMemory + 0x04000000,N64MEM + 0x04000000,0x2000);		
-		SwitchSyncRegisters();
-		SetupTLB();
-		SwitchSyncRegisters();		
-		SyncNextInstruction = NORMAL;
-		SyncJumpToLocation = -1;
-		NextInstruction = NORMAL;
-		JumpToLocation = -1;
-		MemAddrUsedCount[0] = 0;
-		MemAddrUsedCount[1] = 0;
-		SyncToPC ();
-		DisplayError("Loaded");
-	}
 #ifdef Log_x86Code
 	Stop_x86_Log();
 	Start_x86_Log();
@@ -1401,9 +1354,6 @@ void StartEmulation ( void )
 			break;
 		case CPU_Recompiler: 
 			hCPU = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)StartRecompilerCPU,NULL,0, &ThreadID);
-			break;
-		case CPU_SyncCores:
-			hCPU = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)StartSyncCPU,NULL,0, &ThreadID);
 			break;
 		default:
 			DisplayError("Unhandled CPU %d",CPU_Type);

@@ -45,7 +45,6 @@
     <ClCompile Include="Sram.cpp" />
     <ClCompile Include="TLB.cpp" />
     <ClCompile Include="X86.cpp" />
-    <ClCompile Include="SyncCPU.cpp" />
     <ClCompile Include="TLBDisplay.cpp" />
     <ClCompile Include="SettingsApi.cpp" />
     <ClCompile Include="Win32Timer.cpp" />
@@ -105,7 +104,6 @@
     <ClInclude Include="tlb.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="Win32Timer.h" />
-    <ClInclude Include="SyncCPU.h" />
     <ClInclude Include="tlbDisplay.h" />
     <ClInclude Include="SettingsApi.h" />
     <ClInclude Include="CPULog.h" />

@@ -29,7 +29,6 @@
 #include "registers.h"
 #include "RecompilerOps.h"
 #include "tlb.h"
-#include "SyncCPU.h"
 #include "memory.h"
 #include "DMA.h"
 #include "eeprom.h"

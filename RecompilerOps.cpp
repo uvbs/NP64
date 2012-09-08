@@ -1097,7 +1097,6 @@ void Compile_R4300i_JAL (BLOCK_SECTION * Section) {
 			}
 			if (BlockRandomModifier != 0) { SubConstFromVariable(BlockRandomModifier,&CP0[1],Cop0_Name[1]); }
 			WriteBackRegisters(Section);
-			if (CPU_Type == CPU_SyncCores) { Call_Direct(SyncToPC, "SyncToPC"); }
 			MoveConstToVariable(DELAY_SLOT,&NextInstruction,"NextInstruction");
 			Ret();
 			NextInstruction = END_BLOCK;
@@ -2921,7 +2920,6 @@ void Compile_R4300i_SPECIAL_JR (BLOCK_SECTION * Section) {
 			}
 			if (BlockRandomModifier != 0) { SubConstFromVariable(BlockRandomModifier,&CP0[1],Cop0_Name[1]); }
 			WriteBackRegisters(Section);
-			if (CPU_Type == CPU_SyncCores) { Call_Direct(SyncToPC, "SyncToPC"); }
 			MoveConstToVariable(DELAY_SLOT,&NextInstruction,"NextInstruction");
 			Ret();
 			NextInstruction = END_BLOCK;
@@ -2983,7 +2981,6 @@ void Compile_R4300i_SPECIAL_JALR (BLOCK_SECTION * Section) {
 			}
 			if (BlockRandomModifier != 0) { SubConstFromVariable(BlockRandomModifier,&CP0[1],Cop0_Name[1]); }
 			WriteBackRegisters(Section);
-			if (CPU_Type == CPU_SyncCores) { Call_Direct(SyncToPC, "SyncToPC"); }
 			MoveConstToVariable(DELAY_SLOT,&NextInstruction,"NextInstruction");
 			Ret();
 			NextInstruction = END_BLOCK;
@@ -4912,7 +4909,6 @@ void Compile_R4300i_UnknownOpcode (BLOCK_SECTION * Section) {
 	WriteBackRegisters(Section);
 	AddConstToVariable(BlockCycleCount,&CP0[9],Cop0_Name[9]);
 	SubConstFromVariable(BlockRandomModifier,&CP0[1],Cop0_Name[1]);
-	if (CPU_Type == CPU_SyncCores) { Call_Direct(SyncToPC, "SyncToPC"); }
 	MoveConstToVariable(Opcode.Hex,&Opcode.Hex,"Opcode.Hex");
 	Call_Direct(R4300i_UnknownOpcode, "R4300i_UnknownOpcode");
 	Ret();

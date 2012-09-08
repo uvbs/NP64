@@ -683,7 +683,7 @@ void ExecuteInterpreterOpCode (void) {
 	} 
 
 	COUNT_REGISTER += CountPerOp;
-	if (CPU_Type != CPU_SyncCores) { Timers.Timer -= CountPerOp; }
+	Timers.Timer -= CountPerOp;
 
 	RANDOM_REGISTER -= 1;
 	if ((int)RANDOM_REGISTER < (int)WIRED_REGISTER) {
@@ -714,21 +714,23 @@ void ExecuteInterpreterOpCode (void) {
 	case JUMP:
 		PROGRAM_COUNTER  = JumpToLocation;
 		NextInstruction = NORMAL;
-		if (CPU_Type != CPU_SyncCores) {
-			if (Profiling) {
-				if (IndvidualBlock) {
-					char Label[100];
-					sprintf(Label,"PC: %X",PROGRAM_COUNTER);
-					StartTimer(Label);
-				} else {
-					StartTimer("r4300i Running");
-				}
-			}
-			if (CPU_Type != CPU_SyncCores) {
-				if ((int)Timers.Timer < 0) {  TimerDone(); }
-				if (CPU_Action.DoSomething) { DoSomething(); }
+		if (Profiling) 
+		{
+			if (IndvidualBlock) 
+			{
+				char Label[100];
+				sprintf(Label,"PC: %X",PROGRAM_COUNTER);
+				StartTimer(Label);
+			} 
+			else 
+			{
+				StartTimer("r4300i Running");
 			}
 		}
+		if ((int)Timers.Timer < 0) 
+			TimerDone();
+		if (CPU_Action.DoSomething)
+			DoSomething();
 	}		
 }
 	

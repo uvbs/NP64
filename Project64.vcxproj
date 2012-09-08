@@ -114,8 +114,8 @@
       <OutputFile>$(OutDir)Project64.exe</OutputFile>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>zlib/zlib-vc8-Win32.lib;htmlhelp.lib;winmm.lib;comctl32.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-		<DataExecutionPrevention>false</DataExecutionPrevention>
-	</Link>
+      <DataExecutionPrevention>false</DataExecutionPrevention>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release External|Win32'">
     <ClCompile>
@@ -232,7 +232,6 @@
     <ClCompile Include="RomBrowser.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="SettingsApi.cpp" />
-    <ClCompile Include="SyncCPU.cpp" />
     <ClCompile Include="TLBDisplay.cpp" />
     <ClCompile Include="Win32Timer.cpp" />
     <ClCompile Include="unzip.c">
@@ -278,7 +277,6 @@
     <ClInclude Include="RomBrowser.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="SettingsApi.h" />
-    <ClInclude Include="SyncCPU.h" />
     <ClInclude Include="tlbDisplay.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="Win32Timer.h" />
