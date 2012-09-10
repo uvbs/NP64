@@ -214,6 +214,7 @@
   <ItemGroup>
     <ClCompile Include="BreakPoints.cpp" />
     <ClCompile Include="CPULog.cpp" />
+    <ClCompile Include="FileUtil.cpp" />
     <ClCompile Include="InterpreterCPU.cpp" />
     <ClCompile Include="InterpreterOps.cpp" />
     <ClCompile Include="ioapi.c" />
@@ -264,6 +265,7 @@
     <ClInclude Include="CPULog.h" />
     <ClInclude Include="crypt.h" />
     <ClInclude Include="Debugger.h" />
+    <ClInclude Include="FileUtil.h" />
     <ClInclude Include="InterpreterCPU.h" />
     <ClInclude Include="InterpreterOps.h" />
     <ClInclude Include="ioapi.h" />

@@ -57,6 +57,7 @@
     <ClCompile Include="ioapi.c">
       <Filter>zipstuff</Filter>
     </ClCompile>
+    <ClCompile Include="FileUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="unzip.h">
@@ -113,6 +114,7 @@
     <ClInclude Include="crypt.h">
       <Filter>zipstuff</Filter>
     </ClInclude>
+    <ClInclude Include="FileUtil.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="PJ64.rc">

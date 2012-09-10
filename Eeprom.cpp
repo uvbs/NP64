@@ -29,6 +29,7 @@
 #include <time.h>
 #include "main.h"
 #include "CPU.h"
+#include "FileUtil.h"
 
 static HANDLE hEepromFile = NULL;
 BYTE EEPROM[0x800];
@@ -138,7 +139,6 @@ void EepromCommand ( BYTE * Command)
 void LoadEeprom (void) {
 	char File[255], Directory[255];
 	DWORD dwRead;
-
 	GetAutoSaveDir(Directory);
 	sprintf(File,"%s%s.eep",Directory,RomName);
 	
@@ -146,22 +146,8 @@ void LoadEeprom (void) {
 		FILE_ATTRIBUTE_NORMAL | FILE_FLAG_RANDOM_ACCESS, NULL);
 	if (hEepromFile == INVALID_HANDLE_VALUE) 
 	{
-		switch (GetLastError()) 
-		{
-		case ERROR_PATH_NOT_FOUND:
-			CreateDirectory(Directory,NULL);
-			hEepromFile = CreateFile(File,GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ,
-				NULL,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL | FILE_FLAG_RANDOM_ACCESS, NULL);
-			if (hEepromFile == INVALID_HANDLE_VALUE) 
-			{
-				DisplayError(GS(MSG_FAIL_OPEN_EEPROM));
-			}
-			return;
-			break;
-		default:
-			DisplayError(GS(MSG_FAIL_OPEN_EEPROM));
-			return;
-		}
+		DisplayError(GS(MSG_FAIL_OPEN_EEPROM));
+		return;
 	}
 	memset(EEPROM,0,sizeof(EEPROM));
 	SetFilePointer(hEepromFile,0,NULL,FILE_BEGIN);	

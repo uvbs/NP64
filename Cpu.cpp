@@ -589,64 +589,7 @@ void DoSomething ( void )
 		CPU_Action.DoSomething = TRUE;
 }
 
-void GetAutoSaveDir( char * Directory ) 
-{
-	
-	char Dir[255], Group[200];
-	long lResult;
-	HKEY hKeyResults = 0;
 
-	strcpy(Directory, main_directory);
-	strcat(Directory, "Save\\");
-
-	sprintf(Group,"Software\\N64 Emulation\\%s",AppName);
-	lResult = RegOpenKeyEx( HKEY_CURRENT_USER,Group,0,KEY_ALL_ACCESS, &hKeyResults);
-	if (lResult == ERROR_SUCCESS) 
-	{
-		DWORD Type, Value, Bytes;
-
-		Bytes = 4;
-		lResult = RegQueryValueEx(hKeyResults,"Use Default Auto Save Dir",0,&Type,(LPBYTE)(&Value),&Bytes);
-		if (lResult == ERROR_SUCCESS && Value == FALSE) 
-		{					
-			Bytes = sizeof(Dir);
-			lResult = RegQueryValueEx(hKeyResults,"Auto Save Directory",0,&Type,(LPBYTE)Dir,&Bytes);
-			if (lResult == ERROR_SUCCESS) 
-				strcpy(Directory,Dir);
-		}
-	}
-	RegCloseKey(hKeyResults);	
-
-}
-
-void GetInstantSaveDir( char * Directory ) 
-{
-	char Dir[255], Group[200];
-	long lResult;
-	HKEY hKeyResults = 0;
-
-	strcpy(Directory, main_directory);
-	strcat(Directory, "Save\\");
-
-	sprintf(Group,"Software\\N64 Emulation\\%s",AppName);
-	lResult = RegOpenKeyEx( HKEY_CURRENT_USER,Group,0,KEY_ALL_ACCESS, &hKeyResults);
-	if (lResult == ERROR_SUCCESS)
-	{
-		DWORD Type, Value, Bytes;
-
-		Bytes = 4;
-		lResult = RegQueryValueEx(hKeyResults,"Use Default Instant Save Dir",0,&Type,(LPBYTE)(&Value),&Bytes);
-		if (lResult == ERROR_SUCCESS && Value == FALSE) 
-		{					
-			Bytes = sizeof(Dir);
-			lResult = RegQueryValueEx(hKeyResults,"Instant Save Directory",0,&Type,(LPBYTE)Dir,&Bytes);
-			if (lResult == ERROR_SUCCESS)
-				strcpy(Directory,Dir);
-		}
-	}
-	RegCloseKey(hKeyResults);	
-
-}
 
 void InPermLoop (void) 
 {
@@ -958,7 +901,7 @@ BOOL Machine_SaveState(void)
 		zip_fileinfo	ZipInfo;
 		zipFile			file;
 
-		CreateDirectory(Directory,NULL);
+		File::CreateDir(Directory);
 		file = zipOpen(ZipFile,FALSE);
 		zipOpenNewFileInZip(file,CurrentSave,&ZipInfo,NULL,0,NULL,0,NULL,Z_DEFLATED,Z_DEFAULT_COMPRESSION);
 		Value = 0x23D8A6C8;
@@ -1006,22 +949,8 @@ BOOL Machine_SaveState(void)
 			FILE_ATTRIBUTE_NORMAL | FILE_FLAG_RANDOM_ACCESS, NULL);
 		if (hSaveFile == INVALID_HANDLE_VALUE) 
 		{
-			switch (GetLastError()) 
-			{
-			case ERROR_PATH_NOT_FOUND:
-				CreateDirectory(Directory,NULL);
-				hSaveFile = CreateFile(FileName,GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ,
-					NULL,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL | FILE_FLAG_RANDOM_ACCESS, NULL);
-				if (hSaveFile == INVALID_HANDLE_VALUE) 
-				{
-					DisplayError(GS(MSG_FAIL_OPEN_SAVE));
-					return TRUE;
-				}
-				break;
-			default:
-				DisplayError(GS(MSG_FAIL_OPEN_SAVE));
-				return TRUE;
-			}
+			DisplayError(GS(MSG_FAIL_OPEN_SAVE));
+			return TRUE;
 		}
 
 		while ((int)Registers.CP0[1] < (int)Registers.CP0[6])

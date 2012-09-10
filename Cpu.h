@@ -77,8 +77,6 @@ void CloseCpu           ( void );
 int  DelaySlotEffectsCompare ( DWORD PC, DWORD Reg1, DWORD Reg2 );
 int  DelaySlotEffectsJump (DWORD JumpPC);
 void DoSomething        ( void );
-void GetAutoSaveDir     ( char * Directory );
-void GetInstantSaveDir  ( char * Directory );
 void InPermLoop         ( void );
 void InitiliazeCPUFlags ( void );
 BOOL Machine_LoadState  ( void );

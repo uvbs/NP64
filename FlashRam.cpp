@@ -126,22 +126,8 @@ BOOL LoadFlashram (void) {
 		FILE_ATTRIBUTE_NORMAL | FILE_FLAG_RANDOM_ACCESS, NULL);
 	if (hFlashRamFile == INVALID_HANDLE_VALUE)
 	{
-		switch (GetLastError()) 
-		{
-			case ERROR_PATH_NOT_FOUND:
-				CreateDirectory(Directory,NULL);
-				hFlashRamFile = CreateFile(File,GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ,
-					NULL,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL | FILE_FLAG_RANDOM_ACCESS, NULL);
-				if (hFlashRamFile == INVALID_HANDLE_VALUE) 
-				{
-					DisplayError(GS(MSG_FAIL_OPEN_FLASH));
-					return FALSE;
-				}
-				break;
-			default:
-				DisplayError(GS(MSG_FAIL_OPEN_FLASH));
-				return FALSE;
-		}
+		DisplayError(GS(MSG_FAIL_OPEN_FLASH));
+		return FALSE;
 	}
 	return TRUE;
 }

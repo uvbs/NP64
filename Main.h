@@ -37,7 +37,7 @@
 #include "SettingsAPI.h"
 #include "rombrowser.h"
 #include "Language.h"
-
+#include "FileUtil.h"
 #ifdef _MSC_VER
 	typedef __int8 s8;
 	typedef unsigned __int8 u8;
