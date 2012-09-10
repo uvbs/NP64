@@ -111,12 +111,15 @@ BOOL PluginsChanged ( HWND hDlg );
 BOOL ValidPluginVersion ( PLUGIN_INFO * PluginInfo );
 
 
-void AudioThread (void) {
+void AudioThread (void)
+{
 	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL );
-	for (;;) { AiUpdate(TRUE); }
+	for (;;)
+		AiUpdate(TRUE);
 }
 
-void GetCurrentDlls (void) {
+void GetCurrentDlls (void)
+{
 	long lResult;
 	HKEY hKeyResults = 0;
 	char String[200];
@@ -124,28 +127,27 @@ void GetCurrentDlls (void) {
 	sprintf(String,"Software\\N64 Emulation\\%s\\Dll",AppName);
 	lResult = RegOpenKeyEx( HKEY_CURRENT_USER,String,0, KEY_ALL_ACCESS,&hKeyResults);
 
-	if (lResult == ERROR_SUCCESS) {
+	if (lResult == ERROR_SUCCESS)
+	{
 		DWORD Type, Bytes = 100;
 		lResult = RegQueryValueEx(hKeyResults,"RSP Dll",0,&Type,(LPBYTE)(RspDLL),&Bytes);
-		if (lResult != ERROR_SUCCESS) { 
+		if (lResult != ERROR_SUCCESS)
 			sprintf(RspDLL,"%s",DefaultRSPDll);
-		}
 		Bytes = 100;
 		lResult = RegQueryValueEx(hKeyResults,"Graphics Dll",0,&Type,(LPBYTE)(GfxDLL),&Bytes);
-		if (lResult != ERROR_SUCCESS) { 
+		if (lResult != ERROR_SUCCESS)
 			sprintf(GfxDLL,"%s",DefaultGFXDll);
-		}
 		Bytes = 100;
 		lResult = RegQueryValueEx(hKeyResults,"Audio Dll",0,&Type,(LPBYTE)(AudioDLL),&Bytes);
-		if (lResult != ERROR_SUCCESS) { 
+		if (lResult != ERROR_SUCCESS)
 			sprintf(AudioDLL,"%s",DefaultAudioDll);
-		}
 		Bytes = 100;
 		lResult = RegQueryValueEx(hKeyResults,"Controller Dll",0,&Type,(LPBYTE)(ControllerDLL),&Bytes);
-		if (lResult != ERROR_SUCCESS) { 
+		if (lResult != ERROR_SUCCESS)
 			sprintf(ControllerDLL,"%s",DefaultControllerDll);
-		}
-	} else {
+	}
+	else
+	{
 		sprintf(RspDLL,"%s",DefaultRSPDll);
 		sprintf(GfxDLL,"%s",DefaultGFXDll);
 		sprintf(AudioDLL,"%s",DefaultAudioDll);
@@ -153,7 +155,8 @@ void GetCurrentDlls (void) {
 	}
 }
 
-void GetPluginDir( char * Directory ) {
+void GetPluginDir( char * Directory )
+{
 	char Dir[255], Group[200];
 	long lResult;
 	HKEY hKeyResults = 0;
@@ -164,21 +167,25 @@ void GetPluginDir( char * Directory ) {
 	sprintf(Group,"Software\\N64 Emulation\\%s",AppName);
 	lResult = RegOpenKeyEx( HKEY_CURRENT_USER,Group,0,KEY_ALL_ACCESS,
 		&hKeyResults);
-	if (lResult == ERROR_SUCCESS) {
+	if (lResult == ERROR_SUCCESS)
+	{
 		DWORD Type, Value, Bytes;
 
 		Bytes = 4;
 		lResult = RegQueryValueEx(hKeyResults,"Use Default Plugin Dir",0,&Type,(LPBYTE)(&Value),&Bytes);
-		if (lResult == ERROR_SUCCESS && Value == FALSE) {					
+		if (lResult == ERROR_SUCCESS && Value == FALSE)
+		{					
 			Bytes = sizeof(Dir);
 			lResult = RegQueryValueEx(hKeyResults,"Plugin Directory",0,&Type,(LPBYTE)Dir,&Bytes);
-			if (lResult == ERROR_SUCCESS) { strcpy(Directory,Dir); }
+			if (lResult == ERROR_SUCCESS)
+				strcpy(Directory,Dir);
 		}
 	}
 	RegCloseKey(hKeyResults);	
 }
 
-void GetSnapShotDir( char * Directory ) {
+void GetSnapShotDir( char * Directory )
+{
 	char Dir[255], Group[200];
 	long lResult;
 	HKEY hKeyResults = 0;
@@ -189,15 +196,18 @@ void GetSnapShotDir( char * Directory ) {
 	sprintf(Group,"Software\\N64 Emulation\\%s",AppName);
 	lResult = RegOpenKeyEx( HKEY_CURRENT_USER,Group,0,KEY_ALL_ACCESS,
 		&hKeyResults);
-	if (lResult == ERROR_SUCCESS) {
+	if (lResult == ERROR_SUCCESS)
+	{
 		DWORD Type, Value, Bytes;
 
 		Bytes = 4;
 		lResult = RegQueryValueEx(hKeyResults,"Use Default Snap Shot Dir",0,&Type,(LPBYTE)(&Value),&Bytes);
-		if (lResult == ERROR_SUCCESS && Value == FALSE) {					
+		if (lResult == ERROR_SUCCESS && Value == FALSE)
+		{					
 			Bytes = sizeof(Dir);
 			lResult = RegQueryValueEx(hKeyResults,"Snap Shot Directory",0,&Type,(LPBYTE)Dir,&Bytes);
-			if (lResult == ERROR_SUCCESS) { strcpy(Directory,Dir); }
+			if (lResult == ERROR_SUCCESS)
+				strcpy(Directory,Dir);
 		}
 	}
 	RegCloseKey(hKeyResults);	
@@ -642,24 +652,31 @@ void SetupPluginScreen (HWND hDlg) {
 	
 	GetPluginDir(SearchsStr);
 	strcat(SearchsStr,"*.dll");
+
 	hFind = FindFirstFile(SearchsStr, &FindData);
-	if (hFind == INVALID_HANDLE_VALUE) { return; }
+	if (hFind == INVALID_HANDLE_VALUE)
+		return;
 	PluginCount = 0;
-	for (;;) {
+
+	for (;;)
+	{
 		PluginNames[PluginCount] = (char*)malloc(strlen(FindData.cFileName) + 1);
 		strcpy(PluginNames[PluginCount],FindData.cFileName);
 		GetPluginDir(Plugin);
 		strcat(Plugin,PluginNames[PluginCount]);
 		hLib = LoadLibrary(Plugin);		
-		if (hLib == NULL) { 
+		if (hLib == NULL)
+		{ 
 			DisplayError("%s\n %s (%d)",GS(MSG_FAIL_LOAD_PLUGIN),Plugin, GetLastError()); 
-			if (FindNextFile(hFind,&FindData) == 0) { return; }
+			if (FindNextFile(hFind,&FindData) == 0)
+				return;
 			continue;
 		}
 		GetDllInfo = (void (__cdecl *)(PLUGIN_INFO *))GetProcAddress( (HMODULE)hLib, "GetDllInfo" );
 		if (GetDllInfo == NULL) {
 			FreeLibrary((HMODULE)hLib);
-			if (FindNextFile(hFind,&FindData) == 0) { return; }
+			if (FindNextFile(hFind,&FindData) == 0)
+				return;
 			continue; 
 		}
 		GetDllInfo(&PluginInfo);
@@ -667,21 +684,26 @@ void SetupPluginScreen (HWND hDlg) {
 			(PluginInfo.Type != PLUGIN_TYPE_CONTROLLER && PluginInfo.MemoryBswaped == FALSE))
 		{
 			FreeLibrary((HMODULE)hLib);
-			if (FindNextFile(hFind,&FindData) == 0) { return; }
+			if (FindNextFile(hFind,&FindData) == 0)
+				return;
 			continue;
 		}
 
 
-		switch(PluginInfo.Type) {
+		switch(PluginInfo.Type) 
+		{
 #ifndef EXTERNAL_RELEASE
 		case PLUGIN_TYPE_RSP:
 			index = SendMessage(GetDlgItem(hDlg,RSP_LIST),CB_ADDSTRING,(WPARAM)0, (LPARAM)&PluginInfo.Name);		
 			SendMessage(GetDlgItem(hDlg,RSP_LIST),CB_SETITEMDATA ,(WPARAM)index, (LPARAM)PluginCount);		
-			if(_stricmp(RspDLL,PluginNames[PluginCount]) == 0) {
+			if(_stricmp(RspDLL,PluginNames[PluginCount]) == 0)
+			{
 				SendMessage(GetDlgItem(hDlg,RSP_LIST),CB_SETCURSEL,(WPARAM)index,(LPARAM)0);
 				RSPDllAbout = (void (__cdecl *)(HWND))GetProcAddress( hLib, "DllAbout" );
 				EnableWindow(GetDlgItem(hDlg,RSP_ABOUT),RSPDllAbout != NULL ? TRUE:FALSE);
-			} else {
+			}
+			else
+			{
 				FreeLibrary(hLib);
 			}
 			break;
@@ -689,7 +711,8 @@ void SetupPluginScreen (HWND hDlg) {
 		case PLUGIN_TYPE_GFX:
 			index = SendMessage(GetDlgItem(hDlg,GFX_LIST),CB_ADDSTRING,(WPARAM)0, (LPARAM)&PluginInfo.Name);		
 			SendMessage(GetDlgItem(hDlg,GFX_LIST),CB_SETITEMDATA ,(WPARAM)index, (LPARAM)PluginCount);		
-			if(_stricmp(GfxDLL,PluginNames[PluginCount]) == 0) {
+			if(_stricmp(GfxDLL,PluginNames[PluginCount]) == 0)
+			{
 				SendMessage(GetDlgItem(hDlg,GFX_LIST),CB_SETCURSEL,(WPARAM)index,(LPARAM)0);
 				GFXDllAbout = (void (__cdecl *)(HWND))GetProcAddress( (HMODULE)hLib, "DllAbout" );
 				EnableWindow(GetDlgItem(hDlg,GFX_ABOUT),GFXDllAbout != NULL ? TRUE:FALSE);
@@ -700,22 +723,28 @@ void SetupPluginScreen (HWND hDlg) {
 		case PLUGIN_TYPE_AUDIO:
 			index = SendMessage(GetDlgItem(hDlg,AUDIO_LIST),CB_ADDSTRING,(WPARAM)0, (LPARAM)&PluginInfo.Name);
 			SendMessage(GetDlgItem(hDlg,AUDIO_LIST),CB_SETITEMDATA ,(WPARAM)index, (LPARAM)PluginCount);		
-			if(_stricmp(AudioDLL,PluginNames[PluginCount]) == 0) {
+			if(_stricmp(AudioDLL,PluginNames[PluginCount]) == 0)
+			{
 				SendMessage(GetDlgItem(hDlg,AUDIO_LIST),CB_SETCURSEL,(WPARAM)index,(LPARAM)0);
 				AiDllAbout = (void (__cdecl *)(HWND))GetProcAddress( (HMODULE)hLib, "DllAbout" );
 				EnableWindow(GetDlgItem(hDlg,AUDIO_ABOUT),AiDllAbout != NULL ? TRUE:FALSE);
-			} else {
+			}
+			else
+			{
 				FreeLibrary((HMODULE)hLib);
 			}
 			break;
 		case PLUGIN_TYPE_CONTROLLER:
 			index = SendMessage(GetDlgItem(hDlg,CONT_LIST),CB_ADDSTRING,(WPARAM)0, (LPARAM)&PluginInfo.Name);		
 			SendMessage(GetDlgItem(hDlg,CONT_LIST),CB_SETITEMDATA ,(WPARAM)index, (LPARAM)PluginCount);		
-			if(_stricmp(ControllerDLL,PluginNames[PluginCount]) == 0) {
+			if(_stricmp(ControllerDLL,PluginNames[PluginCount]) == 0)
+			{
 				SendMessage(GetDlgItem(hDlg,CONT_LIST),CB_SETCURSEL,(WPARAM)index,(LPARAM)0);
 				ContDllAbout = (void (__cdecl *)(HWND))GetProcAddress( (HMODULE)hLib, "DllAbout" );
 				EnableWindow(GetDlgItem(hDlg,CONT_ABOUT),ContDllAbout != NULL ? TRUE:FALSE);
-			} else {
+			}
+			else
+			{
 				FreeLibrary((HMODULE)hLib);
 			}
 			break;
@@ -725,7 +754,8 @@ void SetupPluginScreen (HWND hDlg) {
 	}
 }
 
-void ShutdownPlugins (void) {
+void ShutdownPlugins (void)
+{
 	TerminateThread(hAudioThread,0);
 	if (GFXCloseDLL != NULL) { GFXCloseDLL(); }
 	if (RSPCloseDLL != NULL) { RSPCloseDLL(); }

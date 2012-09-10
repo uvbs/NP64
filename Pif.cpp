@@ -124,51 +124,51 @@ void LogControllerPakData (char * Description)
 #endif
 }
 
-void PifRamRead (void) {
+void PifRamRead (void) 
+{
 	int Channel = 0, CurPos = 0;
 	while( CurPos < 0x40 ) 
 	{
 		switch(PIF_Ram[CurPos]) 
 		{
-		case 0x00: 
-			Channel += 1; 
-			if (Channel > 6)
-				CurPos = 0x40;
-			break;
-		case 0xFE:
-			CurPos = 0x40; 
-			break;
-		case 0xFF: 
-			break;
-		case 0xB4: 
-		case 0x56: 
-		case 0xB8: 
-			break; /* ??? */
-		default:
-			if ((PIF_Ram[CurPos] & 0xC0) == 0)
-			{
-				if (Channel < 4)
-				{
-					if (Controllers[Channel].Present && Controllers[Channel].RawData) 
-					{
-						if (ReadController) 
-							ReadController(Channel,&PIF_Ram[CurPos]);
-					} 
-					else 
-					{
-						ReadControllerCommand(Channel,&PIF_Ram[CurPos]);
-					}
-				} 
-				CurPos += PIF_Ram[CurPos] + (PIF_Ram[CurPos + 1] & 0x3F) + 1;
+			case 0x00:
 				Channel += 1;
-			} 
-			else 
-			{
-				if (ShowPifRamErrors) 
-					DisplayError("Unknown Command in PifRamRead(%X)",PIF_Ram[CurPos]);
-				CurPos = 0x40;
-			}
-			break;
+				if (Channel > 6)
+					CurPos = 0x40;
+				break;
+			case 0xFE:
+				CurPos = 0x40; 
+				break;
+			case 0xFF:
+			case 0xB4:
+			case 0x56:
+			case 0xB8:
+				break; /* ??? */
+			default:
+				if ((PIF_Ram[CurPos] & 0xC0) == 0)
+				{
+					if (Channel < 4)
+					{
+						if (Controllers[Channel].Present && Controllers[Channel].RawData) 
+						{
+							if (ReadController) 
+								ReadController(Channel,&PIF_Ram[CurPos]);
+						} 
+						else 
+						{
+							ReadControllerCommand(Channel,&PIF_Ram[CurPos]);
+						}
+					} 
+					CurPos += PIF_Ram[CurPos] + (PIF_Ram[CurPos + 1] & 0x3F) + 1;
+					Channel += 1;
+				} 
+				else 
+				{
+					if (ShowPifRamErrors) 
+						DisplayError("Unknown Command in PifRamRead(%X)",PIF_Ram[CurPos]);
+					CurPos = 0x40;
+				}
+				break;
 		}
 		CurPos++;
 	};
@@ -230,43 +230,43 @@ void PifRamWrite (void)
 	{
 		switch(PIF_Ram[CurPos])
 		{
-		case 0x00: 
-			Channel ++; 
-			if (Channel > 6)
-				CurPos = 0x40;
-			break;
-		case 0xFE: 
-			CurPos = 0x40; 
-			break;
-		case 0xFF: 
-		case 0xB4: 
-		case 0x56: 
-		case 0xB8: 
-			break; /* ??? */
-		default:
-			if (!(PIF_Ram[CurPos] & 0xC0)) 
-			{
-				if (Channel < 4) 
+			case 0x00: 
+				Channel ++; 
+				if (Channel > 6)
+					CurPos = 0x40;
+				break;
+			case 0xFE: 
+				CurPos = 0x40; 
+				break;
+			case 0xFF: 
+			case 0xB4: 
+			case 0x56: 
+			case 0xB8: 
+				break; /* ??? */
+			default:
+				if (!(PIF_Ram[CurPos] & 0xC0)) 
 				{
-					if (Controllers[Channel].Present && Controllers[Channel].RawData)
-							ControllerCommand(Channel,&PIF_Ram[CurPos]);
+					if (Channel < 4) 
+					{
+						if (Controllers[Channel].Present && Controllers[Channel].RawData)
+								ControllerCommand(Channel,&PIF_Ram[CurPos]);
+						else 
+							ProcessControllerCommand(Channel,&PIF_Ram[CurPos]);
+					}
+					else if (Channel == 4)
+						EepromCommand(&PIF_Ram[CurPos]);
 					else 
-						ProcessControllerCommand(Channel,&PIF_Ram[CurPos]);
-				}
-				else if (Channel == 4)
-					EepromCommand(&PIF_Ram[CurPos]);
+						DebugError("Command on channel 5?");
+					CurPos += PIF_Ram[CurPos] + (PIF_Ram[CurPos + 1] & 0x3F) + 1;
+					Channel += 1;
+				} 
 				else 
-					DebugError("Command on channel 5?");
-				CurPos += PIF_Ram[CurPos] + (PIF_Ram[CurPos + 1] & 0x3F) + 1;
-				Channel += 1;
-			} 
-			else 
-			{
-				if (ShowPifRamErrors)
-					DisplayError("Unknown Command in PifRamWrite(%X)",PIF_Ram[CurPos]);
-				CurPos = 0x40;
-			}
-			break;
+				{
+					if (ShowPifRamErrors)
+						DisplayError("Unknown Command in PifRamWrite(%X)",PIF_Ram[CurPos]);
+					CurPos = 0x40;
+				}
+				break;
 		}
 		CurPos++;
 	}
@@ -279,7 +279,6 @@ void ProcessControllerCommand ( int Control, BYTE * Command)
 {
 	switch (Command[2]) 
 	{
-
 	case 0x00: // check
 	case 0xFF: // reset & check ?
 		if ((Command[1] & 0x80) != 0)

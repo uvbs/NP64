@@ -36,11 +36,13 @@ struct {
 	DOUBLE Ratio;
 } FPSTimer = { 0,0, 1000.0F / 60.0F };
 
-void Timer_Initialize(double Hertz) {
+void Timer_Initialize(double Hertz) 
+{
 	FPSTimer.Ratio = 1000.0f / Hertz;
 }
 
-void Timer_Start(void) {
+void Timer_Start(void)
+{
 	TIMECAPS Caps;
 	timeGetDevCaps(&Caps, sizeof(Caps));
 	if (timeBeginPeriod(Caps.wPeriodMin) == TIMERR_NOCANDO)
@@ -50,13 +52,15 @@ void Timer_Start(void) {
 	FPSTimer.LastTime = timeGetTime();
 }
 
-void Timer_Stop(void) {
+void Timer_Stop(void)
+{
 	TIMECAPS Caps;
 	timeGetDevCaps(&Caps, sizeof(Caps));
 	timeEndPeriod(Caps.wPeriodMin);
 }
 
-BOOL Timer_Process(DWORD * FrameRate) {
+BOOL Timer_Process(DWORD * FrameRate) 
+{
 	double CalculatedTime;
 	DWORD CurrentTime;
 
@@ -65,19 +69,21 @@ BOOL Timer_Process(DWORD * FrameRate) {
 
 	/* Calculate time that should of elapsed for this frame */
 	CalculatedTime = (double)FPSTimer.LastTime + (FPSTimer.Ratio * (double)FPSTimer.Frames);
-	if ((double)CurrentTime < CalculatedTime) {
+	if ((double)CurrentTime < CalculatedTime) 
+	{
 		long time = (int)(CalculatedTime - (double)CurrentTime);
-		if (time > 0) {
+		if (time > 0)
 			Sleep(time);
-		}
 
 		/* Refresh current time */
 		CurrentTime = timeGetTime();
 	}
 
-	if (CurrentTime - FPSTimer.LastTime >= 1000) {
+	if (CurrentTime - FPSTimer.LastTime >= 1000)
+	{
 		/* Output FPS */
-		if (FrameRate != NULL) { *FrameRate = FPSTimer.Frames; }
+		if (FrameRate != NULL)
+			*FrameRate = FPSTimer.Frames;
 		FPSTimer.Frames = 0;
 		FPSTimer.LastTime = CurrentTime;
 

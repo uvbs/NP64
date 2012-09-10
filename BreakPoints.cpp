@@ -156,16 +156,15 @@ LRESULT CALLBACK BPoint_Proc (HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam
 		Paint_BPoint_Win( hDlg );
 		return TRUE;
 	case WM_NOTIFY:
-		switch (((NMHDR *)lParam)->code) {
-		case TCN_SELCHANGE:
+		if(((NMHDR *)lParam)->code == TCN_SELCHANGE)
+		{
 			InvalidateRect( hTab, &rcDisp, TRUE );
 			HideBPointPanel (CurrentPanel);			
 			item.mask = TCIF_PARAM;
 			TabCtrl_GetItem( hTab, TabCtrl_GetCurSel( hTab ), &item );
 			CurrentPanel = item.lParam;
 			InvalidateRect( hStatic, NULL, FALSE );
-			ShowBPointPanel ( CurrentPanel );			
-			break;
+			ShowBPointPanel ( CurrentPanel );	
 		}
 		break;
 	case WM_COMMAND:

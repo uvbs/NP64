@@ -34,19 +34,21 @@
 #define PUTDST16(dest,value) (*((WORD *)(dest))=(WORD)(value)); dest += 2;
 #define PUTDST32(dest,value) (*((DWORD *)(dest))=(DWORD)(value)); dest += 4;
 
-void AdcX86regToVariable(int x86reg, void * Variable, char * VariableName) {
+void AdcX86regToVariable(int x86reg, void * Variable, char * VariableName)
+{
 	CPU_Message("      adc dword ptr [%s], %s",VariableName, x86_Name(x86reg));
-	switch (x86reg) {
-	case x86_EAX: PUTDST16(RecompPos,0x0511); break;
-	case x86_EBX: PUTDST16(RecompPos,0x1D11); break;
-	case x86_ECX: PUTDST16(RecompPos,0x0D11); break;
-	case x86_EDX: PUTDST16(RecompPos,0x1511); break;
-	case x86_ESI: PUTDST16(RecompPos,0x3511); break;
-	case x86_EDI: PUTDST16(RecompPos,0x3D11); break;
-	case x86_ESP: PUTDST16(RecompPos,0x2511); break;
-	case x86_EBP: PUTDST16(RecompPos,0x2D11); break;	
-	default:
-		DisplayError("AddVariableToX86reg\nUnknown x86 Register");
+	switch (x86reg)
+	{
+		case x86_EAX: PUTDST16(RecompPos,0x0511); break;
+		case x86_EBX: PUTDST16(RecompPos,0x1D11); break;
+		case x86_ECX: PUTDST16(RecompPos,0x0D11); break;
+		case x86_EDX: PUTDST16(RecompPos,0x1511); break;
+		case x86_ESI: PUTDST16(RecompPos,0x3511); break;
+		case x86_EDI: PUTDST16(RecompPos,0x3D11); break;
+		case x86_ESP: PUTDST16(RecompPos,0x2511); break;
+		case x86_EBP: PUTDST16(RecompPos,0x2D11); break;	
+		default:
+			DisplayError("AddVariableToX86reg\nUnknown x86 Register");
 	}
     PUTDST32(RecompPos,Variable); 
 }

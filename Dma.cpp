@@ -54,8 +54,10 @@ void PI_DMA_READ (void) {
 	}
 
 	if ( PI_CART_ADDR_REG >= 0x08000000 && PI_CART_ADDR_REG <= 0x08010000) {
-		if (SaveUsing == Auto) { SaveUsing = Sram; }
-		if (SaveUsing == Sram) {
+		if (SaveUsing == Auto)
+			SaveUsing = Sram;
+		if (SaveUsing == Sram) 
+		{
 			DmaToSram(
 				N64MEM+PI_DRAM_ADDR_REG,
 				PI_CART_ADDR_REG - 0x08000000,

@@ -678,11 +678,9 @@ BOOL CALLBACK PluginSelectProc (HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
 			RegCloseKey(hKeyResults);
 			if (CPURunning) { 
 				CloseCpu();
-				ShutdownPlugins();
 				SetupPlugins(hMainWindow);				
 				StartEmulation();
 			} else {
-				ShutdownPlugins();
 				if (!RomBrowser) { SetupPlugins(hMainWindow); }
 				if (RomBrowser) { SetupPlugins(hHiddenWin); }
 			}

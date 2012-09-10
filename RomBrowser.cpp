@@ -150,7 +150,8 @@ int NoOfFields = sizeof(RomBrowserFields) / sizeof(RomBrowserFields[0]),
 ITEM_LIST ItemList = {0,0,NULL};
 ROM_LIST RDBList = {0,0,NULL};
 
-void AddRomToList (char * RomLocation) {
+void AddRomToList (char * RomLocation) 
+{
 	LV_ITEM  lvItem;
 	ROM_INFO * pRomInfo;
 	int index;
@@ -158,7 +159,9 @@ void AddRomToList (char * RomLocation) {
 	if (ItemList.ListAlloc == 0) {
 		ItemList.List = (ROM_INFO *)malloc(100 * sizeof(ROM_INFO));
 		ItemList.ListAlloc = 100;
-	} else if (ItemList.ListAlloc == ItemList.ListCount) {
+	} 
+	else if (ItemList.ListAlloc == ItemList.ListCount)
+	{
 		ItemList.ListAlloc += 100;
 		ItemList.List = (ROM_INFO *)realloc(ItemList.List, ItemList.ListAlloc * sizeof(ROM_INFO));
 		if (ItemList.List == NULL) {

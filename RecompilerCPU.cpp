@@ -1495,28 +1495,29 @@ void _fastcall FillSectionInfo(BLOCK_SECTION * Section) {
 //			GPR_Name[8],MipsRegState(8));
 //_asm int 3
 //		}
-		switch (NextInstruction) {
-		case NORMAL: 
-			Section->CompilePC += 4; 
-			break;
-		case DELAY_SLOT:
-			NextInstruction = DELAY_SLOT_DONE;
-			Section->CompilePC += 4; 
-			break;
-		case LIKELY_DELAY_SLOT:
-			memcpy(&Section->Cont.RegSet,&Section->RegWorking,sizeof(REG_INFO));
-			NextInstruction = LIKELY_DELAY_SLOT_DONE;
-			Section->CompilePC += 4; 
-			break;
-		case DELAY_SLOT_DONE:
-			memcpy(&Section->Cont.RegSet,&Section->RegWorking,sizeof(REG_INFO));
-			memcpy(&Section->Jump.RegSet,&Section->RegWorking,sizeof(REG_INFO));
-			NextInstruction = END_BLOCK;
-			break;
-		case LIKELY_DELAY_SLOT_DONE:
-			memcpy(&Section->Jump.RegSet,&Section->RegWorking,sizeof(REG_INFO));
-			NextInstruction = END_BLOCK;
-			break;
+		switch (NextInstruction)
+		{
+			case NORMAL: 
+				Section->CompilePC += 4; 
+				break;
+			case DELAY_SLOT:
+				NextInstruction = DELAY_SLOT_DONE;
+				Section->CompilePC += 4; 
+				break;
+			case LIKELY_DELAY_SLOT:
+				memcpy(&Section->Cont.RegSet,&Section->RegWorking,sizeof(REG_INFO));
+				NextInstruction = LIKELY_DELAY_SLOT_DONE;
+				Section->CompilePC += 4; 
+				break;
+			case DELAY_SLOT_DONE:
+				memcpy(&Section->Cont.RegSet,&Section->RegWorking,sizeof(REG_INFO));
+				memcpy(&Section->Jump.RegSet,&Section->RegWorking,sizeof(REG_INFO));
+				NextInstruction = END_BLOCK;
+				break;
+			case LIKELY_DELAY_SLOT_DONE:
+				memcpy(&Section->Jump.RegSet,&Section->RegWorking,sizeof(REG_INFO));
+				NextInstruction = END_BLOCK;
+				break;
 		}		
 		if ((Section->CompilePC & 0xFFFFF000) != (Section->StartPC & 0xFFFFF000)) {
 			if (NextInstruction != END_BLOCK && NextInstruction != NORMAL) {
@@ -1660,92 +1661,122 @@ void GenerateSectionLinkage (BLOCK_SECTION * Section) {
 			JumpInfo[count]->TargetPC = -1;
 		}
 	}
-	if ((Section->CompilePC & 0xFFC) == 0xFFC) {
+	if ((Section->CompilePC & 0xFFC) == 0xFFC)
+	{
 		//Handle Fall througth
 		Jump = NULL;
-		for (count = 0; count < 2; count ++) {
-			if (!JumpInfo[count]->FallThrough) { continue; }
+		for (count = 0; count < 2; count ++)
+		{
+			if (!JumpInfo[count]->FallThrough)
+				continue;
 			JumpInfo[count]->FallThrough = FALSE;
-			if (JumpInfo[count]->LinkLocation != NULL) {
+			if (JumpInfo[count]->LinkLocation != NULL)
+			{
 				SetJump32(JumpInfo[count]->LinkLocation,RecompPos);
 				JumpInfo[count]->LinkLocation = NULL;
-				if (JumpInfo[count]->LinkLocation2 != NULL) { 
+				if (JumpInfo[count]->LinkLocation2 != NULL)
+				{ 
 					SetJump32(JumpInfo[count]->LinkLocation2,RecompPos);
 					JumpInfo[count]->LinkLocation2 = NULL;
 				}
 			}
 			MoveConstToVariable(JumpInfo[count]->TargetPC,&JumpToLocation,"JumpToLocation");
-			if (JumpInfo[(count + 1) & 1]->LinkLocation == NULL) { break; }
+			if (JumpInfo[(count + 1) & 1]->LinkLocation == NULL)
+				break;
 			JmpLabel8("FinishBlock",0);
 			Jump = RecompPos - 1;
 		}		
-		for (count = 0; count < 2; count ++) {
-			if (JumpInfo[count]->LinkLocation == NULL) { continue; }
+		for (count = 0; count < 2; count ++) 
+		{
+			if (JumpInfo[count]->LinkLocation == NULL)
+				continue;
 			JumpInfo[count]->FallThrough = FALSE;
-			if (JumpInfo[count]->LinkLocation != NULL) {
+			if (JumpInfo[count]->LinkLocation != NULL)
+			{
 				SetJump32(JumpInfo[count]->LinkLocation,RecompPos);
 				JumpInfo[count]->LinkLocation = NULL;
-				if (JumpInfo[count]->LinkLocation2 != NULL) { 
+				if (JumpInfo[count]->LinkLocation2 != NULL)
+				{ 
 					SetJump32(JumpInfo[count]->LinkLocation2,RecompPos);
 					JumpInfo[count]->LinkLocation2 = NULL;
 				}
 			}
 			MoveConstToVariable(JumpInfo[count]->TargetPC,&JumpToLocation,"JumpToLocation");
-			if (JumpInfo[(count + 1) & 1]->LinkLocation == NULL) { break; }
+			if (JumpInfo[(count + 1) & 1]->LinkLocation == NULL)
+				break;
 			JmpLabel8("FinishBlock",0);
 			Jump = RecompPos - 1;
 		}
-		if (Jump != NULL) {
+		if (Jump != NULL)
+		{
 			CPU_Message("      $FinishBlock:");
 			SetJump8(Jump,RecompPos);
 		}
 		MoveConstToVariable(Section->CompilePC + 4,&PROGRAM_COUNTER,"PROGRAM_COUNTER");
-		if (BlockCycleCount != 0) { 
+		if (BlockCycleCount != 0)
+		{ 
 			AddConstToVariable(BlockCycleCount,&CP0[9],Cop0_Name[9]); 
 			SubConstFromVariable(BlockCycleCount,&Timers.Timer,"Timer");
 		}
-		if (BlockRandomModifier != 0) { SubConstFromVariable(BlockRandomModifier,&CP0[1],Cop0_Name[1]); }
+		if (BlockRandomModifier != 0)
+			SubConstFromVariable(BlockRandomModifier,&CP0[1],Cop0_Name[1]);
 		WriteBackRegisters(Section);
 		MoveConstToVariable(DELAY_SLOT,&NextInstruction,"NextInstruction");
 		Ret();
 		return;
 	}
-	if (!UseLinking) {  
-		if (Section->CompilePC == Section->Jump.TargetPC && (Section->Cont.TargetPC == -1)) {
-			if (!DelaySlotEffectsJump(Section->CompilePC)) {
+	if (!UseLinking)
+	{  
+		if (Section->CompilePC == Section->Jump.TargetPC && (Section->Cont.TargetPC == -1))
+		{
+			if (!DelaySlotEffectsJump(Section->CompilePC))
+			{
 				WriteBackRegisters(Section); 
 				memcpy(&Section->Jump.RegSet,&Section->RegWorking, sizeof(REG_INFO));
 				Call_Direct(InPermLoop,"InPermLoop");
 			}
 		}
 	}
-	if (TargetSection[0] != TargetSection[1] || TargetSection[0] == NULL) {
-		for (count = 0; count < 2; count ++) {
-			if (JumpInfo[count]->LinkLocation == NULL && JumpInfo[count]->FallThrough == FALSE) {
+	if (TargetSection[0] != TargetSection[1] || TargetSection[0] == NULL)
+	{
+		for (count = 0; count < 2; count ++)
+		{
+			if (JumpInfo[count]->LinkLocation == NULL && JumpInfo[count]->FallThrough == FALSE)
+			{
 				FreeSection(TargetSection[count],Section);
-			} else if (TargetSection[count] == NULL && JumpInfo[count]->FallThrough) {
-				if (JumpInfo[count]->LinkLocation != NULL) {
+			} 
+			else if (TargetSection[count] == NULL && JumpInfo[count]->FallThrough)
+			{
+				if (JumpInfo[count]->LinkLocation != NULL)
+				{
 					SetJump32(JumpInfo[count]->LinkLocation,RecompPos);
 					JumpInfo[count]->LinkLocation = NULL;
-					if (JumpInfo[count]->LinkLocation2 != NULL) { 
+					if (JumpInfo[count]->LinkLocation2 != NULL)
+					{ 
 						SetJump32(JumpInfo[count]->LinkLocation2,RecompPos);
 						JumpInfo[count]->LinkLocation2 = NULL;
 					}			
 				}
 				// TODO: is the same in both cases - correct?
-				if (JumpInfo[count]->TargetPC > (Section->CompilePC + 4)) {
+				if (JumpInfo[count]->TargetPC > (Section->CompilePC + 4)) 
 					CompileExit (JumpInfo[count]->TargetPC,JumpInfo[count]->RegSet,Normal,TRUE,NULL);
-				} else {
+				else
 					CompileExit (JumpInfo[count]->TargetPC,JumpInfo[count]->RegSet,Normal,TRUE,NULL);
-				}
+
 				JumpInfo[count]->FallThrough = FALSE;
-			} else if (TargetSection[count] != NULL && JumpInfo[count] != NULL) {
-				if (!JumpInfo[count]->FallThrough) { continue; }
-				if (JumpInfo[count]->TargetPC == TargetSection[count]->StartPC) { continue; }
-				if (JumpInfo[count]->LinkLocation != NULL) {
+			}
+			else if (TargetSection[count] != NULL && JumpInfo[count] != NULL)
+			{
+				if (!JumpInfo[count]->FallThrough) 
+					continue;
+				if (JumpInfo[count]->TargetPC == TargetSection[count]->StartPC)
+					continue;
+				if (JumpInfo[count]->LinkLocation != NULL) 
+				{
 					SetJump32(JumpInfo[count]->LinkLocation,RecompPos);
 					JumpInfo[count]->LinkLocation = NULL;
-					if (JumpInfo[count]->LinkLocation2 != NULL) { 
+					if (JumpInfo[count]->LinkLocation2 != NULL) 
+					{ 
 						SetJump32(JumpInfo[count]->LinkLocation2,RecompPos);
 						JumpInfo[count]->LinkLocation2 = NULL;
 					}			
@@ -1754,54 +1785,67 @@ void GenerateSectionLinkage (BLOCK_SECTION * Section) {
 				FreeSection(TargetSection[count],Section);
 			}
 		}
-	} else {
-		if (Section->Cont.LinkLocation == NULL && Section->Cont.FallThrough == FALSE) { Section->ContinueSection = NULL; }
-		if (Section->Jump.LinkLocation == NULL && Section->Jump.FallThrough == FALSE) { Section->JumpSection = NULL; }
-		if (Section->JumpSection == NULL &&  Section->ContinueSection == NULL) {
+	}
+	else 
+	{
+		if (Section->Cont.LinkLocation == NULL && Section->Cont.FallThrough == FALSE)
+			Section->ContinueSection = NULL;
+		if (Section->Jump.LinkLocation == NULL && Section->Jump.FallThrough == FALSE)
+			Section->JumpSection = NULL;
+		if (Section->JumpSection == NULL &&  Section->ContinueSection == NULL) 
 			FreeSection(TargetSection[0],Section);
-		}
 	}
 	
 	TargetSection[0] = (BLOCK_SECTION*)Section->ContinueSection;
 	TargetSection[1] = (BLOCK_SECTION*)Section->JumpSection;	
 
 	for (count = 0; count < 2; count ++) {
-		if (TargetSection[count] == NULL) { continue; }
-		if (!JumpInfo[count]->FallThrough) { continue; }
-			
-		if (TargetSection[count]->CompiledLocation != NULL) {
+		if (TargetSection[count] == NULL || !JumpInfo[count]->FallThrough)
+			continue;
+
+		if (TargetSection[count]->CompiledLocation != NULL)
+		{
 			char Label[100];
 			sprintf(Label,"Section_%d",TargetSection[count]->SectionID);
 			JumpInfo[count]->FallThrough = FALSE;
-			if (JumpInfo[count]->LinkLocation != NULL) {
+			if (JumpInfo[count]->LinkLocation != NULL) 
+			{
 				SetJump32(JumpInfo[count]->LinkLocation,RecompPos);
 				JumpInfo[count]->LinkLocation = NULL;
-				if (JumpInfo[count]->LinkLocation2 != NULL) { 
+				if (JumpInfo[count]->LinkLocation2 != NULL)
+				{ 
 					SetJump32(JumpInfo[count]->LinkLocation2,RecompPos);
 					JumpInfo[count]->LinkLocation2 = NULL;
 				}
 			}
-			if (JumpInfo[count]->RegSet.RandomModifier != 0) {
+			if (JumpInfo[count]->RegSet.RandomModifier != 0) 
+			{
 				SubConstFromVariable(JumpInfo[count]->RegSet.RandomModifier,&CP0[1],Cop0_Name[1]);
 				JumpInfo[count]->RegSet.RandomModifier = 0;
 			}
-			if (JumpInfo[count]->RegSet.CycleCount != 0) {
+			if (JumpInfo[count]->RegSet.CycleCount != 0)
 				AddConstToVariable(JumpInfo[count]->RegSet.CycleCount,&CP0[9],Cop0_Name[9]);
-			}
-			if (JumpInfo[count]->TargetPC <= Section->CompilePC) {
+			if (JumpInfo[count]->TargetPC <= Section->CompilePC)
+			{
 				DWORD CycleCount = JumpInfo[count]->RegSet.CycleCount;
 				JumpInfo[count]->RegSet.CycleCount = 0;
 
-CPU_Message("PermLoop ***");
-				if (JumpInfo[count]->PermLoop) {
+				CPU_Message("PermLoop ***");
+				if (JumpInfo[count]->PermLoop)
+				{
 					MoveConstToVariable(JumpInfo[count]->TargetPC,&PROGRAM_COUNTER,"PROGRAM_COUNTER");
 					Call_Direct(InPermLoop,"InPermLoop");
 					CompileSystemCheck(0,-1,JumpInfo[count]->RegSet);
-				} else {
+				} 
+				else 
+				{
 					CompileSystemCheck(CycleCount,JumpInfo[count]->TargetPC,JumpInfo[count]->RegSet);
 				}
-			} else {
-				if (JumpInfo[count]->RegSet.CycleCount != 0) {
+			} 
+			else 
+			{
+				if (JumpInfo[count]->RegSet.CycleCount != 0) 
+				{
 					SubConstFromVariable(JumpInfo[count]->RegSet.CycleCount,&Timers.Timer,"Timer");
 					JumpInfo[count]->RegSet.CycleCount = 0;
 				}
@@ -1815,16 +1859,20 @@ CPU_Message("PermLoop ***");
 	//Section->CycleCount = 0;
 	//Section->RandomModifier = 0;
 
-	for (count = 0; count < 2; count ++) {
+	for (count = 0; count < 2; count ++)
+	{
 		int count2;
 
-		if (TargetSection[count] == NULL) { continue; }
-		if (TargetSection[count]->ParentSection == NULL) { continue; }
+		if (TargetSection[count] == NULL || TargetSection[count]->ParentSection == NULL) 
+			continue;
 
-		for (count2 = 0;TargetSection[count]->ParentSection[count2] != NULL;count2++) {
+		for (count2 = 0;TargetSection[count]->ParentSection[count2] != NULL;count2++)
+		{
 			Parent = (BLOCK_SECTION*)TargetSection[count]->ParentSection[count2];
-			if (Parent->CompiledLocation != NULL) { continue; }
-			if (JumpInfo[count]->FallThrough) { 
+			if (Parent->CompiledLocation != NULL)
+				continue;
+			if (JumpInfo[count]->FallThrough)
+			{ 
 				JumpInfo[count]->FallThrough = FALSE;
 				JmpLabel32(JumpInfo[count]->BranchLabel,0);
 				JumpInfo[count]->LinkLocation = RecompPos - 4;
@@ -1832,18 +1880,22 @@ CPU_Message("PermLoop ***");
 		}
 	}
 
-	for (count = 0; count < 2; count ++) {
-		if (JumpInfo[count]->FallThrough) { 
-			if (JumpInfo[count]->TargetPC < Section->CompilePC) {
+	for (count = 0; count < 2; count ++)
+	{
+		if (JumpInfo[count]->FallThrough)
+		{ 
+			if (JumpInfo[count]->TargetPC < Section->CompilePC)
+			{
 				DWORD CycleCount = JumpInfo[count]->RegSet.CycleCount;;
 
-				if (JumpInfo[count]->RegSet.RandomModifier != 0) {
+				if (JumpInfo[count]->RegSet.RandomModifier != 0)
+				{
 					SubConstFromVariable(JumpInfo[count]->RegSet.RandomModifier,&CP0[1],Cop0_Name[1]);
 					JumpInfo[count]->RegSet.RandomModifier = 0;
 				}
-				if (JumpInfo[count]->RegSet.CycleCount != 0) {
+				if (JumpInfo[count]->RegSet.CycleCount != 0)
 					AddConstToVariable(JumpInfo[count]->RegSet.CycleCount,&CP0[9],Cop0_Name[9]);
-				}
+
 				JumpInfo[count]->RegSet.CycleCount = 0;
 
 				CompileSystemCheck(CycleCount,JumpInfo[count]->TargetPC,JumpInfo[count]->RegSet);
@@ -1853,64 +1905,81 @@ CPU_Message("PermLoop ***");
 
 	CPU_Message("====== End of Section %d ======",Section->SectionID);
 
-	for (count = 0; count < 2; count ++) {
-		if (JumpInfo[count]->FallThrough) { 
+	for (count = 0; count < 2; count ++) 
+	{
+		if (JumpInfo[count]->FallThrough)
 			GenerateX86Code(TargetSection[count],GetNewTestValue()); 
-		}
 	}
 	
 	//CPU_Message("Section %d",Section->SectionID);
-	for (count = 0; count < 2; count ++) {
-		if (JumpInfo[count]->LinkLocation == NULL) { continue; }
-		if (TargetSection[count] == NULL) {
+	for (count = 0; count < 2; count ++)
+	{
+		if (JumpInfo[count]->LinkLocation == NULL)
+			continue;
+		if (TargetSection[count] == NULL)
+		{
 			CPU_Message("ExitBlock (from %d):",Section->SectionID);
 			SetJump32(JumpInfo[count]->LinkLocation,RecompPos);
 			JumpInfo[count]->LinkLocation = NULL;
-			if (JumpInfo[count]->LinkLocation2 != NULL) { 
+			if (JumpInfo[count]->LinkLocation2 != NULL)
+			{ 
 				SetJump32(JumpInfo[count]->LinkLocation2,RecompPos);
 				JumpInfo[count]->LinkLocation2 = NULL;
 			}			
 			CompileExit (JumpInfo[count]->TargetPC,JumpInfo[count]->RegSet,Normal,TRUE,NULL);
 			continue;
 		}
-		if (JumpInfo[count]->TargetPC != TargetSection[count]->StartPC) {
+		if (JumpInfo[count]->TargetPC != TargetSection[count]->StartPC)
+		{
 			DisplayError("I need to add more code in GenerateSectionLinkage cause this is going to cause an exception");
 			_asm int 3
 		}
-		if (TargetSection[count]->CompiledLocation == NULL) {
+		if (TargetSection[count]->CompiledLocation == NULL)
+		{
 			GenerateX86Code(TargetSection[count],GetNewTestValue()); 
-		} else {
+		}
+		else 
+		{
 			char Label[100];
 
 			CPU_Message("Section_%d (from %d):",TargetSection[count]->SectionID,Section->SectionID);
 			SetJump32(JumpInfo[count]->LinkLocation,RecompPos);
 			JumpInfo[count]->LinkLocation = NULL;
-			if (JumpInfo[count]->LinkLocation2 != NULL) { 
+			if (JumpInfo[count]->LinkLocation2 != NULL)
+			{ 
 				SetJump32(JumpInfo[count]->LinkLocation2,RecompPos);
 				JumpInfo[count]->LinkLocation2 = NULL;
 			}			
 			memcpy(&Section->RegWorking,&JumpInfo[count]->RegSet,sizeof(REG_INFO));
-			if (JumpInfo[count]->RegSet.RandomModifier != 0) {
+			if (JumpInfo[count]->RegSet.RandomModifier != 0)
+			{
 				SubConstFromVariable(JumpInfo[count]->RegSet.RandomModifier,&CP0[1],Cop0_Name[1]);
 				JumpInfo[count]->RegSet.RandomModifier = 0;
 			}
-			if (JumpInfo[count]->RegSet.CycleCount != 0) {
+			if (JumpInfo[count]->RegSet.CycleCount != 0)
 				AddConstToVariable(JumpInfo[count]->RegSet.CycleCount,&CP0[9],Cop0_Name[9]);
-			}
-			if (JumpInfo[count]->TargetPC <= Section->CompilePC) {
+
+			if (JumpInfo[count]->TargetPC <= Section->CompilePC) 
+			{
 				DWORD CycleCount = JumpInfo[count]->RegSet.CycleCount;
 				JumpInfo[count]->RegSet.CycleCount = 0;
 
-CPU_Message("PermLoop ***");
-				if (JumpInfo[count]->PermLoop) {
+				CPU_Message("PermLoop ***");
+				if (JumpInfo[count]->PermLoop)
+				{
 					MoveConstToVariable(JumpInfo[count]->TargetPC,&PROGRAM_COUNTER,"PROGRAM_COUNTER");
 					Call_Direct(InPermLoop,"InPermLoop");
 					CompileSystemCheck(0,-1,JumpInfo[count]->RegSet);
-				} else {
+				}
+				else
+				{
 					CompileSystemCheck(CycleCount,JumpInfo[count]->TargetPC,JumpInfo[count]->RegSet);
 				}
-			} else {
-				if (JumpInfo[count]->RegSet.CycleCount != 0) {
+			}
+			else
+			{
+				if (JumpInfo[count]->RegSet.CycleCount != 0)
+				{
 					SubConstFromVariable(JumpInfo[count]->RegSet.CycleCount,&Timers.Timer,"Timer");
 					JumpInfo[count]->RegSet.CycleCount = 0;
 				}
@@ -1923,48 +1992,66 @@ CPU_Message("PermLoop ***");
 	}
 }
 
-BOOL GenerateX86Code (BLOCK_SECTION * Section, DWORD Test) {
+BOOL GenerateX86Code (BLOCK_SECTION * Section, DWORD Test)
+{
 	int count;
 
-	if (Section == NULL) { return FALSE; }
+	//If theres nothing in the section, then dont bother generating
+	if (Section == NULL) 
+		return FALSE;
+
 	//CPU_Message("Section: %d",Section->SectionID);
-	if (Section->CompiledLocation != NULL) { 		
-		if (Section->Test == Test) { return FALSE; }
+	if (Section->CompiledLocation != NULL)
+	{ 		
+		if (Section->Test == Test) 
+			return FALSE;
 		Section->Test = Test;
-		if (GenerateX86Code((BLOCK_SECTION*)Section->ContinueSection,Test)) { return TRUE; }
-		if (GenerateX86Code((BLOCK_SECTION*)Section->JumpSection,Test)) { return TRUE; }
+		if (GenerateX86Code((BLOCK_SECTION*)Section->JumpSection,Test) ||
+			GenerateX86Code((BLOCK_SECTION*)Section->ContinueSection,Test))
+			return TRUE;
 		return FALSE; 
 	}
-	if (Section->ParentSection) {
-		for (count = 0;Section->ParentSection[count] != NULL;count++) {
+	if (Section->ParentSection)
+	{
+		for (count = 0;Section->ParentSection[count] != NULL;count++)
+		{
 			BLOCK_SECTION * Parent;
 			
 			Parent = (BLOCK_SECTION*)Section->ParentSection[count];
-			if (Parent->CompiledLocation != NULL) { continue; }
-			if (IsAllParentLoops(Section,Parent,TRUE,GetNewTestValue())) { continue; }
+			if (Parent->CompiledLocation != NULL || IsAllParentLoops(Section,Parent,TRUE,GetNewTestValue())) 
+				continue;
 			return FALSE;
 		}
 	}
-	if (!InheritParentInfo(Section)) { return FALSE; }
+	if (!InheritParentInfo(Section))
+		return FALSE;
 	Section->CompiledLocation = RecompPos;
 	Section->CompilePC = Section->StartPC;
 	NextInstruction = NORMAL;	
-	do {
-		__try {
-			if (!r4300i_LW_VAddr(Section->CompilePC, &Opcode.Hex)) {
+	do
+	{
+		__try 
+		{
+			if (!r4300i_LW_VAddr(Section->CompilePC, &Opcode.Hex)) 
+			{
 				DisplayError(GS(MSG_FAIL_LOAD_WORD));
 				ExitThread(0);
 			} 
-		} __except( r4300i_CPU_MemoryFilter( GetExceptionCode(), GetExceptionInformation()) ) {
+		}
+		__except( r4300i_CPU_MemoryFilter( GetExceptionCode(), GetExceptionInformation()) ) 
+		{
 			DisplayError(GS(MSG_UNKNOWN_MEM_ACTION));
 			ExitThread(0);
 		}
-		if (SelfModCheck == ModCode_ChangeMemory) {
-			if ( (Opcode.Hex >> 16) == 0x7C7C) {
+
+		if (SelfModCheck == ModCode_ChangeMemory)
+		{
+			if ( (Opcode.Hex >> 16) == 0x7C7C)
 				Opcode.Hex = OrigMem[(Opcode.Hex & 0xFFFF)].OriginalValue;
-			}
 		}
 
+
+		//TODO huuuuuuge commented block of code, any point in keeping?
 		//if (Section->CompilePC == 0x800AA51C && NextInstruction == NORMAL) { _asm int 3 }
 		//if (Section->CompilePC == 0x80000050 && NextInstruction == NORMAL) { BreakPoint(); }
 		/*if (Section->CompilePC >= 0x800C4024 && Section->CompilePC < 0x800C4030) {
@@ -2300,7 +2387,8 @@ BOOL GenerateX86Code (BLOCK_SECTION * Section, DWORD Test) {
 			Compile_R4300i_UnknownOpcode(Section); break;
 		}
 
-		if (DisableRegCaching) { WriteBackRegisters(Section); }
+		if (DisableRegCaching)
+			WriteBackRegisters(Section);
 		for (count = 1; count < 10; count ++) { x86Protected(count) = FALSE; }
 		
 		/*if ((DWORD)RecompPos > 0x60B452E6) {
@@ -2328,53 +2416,61 @@ BOOL GenerateX86Code (BLOCK_SECTION * Section, DWORD Test) {
 		}*/
 		//CPU_Message("MemoryStack = %s",Map_MemoryStack(Section, FALSE) > 0?x86_Name(Map_MemoryStack(Section, FALSE)):"Not Mapped");
 
-		if ((Section->CompilePC &0xFFC) == 0xFFC) {
+		if ((Section->CompilePC &0xFFC) == 0xFFC) 
+		{
 			if (NextInstruction == DO_DELAY_SLOT)
 				DebugError("Wanting to do delay slot over end of block");
-			if (NextInstruction == NORMAL) {
+			if (NextInstruction == NORMAL) 
+			{
 				CompileExit (Section->CompilePC + 4,Section->RegWorking,Normal,TRUE,NULL);
 				NextInstruction = END_BLOCK;
 			}
 		}
 
-		switch (NextInstruction) {
-		case NORMAL: 
-			Section->CompilePC += 4; 
-			break;
-		case DO_DELAY_SLOT:
-			NextInstruction = DELAY_SLOT;
-			Section->CompilePC += 4; 
-			break;
-		case DELAY_SLOT:
-			NextInstruction = DELAY_SLOT_DONE;
-			BlockCycleCount -= CountPerOp;
-			BlockRandomModifier -= 1;
-			Section->CompilePC -= 4; 
-			break;
+		switch (NextInstruction) 
+		{
+			case NORMAL: 
+				Section->CompilePC += 4; 
+				break;
+			case DO_DELAY_SLOT:
+				NextInstruction = DELAY_SLOT;
+				Section->CompilePC += 4; 
+				break;
+			case DELAY_SLOT:
+				NextInstruction = DELAY_SLOT_DONE;
+				BlockCycleCount -= CountPerOp;
+				BlockRandomModifier -= 1;
+				Section->CompilePC -= 4; 
+				break;
 		}
 	} while (NextInstruction != END_BLOCK);
 	
 	return TRUE;
 }
 
-DWORD GetNewTestValue(void) {
+DWORD GetNewTestValue(void) 
+{
 	static DWORD LastTest = 0;
-	if (LastTest == 0xFFFFFFFF) { LastTest = 0; }
+	if (LastTest == 0xFFFFFFFF)
+		LastTest = 0;
 	LastTest += 1;
 	return LastTest;
 }
 
-void InitilizeRegSet(REG_INFO * RegSet) {
+void InitilizeRegSet(REG_INFO * RegSet)
+{
 	int count;
 	
 	RegSet->MIPS_RegState[0]  = STATE_CONST_32;
 	RegSet->MIPS_RegVal[0].DW = 0;
-	for (count = 1; count < 32; count ++ ) {
+	for (count = 1; count < 32; count ++ )
+	{
 		RegSet->MIPS_RegState[count]   = STATE_UNKNOWN;
 		RegSet->MIPS_RegVal[count].DW = 0;
 
 	}
-	for (count = 0; count < 10; count ++ ) {
+	for (count = 0; count < 10; count ++ )
+	{
 		RegSet->x86reg_MappedTo[count]  = NotMapped;
 		RegSet->x86reg_Protected[count] = FALSE;
 		RegSet->x86reg_MapOrder[count]  = 0;
@@ -2383,7 +2479,8 @@ void InitilizeRegSet(REG_INFO * RegSet) {
 	RegSet->RandomModifier = 0;
 
 	RegSet->Stack_TopPos = 0;
-	for (count = 0; count < 8; count ++ ) {
+	for (count = 0; count < 8; count ++ )
+	{
 		RegSet->x86fpu_MappedTo[count] = -1;
 		RegSet->x86fpu_State[count] = FPU_Unkown;
 		RegSet->x86fpu_RoundingModel[count] = RoundDefault;
@@ -2392,13 +2489,15 @@ void InitilizeRegSet(REG_INFO * RegSet) {
 	RegSet->RoundingModel = RoundUnknown;
 }
 
-void _fastcall InheritConstants(BLOCK_SECTION * Section) {
+void _fastcall InheritConstants(BLOCK_SECTION * Section)
+{
 	int NoOfParents, count;
 	BLOCK_SECTION * Parent;
 	REG_INFO * RegSet;
 
 
-	if (Section->ParentSection == NULL) {
+	if (Section->ParentSection == NULL)
+	{
 		InitilizeRegSet(&Section->RegStart);
 		memcpy(&Section->RegWorking,&Section->RegStart,sizeof(REG_INFO));		
 		return;
@@ -2413,15 +2512,16 @@ void _fastcall InheritConstants(BLOCK_SECTION * Section) {
 		Parent = (BLOCK_SECTION*)Section->ParentSection[NoOfParents];
 		RegSet = Section == Parent->ContinueSection?&Parent->Cont.RegSet:&Parent->Jump.RegSet;
 			
-		for (count = 0; count < 32; count++) {
-			if (IsConst(count)) {
-				if (MipsRegState(count) != RegSet->MIPS_RegState[count]) {
+		for (count = 0; count < 32; count++)
+		{
+			if (IsConst(count))
+			{
+				if (MipsRegState(count) != RegSet->MIPS_RegState[count])
 					MipsRegState(count) = STATE_UNKNOWN;
-				} else if (Is32Bit(count) && MipsRegLo(count) != RegSet->MIPS_RegVal[count].UW[0]) {
+				else if (Is32Bit(count) && MipsRegLo(count) != RegSet->MIPS_RegVal[count].UW[0])
 					MipsRegState(count) = STATE_UNKNOWN;
-				} else if (Is64Bit(count) && MipsReg(count) != RegSet->MIPS_RegVal[count].UDW) {
+				else if (Is64Bit(count) && MipsReg(count) != RegSet->MIPS_RegVal[count].UDW)
 					MipsRegState(count) = STATE_UNKNOWN;
-				}
 			}
 		}
 	}
