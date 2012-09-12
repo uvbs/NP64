@@ -589,7 +589,7 @@ BOOL CALLBACK PluginSelectProc (HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
 				strcat(Plugin,PluginNames[index]);
 				hLib = LoadLibrary(Plugin);		
 				if (hLib == NULL) { DisplayError("%s %s",GS(MSG_FAIL_LOAD_PLUGIN),Plugin); }
-				GFXDllAbout = (void (__cdecl *)(HWND))GetProcAddress( (HMODULE)hLib, "DllAbout" );
+//				GFXDllAbout = (void (__cdecl *)(HWND))GetProcAddress( (HMODULE)hLib, "DllAbout" );
 				EnableWindow(GetDlgItem(hDlg,GFX_ABOUT),GFXDllAbout != NULL ? TRUE:FALSE);
 			}
 			break;
@@ -603,7 +603,7 @@ BOOL CALLBACK PluginSelectProc (HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
 				strcat(Plugin,PluginNames[index]);
 				hLib = LoadLibrary(Plugin);		
 				if (hLib == NULL) { DisplayError("%s %s",GS(MSG_FAIL_LOAD_PLUGIN),Plugin); }
-				AiDllAbout = (void (__cdecl *)(HWND))GetProcAddress( (HMODULE)hLib, "DllAbout" );
+			//	AiDllAbout = (void (__cdecl *)(HWND))GetProcAddress( (HMODULE)hLib, "DllAbout" );
 				EnableWindow(GetDlgItem(hDlg,GFX_ABOUT),GFXDllAbout != NULL ? TRUE:FALSE);
 			}
 			break;
@@ -617,7 +617,7 @@ BOOL CALLBACK PluginSelectProc (HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
 				strcat(Plugin,PluginNames[index]);
 				hLib = LoadLibrary(Plugin);		
 				if (hLib == NULL) { DisplayError("%s %s",GS(MSG_FAIL_LOAD_PLUGIN),Plugin); }
-				ContDllAbout = (void (__cdecl *)(HWND))GetProcAddress( (HMODULE)hLib, "DllAbout" );
+//				ContDllAbout = (void (__cdecl *)(HWND))GetProcAddress( (HMODULE)hLib, "DllAbout" );
 				EnableWindow(GetDlgItem(hDlg,CONT_ABOUT),ContDllAbout != NULL ? TRUE:FALSE);
 			}
 			break;

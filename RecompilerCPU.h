@@ -23,6 +23,9 @@
  * should be forwarded to them so if they want them.
  *
  */
+#ifndef _RECOMPILERCPU_H_
+#define _RECOMPILERCPU_H_
+
 #define MaxCodeBlocks			50000
 #define MaxOrigMem				65000
 
@@ -227,3 +230,5 @@ extern WORD FPU_RoundingMode;
 
 #define SetJump32(Loc,JumpLoc) *(DWORD *)(Loc)= (DWORD)(((DWORD)(JumpLoc)) - (((DWORD)(Loc)) + 4));
 #define SetJump8(Loc,JumpLoc)  *(BYTE  *)(Loc)= (BYTE )(((BYTE )(JumpLoc)) - (((BYTE )(Loc)) + 1));
+
+#endif

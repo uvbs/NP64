@@ -23,6 +23,9 @@
  * should be forwarded to them so if they want them.
  *
  */
+#ifndef _MEMORY_H_
+#define _MEMORY_H_
+
 #define LargeCompileBufferSize	0x03200000
 #define NormalCompileBufferSize	0x01400000
 
@@ -71,3 +74,4 @@ void Compile_SW_Register         ( int x86Reg, DWORD Addr );
 void ResetMemoryStack            ( BLOCK_SECTION * Section );
 void ResetRecompCode             ( void );
 
+#endif

@@ -23,5 +23,10 @@
  * should be forwarded to them so if they want them.
  *
  */
+#ifndef _TLBDISPLAY_H_
+#define _TLBDISPLAY_H_
+
 void Enter_TLB_Window ( void );
 void RefreshTLBWindow ( void );
+
+#endif

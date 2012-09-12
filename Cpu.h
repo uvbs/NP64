@@ -23,6 +23,9 @@
  * should be forwarded to them so if they want them.
  *
  */
+#ifndef _CPU_H_
+#define _CPU_H_
+
 #include "InterpreterCPU.h"
 #include "InterpreterOps.h"
 #include "RecompilerCPU.h"
@@ -131,3 +134,5 @@ extern BOOL inFullScreen, CPURunning, SPHack;
 extern DWORD StackValue;
 #endif
 extern DWORD MemoryStack;
+
+#endif //_CPU_H_

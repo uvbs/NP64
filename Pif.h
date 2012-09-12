@@ -23,6 +23,9 @@
  * should be forwarded to them so if they want them.
  *
  */
+#ifndef _PIF_H_
+#define _PIF_H_
+
 extern BYTE PifRom[0x7C0], *PIF_Ram;
 
 int	 GetTvSystem( int country);
@@ -30,3 +33,5 @@ int  GetCicChipID ( BYTE * RomData );
 int  LoadPifRom   ();
 void PifRamWrite  ( void );
 void PifRamRead   ( void );
+
+#endif //_PIF_H_

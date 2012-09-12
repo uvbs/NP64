@@ -849,11 +849,11 @@ LRESULT CALLBACK Main_Proc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 		break;
 	case WM_KEYDOWN: 
 		if (!CPURunning) { break; }		
-		if (WM_KeyDown) { WM_KeyDown(wParam, lParam); };
+		 WM_KeyDown(wParam, lParam);
 		break;
 	case WM_KEYUP: 
 		if (!CPURunning) { break; }		
-		if (WM_KeyUp) { WM_KeyUp(wParam, lParam); }; 
+		WM_KeyUp(wParam, lParam);
 		break;
 	//case WM_ERASEBKGND: break;
 	case WM_USER + 10: 
@@ -1014,11 +1014,9 @@ LRESULT CALLBACK Main_Proc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 			}
 			break;
 		case ID_SYSTEM_GENERATEBITMAP:
-			if (CaptureScreen) {
-				char Directory[255];				
-				GetSnapShotDir(Directory);
-				CaptureScreen(Directory);
-			}
+			char Directory[255];				
+			GetSnapShotDir(Directory);
+			CaptureScreen(Directory);
 			break;
 		case ID_SYSTEM_LIMITFPS: 
 			if (BasicMode) { break; }
@@ -1039,11 +1037,11 @@ LRESULT CALLBACK Main_Proc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 		case ID_OPTIONS_FULLSCREEN: 
 			if (CPU_Paused) {
 				CPU_Action.ChangeWindow = FALSE;
-				if (ChangeWindow) { 
+		//		if (ChangeWindow) { 
 					ChangeWindow(); 
 					inFullScreen = !inFullScreen;
 					AlwaysOnTopWindow(hMainWindow);
-				} 
+				//} 
 			} else {
 				CPU_Action.ChangeWindow = TRUE;
 				CPU_Action.DoSomething = TRUE;
@@ -1357,10 +1355,6 @@ LRESULT CALLBACK Main_Proc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 				if (RspDebug.ProcessMenuItem != NULL) {
 					RspDebug.ProcessMenuItem(LOWORD(wParam));
 				}
-			} else if (LOWORD(wParam) > 5100 && LOWORD(wParam) <= 5200 ) { 
-				if (GFXDebug.ProcessMenuItem != NULL) {
-					GFXDebug.ProcessMenuItem(LOWORD(wParam));
-				}
 			}
 		}
 		break;
@@ -1634,7 +1628,6 @@ void SetupMenu ( HWND hWnd ) {
 	HMENU hMenu = GetMenu(hWnd), hSubMenu;
 	int State;
 
-	if (IsMenu(GFXDebug.hGFXMenu)) { RemoveMenu(hMenu,(DWORD)GFXDebug.hGFXMenu, MF_BYCOMMAND); }
 	if (IsMenu(RspDebug.hRSPMenu)) { RemoveMenu(hMenu,(DWORD)RspDebug.hRSPMenu, MF_BYCOMMAND); }
 	DestroyMenu(hMenu);
 	hMenu = LoadMenu(hInst,MAKEINTRESOURCE(MAIN_MENU));
@@ -1726,13 +1719,6 @@ void SetupMenu ( HWND hWnd ) {
 			lpmii.fState = 0;
 			SetMenuItemInfo(hSubMenu, (DWORD)RspDebug.hRSPMenu, MF_BYCOMMAND,&lpmii);
 		}
-		if (IsMenu(GFXDebug.hGFXMenu)) {
-			InsertMenu (hSubMenu, 3, MF_POPUP|MF_BYPOSITION, (DWORD)GFXDebug.hGFXMenu, "&RDP");
-			lpmii.cbSize = sizeof(MENUITEMINFO);
-			lpmii.fMask = MIIM_STATE;
-			lpmii.fState = 0;
-			SetMenuItemInfo(hSubMenu, (DWORD)GFXDebug.hGFXMenu, MF_BYCOMMAND,&lpmii);
-		}
 	}
 
 	if (strlen(RomName) > 0) { 
@@ -1745,9 +1731,6 @@ void SetupMenu ( HWND hWnd ) {
 			EnableMenuItem(hMenu,ID_DEBUGGER_R4300IREGISTERS,MFS_ENABLED|MF_BYCOMMAND);
 			if (IsMenu(RspDebug.hRSPMenu)) {
 				EnableMenuItem(hMenu,(DWORD)RspDebug.hRSPMenu,MFS_ENABLED|MF_BYCOMMAND);
-			}
-			if (IsMenu(GFXDebug.hGFXMenu)) {
-				EnableMenuItem(hMenu,(DWORD)GFXDebug.hGFXMenu,MFS_ENABLED|MF_BYCOMMAND);
 			}
 		}	
 	}

@@ -23,5 +23,10 @@
  * should be forwarded to them so if they want them.
  *
  */
+#ifndef _SETTINGS_H_
+#define _SETTINGS_H_
+
 void ChangeSettings(HWND hwndOwner);
 void ChangeRomSettings(HWND hwndOwner);
+
+#endif // _SETTINGS_H_

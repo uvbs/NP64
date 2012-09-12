@@ -137,3 +137,69 @@ void GetInstantSaveDir( char * Directory )
 	if(!File::IsDirectory(Directory))
 		File::CreateDir(Directory);
 }
+
+//Move these elsewhere
+void GetPluginDir( char * Directory )
+{
+	char Dir[255], Group[200];
+	long lResult;
+	HKEY hKeyResults = 0;
+
+	strcpy(Directory, main_directory);
+	strcat(Directory, "Plugin\\");
+
+	sprintf(Group,"Software\\N64 Emulation\\%s",AppName);
+	lResult = RegOpenKeyEx( HKEY_CURRENT_USER,Group,0,KEY_ALL_ACCESS,
+		&hKeyResults);
+	if (lResult == ERROR_SUCCESS)
+	{
+		DWORD Type, Value, Bytes;
+
+		Bytes = 4;
+		lResult = RegQueryValueEx(hKeyResults,"Use Default Plugin Dir",0,&Type,(LPBYTE)(&Value),&Bytes);
+		if (lResult == ERROR_SUCCESS && Value == FALSE)
+		{					
+			Bytes = sizeof(Dir);
+			lResult = RegQueryValueEx(hKeyResults,"Plugin Directory",0,&Type,(LPBYTE)Dir,&Bytes);
+			if (lResult == ERROR_SUCCESS)
+				strcpy(Directory,Dir);
+		}
+	}
+	RegCloseKey(hKeyResults);	
+
+	if(!File::IsDirectory(Directory))
+		File::CreateDir(Directory);
+}
+
+//Move these elsewhere
+void GetSnapShotDir( char * Directory )
+{
+	char Dir[255], Group[200];
+	long lResult;
+	HKEY hKeyResults = 0;
+
+	strcpy(Directory, main_directory);
+	strcat(Directory, "Screenshots\\");
+
+	sprintf(Group,"Software\\N64 Emulation\\%s",AppName);
+	lResult = RegOpenKeyEx( HKEY_CURRENT_USER,Group,0,KEY_ALL_ACCESS,
+		&hKeyResults);
+	if (lResult == ERROR_SUCCESS)
+	{
+		DWORD Type, Value, Bytes;
+
+		Bytes = 4;
+		lResult = RegQueryValueEx(hKeyResults,"Use Default Snap Shot Dir",0,&Type,(LPBYTE)(&Value),&Bytes);
+		if (lResult == ERROR_SUCCESS && Value == FALSE)
+		{					
+			Bytes = sizeof(Dir);
+			lResult = RegQueryValueEx(hKeyResults,"Snap Shot Directory",0,&Type,(LPBYTE)Dir,&Bytes);
+			if (lResult == ERROR_SUCCESS)
+				strcpy(Directory,Dir);
+		}
+	}
+	RegCloseKey(hKeyResults);	
+
+	if(!File::IsDirectory(Directory))
+		File::CreateDir(Directory);
+}

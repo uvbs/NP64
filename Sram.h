@@ -23,6 +23,11 @@
  * should be forwarded to them so if they want them.
  *
  */
+#ifndef _SRAM_H_
+#define _SRAM_H_
+
 void CloseSram   ( void );
 void DmaFromSram ( BYTE * dest, int StartOffset, int len);
 void DmaToSram   ( BYTE * Source, int StartOffset, int len);
+
+#endif

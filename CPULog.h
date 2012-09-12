@@ -23,10 +23,15 @@
  * should be forwarded to them so if they want them.
  *
  */
+#ifndef _CPULOG_H_
+#define _CPULOG_H_
+
 #ifdef Log_x86Code
 	void CPU_Message (char * Message, ...);
 	void Start_x86_Log (void);
 	void Stop_x86_Log (void);
 #else
 #define CPU_Message
+#endif
+
 #endif

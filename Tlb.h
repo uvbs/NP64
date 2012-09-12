@@ -23,6 +23,8 @@
  * should be forwarded to them so if they want them.
  *
  */
+#ifndef _TLB_H_
+#define _TLB_H_
 typedef struct {
 	BOOL EntryDefined;
 	union {
@@ -101,3 +103,5 @@ void TLB_Probe      ( void );
 void TLB_Read       ( void );
 BOOL TranslateVaddr ( DWORD * Addr);
 void _fastcall WriteTLBEntry  ( int index );
+
+#endif

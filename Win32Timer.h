@@ -23,7 +23,12 @@
  * should be forwarded to them so if they want them.
  *
  */
+#ifndef _WIN32TIMER_H_
+#define _WIN32TIMER_H_
+
 void Timer_Initialize  ( double Hertz);
 void Timer_Start       ( void );
 void Timer_Stop        ( void );
 BOOL Timer_Process     ( DWORD * FrameRate );
+
+#endif

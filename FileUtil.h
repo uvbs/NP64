@@ -23,6 +23,8 @@
  * should be forwarded to them so if they want them.
  *
  */
+#ifndef _FILEUTIL_H_
+#define _FILEUTIL_H_
 
 namespace File
 {
@@ -37,3 +39,7 @@ namespace File
 //Move these elsewhere, thinking of a better place
 void GetAutoSaveDir     ( char * Directory );
 void GetInstantSaveDir  ( char * Directory );
+void GetSnapShotDir		( char * Directory );
+void GetPluginDir		( char * Directory );
+
+#endif //_FILEUTIL_H_

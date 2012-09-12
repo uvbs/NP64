@@ -23,6 +23,9 @@
  * should be forwarded to them so if they want them.
  *
  */
+#ifndef _ROMBROWSER_H_
+#define _ROMBROWSER_H_
+
 typedef struct {
 	char Name[50];
 	int  Pos;
@@ -56,3 +59,5 @@ void FreeRomBrowser            ( void );
 extern char CurrentRBFileName[MAX_PATH+1];
 extern ROMBROWSER_FIELDS RomBrowserFields[];
 extern int NoOfFields;
+
+#endif

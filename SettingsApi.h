@@ -23,6 +23,9 @@
  * should be forwarded to them so if they want them.
  *
  */
+#ifndef _SETTINGSAPI_H_
+#define _SETTINGSAPI_H_
+
 int _DeletePrivateProfileString(
   const char * lpAppName,  // pointer to section name
   const char * lpKeyName,  // pointer to key name
@@ -69,3 +72,5 @@ unsigned int _GetPrivateProfileSectionNames(									//added by Witten
 
 int fGetString2(FILE * File, char **String, BYTE **Data, int * DataSize, int *Left );
 void fInsertSpaces(FILE * File,int Pos, int NoOfSpaces);
+
+#endif

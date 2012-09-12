@@ -23,6 +23,9 @@
  * should be forwarded to them so if they want them.
  *
  */
+#ifndef _RECOMPILEROPS_H_
+#define _RECOMPILEROPS_H_
+
 void CompileReadTLBMiss (BLOCK_SECTION * Section, int AddressReg, int LookUpReg );
 
 /************************** Branch functions  ************************/
@@ -193,3 +196,5 @@ void Compile_R4300i_COP1_L_CVT_D   ( BLOCK_SECTION * Section );
 
 /************************** Other functions **************************/
 void Compile_R4300i_UnknownOpcode  ( BLOCK_SECTION * Section );
+
+#endif

@@ -23,7 +23,12 @@
  * should be forwarded to them so if they want them.
  *
  */
+#ifndef _MEMPACK_H_
+#define _MEMPACK_H_
+
 void CloseMempak          ( void );
 BYTE Mempacks_CalulateCrc ( BYTE * DataToCrc );
 void ReadFromMempak       ( int Control, int Address, BYTE * Buffer );
 void WriteToMempak        ( int Control, int Address, BYTE * Buffer );
+
+#endif

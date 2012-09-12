@@ -23,6 +23,9 @@
  * should be forwarded to them so if they want them.
  *
  */
+#ifndef _PROFILING_H_
+#define _PROFILING_H_
+
 void ResetTimerList       ( void );
 void StartTimer           ( char * Label );
 void StopTimer            ( void );
@@ -31,3 +34,5 @@ void DisplayCPUPer (void);
 
 extern char ProfilingLabel[100];
 extern int CurrentPercent;
+
+#endif

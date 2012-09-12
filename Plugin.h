@@ -23,6 +23,14 @@
  * should be forwarded to them so if they want them.
  *
  */
+#ifndef _PLUGIN_H_
+#define _PLUGIN_H_
+
+
+#include "Plugin_Video.h"
+#include "Plugin_Audio.h"
+#include "Plugin_Input.h"
+
 #define DefaultGFXDll				"Jabo_Direct3D8.dll"
 #define DefaultRSPDll				"RSP.dll"
 #define DefaultAudioDll				"Jabo_Dsound.dll"
@@ -48,50 +56,6 @@ typedef struct {
 	BOOL MemoryBswaped;  /* a normal BYTE array where the memory has been pre
 	                          bswap on a dword (32 bits) boundry */
 } PLUGIN_INFO;
-
-typedef struct {
-	HWND hWnd;			/* Render window */
-	HWND hStatusBar;    /* if render window does not have a status bar then this is NULL */
-
-	BOOL MemoryBswaped;    // If this is set to TRUE, then the memory has been pre
-	                       //   bswap on a dword (32 bits) boundry 
-						   //	eg. the first 8 bytes are stored like this:
-	                       //        4 3 2 1   8 7 6 5
-
-	BYTE * HEADER;	// This is the rom header (first 40h bytes of the rom
-					// This will be in the same memory format as the rest of the memory.
-	BYTE * RDRAM;
-	BYTE * DMEM;
-	BYTE * IMEM;
-
-	DWORD * MI__INTR_REG;
-
-	DWORD * DPC__START_REG;
-	DWORD * DPC__END_REG;
-	DWORD * DPC__CURRENT_REG;
-	DWORD * DPC__STATUS_REG;
-	DWORD * DPC__CLOCK_REG;
-	DWORD * DPC__BUFBUSY_REG;
-	DWORD * DPC__PIPEBUSY_REG;
-	DWORD * DPC__TMEM_REG;
-
-	DWORD * VI__STATUS_REG;
-	DWORD * VI__ORIGIN_REG;
-	DWORD * VI__WIDTH_REG;
-	DWORD * VI__INTR_REG;
-	DWORD * VI__V_CURRENT_LINE_REG;
-	DWORD * VI__TIMING_REG;
-	DWORD * VI__V_SYNC_REG;
-	DWORD * VI__H_SYNC_REG;
-	DWORD * VI__LEAP_REG;
-	DWORD * VI__H_START_REG;
-	DWORD * VI__V_START_REG;
-	DWORD * VI__V_BURST_REG;
-	DWORD * VI__X_SCALE_REG;
-	DWORD * VI__Y_SCALE_REG;
-
-	void (__cdecl *CheckInterrupts)( void );
-} GFX_INFO;
 
 typedef struct {
 	HINSTANCE hInst;
@@ -128,24 +92,6 @@ typedef struct {
 	void (__cdecl *ProcessRdpList)( void );
 } RSP_INFO_1_0;
 
-typedef struct {
-	BOOL Present;
-	BOOL RawData;
-	int  Plugin;
-} CONTROL;
-
-typedef struct {
-	HWND hMainWindow;
-	HINSTANCE hinst;
-
-	BOOL MemoryBswaped;		// If this is set to TRUE, then the memory has been pre
-							//   bswap on a dword (32 bits) boundry, only effects header. 
-							//	eg. the first 8 bytes are stored like this:
-							//        4 3 2 1   8 7 6 5
-	BYTE * HEADER;			// This is the rom header (first 40h bytes of the rom)
-	CONTROL *Controls;		// A pointer to an array of 4 controllers .. eg:
-							// CONTROL Controls[4];
-} CONTROL_INFO;
 
 typedef struct {
 	HINSTANCE hInst;
@@ -205,27 +151,6 @@ typedef struct {
 	void (__cdecl *Enter_RSP_Commands_Window) ( void );
 } RSPDEBUG_INFO;
 
-typedef struct {
-	/* Menu */
-	/* Items should have an ID between 5101 and 5200 */
-	HMENU hGFXMenu;
-	void (__cdecl *ProcessMenuItem) ( int ID );
-
-	/* Break Points */
-	BOOL UseBPoints;
-	char BPPanelName[20];
-	void (__cdecl *Add_BPoint)      ( void );
-	void (__cdecl *CreateBPPanel)   ( HWND hDlg, RECT rcBox );
-	void (__cdecl *HideBPPanel)     ( void );
-	void (__cdecl *PaintBPPanel)    ( PAINTSTRUCT ps );
-	void (__cdecl *ShowBPPanel)     ( void );
-	void (__cdecl *RefreshBpoints)  ( HWND hList );
-	void (__cdecl *RemoveBpoint)    ( HWND hList, int index );
-	void (__cdecl *RemoveAllBpoint) ( void );
-	
-	/* GFX command Window */
-	void (__cdecl *Enter_GFX_Commands_Window) ( void );
-} GFXDEBUG_INFO;
 
 typedef struct {
 	void (__cdecl *UpdateBreakPoints)( void );
@@ -238,66 +163,6 @@ typedef struct {
 	void (__cdecl *Enter_Memory_Window)( void );
 } DEBUG_INFO;
 
-typedef struct {
-	HWND hwnd;
-	HINSTANCE hinst;
-
-	BOOL MemoryBswaped;    // If this is set to TRUE, then the memory has been pre
-	                       //   bswap on a dword (32 bits) boundry 
-						   //	eg. the first 8 bytes are stored like this:
-	                       //        4 3 2 1   8 7 6 5
-	BYTE * HEADER;	// This is the rom header (first 40h bytes of the rom
-					// This will be in the same memory format as the rest of the memory.
-	BYTE * RDRAM;
-	BYTE * DMEM;
-	BYTE * IMEM;
-
-	DWORD * MI__INTR_REG;
-
-	DWORD * AI__DRAM_ADDR_REG;
-	DWORD * AI__LEN_REG;
-	DWORD * AI__CONTROL_REG;
-	DWORD * AI__STATUS_REG;
-	DWORD * AI__DACRATE_REG;
-	DWORD * AI__BITRATE_REG;
-
-	void (__cdecl *CheckInterrupts)( void );
-} AUDIO_INFO;
-
-
-typedef union {
-	DWORD Value;
-	struct {
-		unsigned R_DPAD       : 1;
-		unsigned L_DPAD       : 1;
-		unsigned D_DPAD       : 1;
-		unsigned U_DPAD       : 1;
-		unsigned START_BUTTON : 1;
-		unsigned Z_TRIG       : 1;
-		unsigned B_BUTTON     : 1;
-		unsigned A_BUTTON     : 1;
-
-		unsigned R_CBUTTON    : 1;
-		unsigned L_CBUTTON    : 1;
-		unsigned D_CBUTTON    : 1;
-		unsigned U_CBUTTON    : 1;
-		unsigned R_TRIG       : 1;
-		unsigned L_TRIG       : 1;
-		unsigned Reserved1    : 1;
-		unsigned Reserved2    : 1;
-
-		signed   Y_AXIS       : 8;
-
-		signed   X_AXIS       : 8;
-	};
-} BUTTONS;
-
-/*** Conteroller plugin's ****/
-#define PLUGIN_NONE					1
-#define PLUGIN_MEMPAK				2
-#define PLUGIN_RUMBLE_PAK			3 
-#define PLUGIN_TANSFER_PAK			4 // not implemeted for non raw data
-#define PLUGIN_RAW					5 // the controller plugin is passed in raw data
 
 /******** All DLLs have this function **************/
 extern void (__cdecl *GetDllInfo)             ( PLUGIN_INFO * PluginInfo );
@@ -313,59 +178,8 @@ extern void (__cdecl *InitiateRSP_1_0)    ( RSP_INFO_1_0 Rsp_Info, DWORD * Cycle
 extern void (__cdecl *InitiateRSP_1_1)    ( RSP_INFO_1_1 Rsp_Info, DWORD * Cycles);
 extern void (__cdecl *InitiateRSPDebugger)( DEBUG_INFO DebugInfo);
 
-/********** GFX DLL: Functions *********************/
-extern void (__cdecl *CaptureScreen)      ( char * );
-extern void (__cdecl *ChangeWindow)       ( void );
-extern void (__cdecl *GetGfxDebugInfo)    ( GFXDEBUG_INFO * GFXDebugInfo );
-extern void (__cdecl *GFXCloseDLL)        ( void );
-extern void (__cdecl *GFXDllAbout)        ( HWND hParent );
-extern void (__cdecl *GFXDllConfig)       ( HWND hParent );
-extern void (__cdecl *GfxRomClosed)       ( void );
-extern void (__cdecl *GfxRomOpen)         ( void );
-extern void (__cdecl *DrawScreen)         ( void );
-extern void (__cdecl *FrameBufferRead)    ( DWORD addr );
-extern void (__cdecl *FrameBufferWrite)   ( DWORD addr, DWORD Bytes );
-extern BOOL (__cdecl *InitiateGFX)        ( GFX_INFO Gfx_Info );
-extern void (__cdecl *InitiateGFXDebugger)( DEBUG_INFO DebugInfo);
-extern void (__cdecl *MoveScreen)         ( int xpos, int ypos );
-extern void (__cdecl *ProcessDList)       ( void );
-extern void (__cdecl *ProcessRDPList)     ( void );
-extern void (__cdecl *ShowCFB)			   ( void );
-extern void (__cdecl *UpdateScreen)       ( void );
-extern void (__cdecl *ViStatusChanged)    ( void );
-extern void (__cdecl *ViWidthChanged)     ( void );
-
-/************ Audio DLL: Functions *****************/
-extern void (__cdecl *AiCloseDLL)       ( void );
-extern void (__cdecl *AiDacrateChanged) ( int SystemType );
-extern void (__cdecl *AiLenChanged)     ( void );
-extern void (__cdecl *AiDllAbout)       ( HWND hParent );
-extern void (__cdecl *AiDllConfig)      ( HWND hParent );
-extern void (__cdecl *AiDllTest)        ( HWND hParent );
-extern DWORD (__cdecl *AiReadLength)    ( void );
-extern void (__cdecl *AiRomClosed)      ( void );
-extern void (__cdecl *AiUpdate)         ( BOOL Wait );
-extern BOOL (__cdecl *InitiateAudio)    ( AUDIO_INFO Audio_Info );
-extern void (__cdecl *ProcessAList)     ( void );
-
-/********** Controller DLL: Functions **************/
-extern void (__cdecl *ContCloseDLL)     ( void );
-extern void (__cdecl *ControllerCommand)( int Control, BYTE * Command );
-extern void (__cdecl *ContDllAbout)     ( HWND hParent );
-extern void (__cdecl *ContConfig)       ( HWND hParent );
-extern void (__cdecl *InitiateControllers_1_0)( HWND hMainWindow, CONTROL Controls[4] );
-extern void (__cdecl *InitiateControllers_1_1)( CONTROL_INFO ControlInfo );
-extern void (__cdecl *GetKeys)          ( int Control, BUTTONS * Keys );
-extern void (__cdecl *ReadController)   ( int Control, BYTE * Command );
-extern void (__cdecl *ContRomOpen)      ( void );
-extern void (__cdecl *ContRomClosed)    ( void );
-extern void (__cdecl *WM_KeyDown)       ( WPARAM wParam, LPARAM lParam );
-extern void (__cdecl *WM_KeyUp)         ( WPARAM wParam, LPARAM lParam );
-extern void (__cdecl *RumbleCommand)	 ( int Control, BOOL bRumble );
 
 /********** Plugin: Functions *********************/
-void GetPluginDir        ( char * Directory );
-void GetSnapShotDir      ( char * Directory );
 void PluginConfiguration ( HWND hWnd );
 void SetupPlugins        ( HWND hWnd );
 void SetupPluginScreen   ( HWND hDlg );
@@ -373,10 +187,10 @@ void ShutdownPlugins     ( void );
 
 /********** External Global Variables ***************/
 #define MaxDlls	100
-extern char RspDLL[100], GfxDLL[100], AudioDLL[100],ControllerDLL[100], * PluginNames[MaxDlls];
+extern char RspDLL[100], * PluginNames[MaxDlls];
 extern DWORD PluginCount, RspTaskValue, AudioIntrReg;
-extern GFXDEBUG_INFO GFXDebug;
 extern RSPDEBUG_INFO RspDebug;
-extern CONTROL Controllers[4];
 extern WORD RSPVersion;
 extern BOOL PluginsInitilized;
+
+#endif// _PLUGIN_H_

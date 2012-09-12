@@ -23,6 +23,9 @@
  * should be forwarded to them so if they want them.
  *
  */
+#ifndef _ROM_H_
+#define _ROM_H_
+
 extern DWORD RomFileSize, RomRamSize, RomSaveUsing, RomCPUType, RomSelfMod, 
 	RomUseTlb, RomUseLinking, RomCF, RomUseLargeBuffer, RomUseCache,
 	RomDelaySI, RomSPHack, RomAudioSignal;
@@ -49,3 +52,5 @@ void SaveRecentFiles         ( void );
 void SaveRomOptions          ( void );
 void SetRecentRomDir         ( DWORD Index );
 void SetRomDirectory         ( char * Directory );
+
+#endif

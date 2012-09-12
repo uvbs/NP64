@@ -23,6 +23,9 @@
  * should be forwarded to them so if they want them.
  *
  */
+#ifndef _X86_H_
+#define _X86_H_
+
 enum x86RegValues {
 	x86_Any	= 0,x86_EAX,x86_EBX,x86_ECX,x86_EDX,x86_ESI,x86_EDI,x86_EBP, x86_ESP, x86_Any8Bit
 };
@@ -265,3 +268,4 @@ void fpuSubQwordReverse              ( void *Variable, char *VariableName );
 void fpuSubReg				         ( int x86reg );
 void fpuSubRegPop			         ( int x86reg );
 
+#endif

@@ -151,8 +151,7 @@ void PifRamRead (void)
 					{
 						if (Controllers[Channel].Present && Controllers[Channel].RawData) 
 						{
-							if (ReadController) 
-								ReadController(Channel,&PIF_Ram[CurPos]);
+							ReadController(Channel,&PIF_Ram[CurPos]);
 						} 
 						else 
 						{
@@ -173,8 +172,7 @@ void PifRamRead (void)
 		CurPos++;
 	};
 
-	if (ReadController)
-		ReadController(-1,NULL);
+	ReadController(-1,NULL);
 }
 
 void PifRamWrite (void)
@@ -271,8 +269,7 @@ void PifRamWrite (void)
 		CurPos++;
 	}
 	PIF_Ram[0x3F] = 0;
-	if (ControllerCommand) 
-		ControllerCommand(-1,NULL);
+	ControllerCommand(-1,NULL);
 }
 
 void ProcessControllerCommand ( int Control, BYTE * Command) 
@@ -335,8 +332,7 @@ void ProcessControllerCommand ( int Control, BYTE * Command)
 					ReadFromMempak(Control, address, &Command[5]); 
 					break;
 				case PLUGIN_RAW: 
-					if (ControllerCommand)
-						ControllerCommand(Control, Command);
+					ControllerCommand(Control, Command);
 					break;
 				default:
 					memset(&Command[5], 0, 0x20);
@@ -368,12 +364,10 @@ void ProcessControllerCommand ( int Control, BYTE * Command)
 					WriteToMempak(Control, address, &Command[5]); 
 					break;
 				case PLUGIN_RAW: 
-					if (ControllerCommand) 
-						ControllerCommand(Control, Command);
+					ControllerCommand(Control, Command);
 					break;
 				case PLUGIN_RUMBLE_PAK: 
-					if (RumbleCommand != NULL)
-						RumbleCommand(Control, *(BOOL *)(&Command[5]));
+					RumbleCommand(Control, *(BOOL *)(&Command[5]));
 					break;
 				default:
 					Command[0x25] = Mempacks_CalulateCrc(&Command[5]);
@@ -402,7 +396,7 @@ void ReadControllerCommand (int Control, BYTE * Command)
 			{
 				if (Command[0] != 1 || Command[1] != 4) 
 					DebugError("What am I meant to do with this Controller Command");
-				if (GetKeys) 
+				if (GetKeys) //Check me
 				{
 					BUTTONS Keys;
 				
@@ -418,7 +412,7 @@ void ReadControllerCommand (int Control, BYTE * Command)
 
 		case 0x02: //read from controller pack
 		case 0x03: //write controller pak
-			if (Controllers[Control].Present && Controllers[Control].Plugin == PLUGIN_RAW && ControllerCommand) 
+			if (Controllers[Control].Present && Controllers[Control].Plugin == PLUGIN_RAW) 
 				ReadController(Control, Command);
 			break;
 	}

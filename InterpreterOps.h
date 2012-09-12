@@ -23,6 +23,9 @@
  * should be forwarded to them so if they want them.
  *
  */
+#ifndef _INTERPRETERCOPS_H_
+#define _INTERPRETERCOPS_H_
+
 /************************* OpCode functions *************************/
 void _fastcall r4300i_J              ( void );
 void _fastcall r4300i_JAL            ( void );
@@ -208,3 +211,5 @@ void _fastcall  R4300i_UnknownOpcode ( void );
 extern DWORD SWL_MASK[4], SWR_MASK[4], LWL_MASK[4], LWR_MASK[4];
 extern int SWL_SHIFT[4], SWR_SHIFT[4], LWL_SHIFT[4], LWR_SHIFT[4];
 extern int RoundingModel;
+
+#endif

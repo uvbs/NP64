@@ -23,6 +23,9 @@
  * should be forwarded to them so if they want them.
  *
  */
+#ifndef _CHEATS_H_
+#define _CHEATS_H_
+
 #define MaxGSEntries	100
 
 typedef struct {
@@ -48,3 +51,5 @@ LRESULT CALLBACK Cheat_Proc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 // *** Add in Build 53
 extern HWND hManageWindow;
+
+#endif

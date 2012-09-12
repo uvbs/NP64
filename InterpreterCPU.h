@@ -23,9 +23,14 @@
  * should be forwarded to them so if they want them.
  *
  */
+#ifndef _INTERPRETERCPU_H_
+#define _INTERPRETERCPU_H_
+
 void BuildInterpreter         ( void );
 void ExecuteInterpreterOpCode ( void );
 void StartInterpreterCPU      ( void );
 void TestInterpreterJump      ( DWORD PC, DWORD TargetPC, int Reg1, int Reg2 );
 
 extern void * R4300i_Opcode[64];
+
+#endif //_INTERPRETERCPU_H_

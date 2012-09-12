@@ -23,7 +23,12 @@
  * should be forwarded to them so if they want them.
  *
  */
+#ifndef _EEPROM_H_
+#define _EEPROM_H_
+
 void CloseEeprom    ( void );
 void EepromCommand  ( BYTE * Command );
 void ReadFromEeprom ( BYTE * Buffer, int line);
 void WriteToEeprom  ( BYTE * Buffer, int line);
+
+#endif //_EEPROM_H_

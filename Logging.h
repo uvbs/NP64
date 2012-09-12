@@ -23,6 +23,9 @@
  * should be forwarded to them so if they want them.
  *
  */
+#ifndef _LOGGING_H_
+#define _LOGGING_H_
+
 typedef struct {
 	BOOL		GenerateLog;
 
@@ -66,3 +69,5 @@ void __cdecl LogMessage      ( char * Message, ... );
 void Log_SW          ( DWORD PC, DWORD VAddr, DWORD Value );
 void StartLog        ( void );
 void StopLog         ( void );
+
+#endif

@@ -23,6 +23,9 @@
  * should be forwarded to them so if they want them.
  *
  */
+#ifndef _REGISTERS_H_
+#define _REGISTERS_H_
+
 #define INDEX_REGISTER			CP0[0]
 #define RANDOM_REGISTER			CP0[1]
 #define ENTRYLO0_REGISTER		CP0[2]
@@ -392,3 +395,5 @@ BOOL UnMap_X86reg             ( BLOCK_SECTION * Section, DWORD x86Reg );
 void UnProtectGPR             ( BLOCK_SECTION * Section, DWORD Reg );
 void UpdateCurrentHalfLine    ( void );
 void WriteBackRegisters       ( BLOCK_SECTION * Section );
+
+#endif

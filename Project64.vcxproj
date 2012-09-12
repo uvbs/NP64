@@ -27,7 +27,7 @@
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v100</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release External|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -220,6 +220,9 @@
     <ClCompile Include="ioapi.c" />
     <ClCompile Include="Logging.cpp" />
     <ClCompile Include="mapping.cpp" />
+    <ClCompile Include="Plugin_Audio.cpp" />
+    <ClCompile Include="Plugin_Input.cpp" />
+    <ClCompile Include="Plugin_Video.cpp" />
     <ClCompile Include="r4300iCommands.cpp" />
     <ClCompile Include="r4300iMemory.cpp" />
     <ClCompile Include="r4300iRegisters.cpp" />
@@ -271,6 +274,9 @@
     <ClInclude Include="ioapi.h" />
     <ClInclude Include="Logging.h" />
     <ClInclude Include="Mapping.h" />
+    <ClInclude Include="Plugin_Audio.h" />
+    <ClInclude Include="Plugin_Input.h" />
+    <ClInclude Include="Plugin_Video.h" />
     <ClInclude Include="r4300iCommands.h" />
     <ClInclude Include="r4300iMemory.h" />
     <ClInclude Include="r4300iRegisters.h" />

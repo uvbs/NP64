@@ -23,6 +23,9 @@
  * should be forwarded to them so if they want them.
  *
  */
+#ifndef _DEBUGGER_H_
+#define _DEBUGGER_H_
+
 #ifndef EXTERNAL_RELEASE
 #include "Main.h"
 
@@ -38,3 +41,5 @@
 #include "R4300iCommands.h"
 #include "mapping.h"
 #include "CPULog.h"
+
+#endif

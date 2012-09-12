@@ -8,6 +8,9 @@
     <Filter Include="zipstuff">
       <UniqueIdentifier>{188bf492-5a10-460c-a8f6-2be14d00fb94}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Plugins">
+      <UniqueIdentifier>{5baf9e0b-72eb-44fb-b07e-b3d1ef848363}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="x86fpu.cpp" />
@@ -30,7 +33,6 @@
     <ClCompile Include="Mempak.cpp" />
     <ClCompile Include="MemTest.cpp" />
     <ClCompile Include="pif.cpp" />
-    <ClCompile Include="Plugin.cpp" />
     <ClCompile Include="Profiling.cpp" />
     <ClCompile Include="r4300iCommands.cpp" />
     <ClCompile Include="r4300iMemory.cpp" />
@@ -58,6 +60,18 @@
       <Filter>zipstuff</Filter>
     </ClCompile>
     <ClCompile Include="FileUtil.cpp" />
+    <ClCompile Include="Plugin.cpp">
+      <Filter>Plugins</Filter>
+    </ClCompile>
+    <ClCompile Include="Plugin_Audio.cpp">
+      <Filter>Plugins</Filter>
+    </ClCompile>
+    <ClCompile Include="Plugin_Video.cpp">
+      <Filter>Plugins</Filter>
+    </ClCompile>
+    <ClCompile Include="Plugin_Input.cpp">
+      <Filter>Plugins</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="unzip.h">
@@ -89,7 +103,6 @@
     <ClInclude Include="MemTest.h" />
     <ClInclude Include="OpCode.h" />
     <ClInclude Include="pif.h" />
-    <ClInclude Include="Plugin.h" />
     <ClInclude Include="Profiling.h" />
     <ClInclude Include="r4300iCommands.h" />
     <ClInclude Include="r4300iMemory.h" />
@@ -115,6 +128,18 @@
       <Filter>zipstuff</Filter>
     </ClInclude>
     <ClInclude Include="FileUtil.h" />
+    <ClInclude Include="Plugin.h">
+      <Filter>Plugins</Filter>
+    </ClInclude>
+    <ClInclude Include="Plugin_Audio.h">
+      <Filter>Plugins</Filter>
+    </ClInclude>
+    <ClInclude Include="Plugin_Video.h">
+      <Filter>Plugins</Filter>
+    </ClInclude>
+    <ClInclude Include="Plugin_Input.h">
+      <Filter>Plugins</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="PJ64.rc">

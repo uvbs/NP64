@@ -23,10 +23,13 @@
  * should be forwarded to them so if they want them.
  *
  */
+#ifndef _FLASHRAM_H_
+#define _FLASHRAM_H_
+
 void  DmaFromFlashram     ( BYTE * dest, int StartOffset, int len );
 void  DmaToFlashram       ( BYTE * Source, int StartOffset, int len );
 DWORD ReadFromFlashStatus ( DWORD PAddr );
 void  WriteToFlashCommand ( DWORD Value );
 
-
+#endif //_FLASHRAM_H_
 
