@@ -216,13 +216,11 @@ void SetupPlugins (HWND hWnd) {
 			DisplayError(GS(MSG_FAIL_INIT_AUDIO));
 			PluginsInitilized = FALSE;
 		}
-		if (AiUpdate) {  //Checkme
-			DWORD ThreadID;
-			hAudioThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)AudioThread, (LPVOID)NULL,0, &ThreadID);			
-		}
+		DWORD ThreadID;
+		hAudioThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)AudioThread, (LPVOID)NULL,0, &ThreadID);
 	}
 
-	if (!LoadRSPDll(RspDLL)) { 
+	if (!LoadRSPDll(RspDLL)) {  //Implement this into the actual project64 source code so its not outsource
 		DisplayError(GS(MSG_FAIL_INIT_RSP));
 		PluginsInitilized = FALSE;
 	} else { 
@@ -490,7 +488,7 @@ void ShutdownPlugins (void)
 	PluginsInitilized = FALSE;
 }
 
-BOOL ValidPluginVersion ( PLUGIN_INFO * PluginInfo ) {
+BOOL ValidPluginVersion ( PLUGIN_INFO * PluginInfo ) {//Remove this function?
 	switch (PluginInfo->Type) {
 	case PLUGIN_TYPE_RSP: 
 		if (PluginInfo->Version == 0x0001) { return TRUE; }

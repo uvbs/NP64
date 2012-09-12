@@ -70,6 +70,8 @@ void  AiUpdate			( BOOL Wait );
 BOOL InitiateAudio		( AUDIO_INFO Audio_Info );
 void ProcessAList		( void );
 
+extern void (__cdecl *_AiDllAbout) ( HWND hParent );
+
 //Other functions
 bool LoadAudioDll(char * AudioDll);
 void CloseAudioPlugin();

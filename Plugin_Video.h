@@ -92,6 +92,8 @@ void UpdateScreen( void );
 void ViStatusChanged( void );
 void ViWidthChanged( void );
 
+extern void (__cdecl *_GFXDllAbout)( HWND hParent );
+
 //Project64 Functions
 BOOL LoadGFXDll(char * RspDll);
 void CloseGfxPlugin();

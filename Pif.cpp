@@ -396,17 +396,10 @@ void ReadControllerCommand (int Control, BYTE * Command)
 			{
 				if (Command[0] != 1 || Command[1] != 4) 
 					DebugError("What am I meant to do with this Controller Command");
-				if (GetKeys) //Check me
-				{
-					BUTTONS Keys;
+				BUTTONS Keys;
 				
-					GetKeys(Control,&Keys);
-					*(DWORD *)&Command[3] = Keys.Value;
-				} 
-				else 
-				{
-					*(DWORD *)&Command[3] = 0;
-				}
+				GetKeys(Control,&Keys);
+				*(DWORD *)&Command[3] = Keys.Value;
 			}
 			break;
 

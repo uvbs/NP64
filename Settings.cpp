@@ -589,8 +589,8 @@ BOOL CALLBACK PluginSelectProc (HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
 				strcat(Plugin,PluginNames[index]);
 				hLib = LoadLibrary(Plugin);		
 				if (hLib == NULL) { DisplayError("%s %s",GS(MSG_FAIL_LOAD_PLUGIN),Plugin); }
-//				GFXDllAbout = (void (__cdecl *)(HWND))GetProcAddress( (HMODULE)hLib, "DllAbout" );
-				EnableWindow(GetDlgItem(hDlg,GFX_ABOUT),GFXDllAbout != NULL ? TRUE:FALSE);
+				_GFXDllAbout = (void (__cdecl *)(HWND))GetProcAddress( (HMODULE)hLib, "DllAbout" );
+				EnableWindow(GetDlgItem(hDlg,GFX_ABOUT), _GFXDllAbout != NULL ? TRUE:FALSE);
 			}
 			break;
 		case AUDIO_LIST:
@@ -603,8 +603,8 @@ BOOL CALLBACK PluginSelectProc (HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
 				strcat(Plugin,PluginNames[index]);
 				hLib = LoadLibrary(Plugin);		
 				if (hLib == NULL) { DisplayError("%s %s",GS(MSG_FAIL_LOAD_PLUGIN),Plugin); }
-			//	AiDllAbout = (void (__cdecl *)(HWND))GetProcAddress( (HMODULE)hLib, "DllAbout" );
-				EnableWindow(GetDlgItem(hDlg,GFX_ABOUT),GFXDllAbout != NULL ? TRUE:FALSE);
+				_AiDllAbout = (void (__cdecl *)(HWND))GetProcAddress( (HMODULE)hLib, "DllAbout" );
+				EnableWindow(GetDlgItem(hDlg,GFX_ABOUT), _AiDllAbout != NULL ? TRUE:FALSE);
 			}
 			break;
 		case CONT_LIST:
@@ -617,8 +617,8 @@ BOOL CALLBACK PluginSelectProc (HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
 				strcat(Plugin,PluginNames[index]);
 				hLib = LoadLibrary(Plugin);		
 				if (hLib == NULL) { DisplayError("%s %s",GS(MSG_FAIL_LOAD_PLUGIN),Plugin); }
-//				ContDllAbout = (void (__cdecl *)(HWND))GetProcAddress( (HMODULE)hLib, "DllAbout" );
-				EnableWindow(GetDlgItem(hDlg,CONT_ABOUT),ContDllAbout != NULL ? TRUE:FALSE);
+				_ContDllAbout = (void (__cdecl *)(HWND))GetProcAddress( (HMODULE)hLib, "DllAbout" );
+				EnableWindow(GetDlgItem(hDlg,CONT_ABOUT), _ContDllAbout != NULL  ? TRUE:FALSE);
 			}
 			break;
 #ifndef EXTERNAL_RELEASE

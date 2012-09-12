@@ -100,6 +100,8 @@ void WM_KeyDown       ( WPARAM wParam, LPARAM lParam );
 void WM_KeyUp         ( WPARAM wParam, LPARAM lParam );
 void RumbleCommand	 ( int Control, BOOL bRumble );
 
+extern void (__cdecl *_ContDllAbout)     ( HWND hParent );
+
 /***********************
 **Project 64 Functions**
 ************************/

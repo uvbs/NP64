@@ -49,7 +49,6 @@ void (__cdecl *_UpdateScreen)       ( void ) = NULL;
 void (__cdecl *_ViStatusChanged)    ( void ) = NULL;
 void (__cdecl *_ViWidthChanged)     ( void ) = NULL;
 
-
 BOOL LoadGFXDll(char * RspDll) {
 
 	if(hGfxDll != NULL)
@@ -127,6 +126,7 @@ void CloseGfxPlugin()
 	_ViStatusChanged = NULL;
 	_ViWidthChanged = NULL;
 }
+
 //****************
 // DLL FUNCTIONS
 //***************
